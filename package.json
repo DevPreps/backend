@@ -1,0 +1,72 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"scripts": {
+		"format": "npx prettier --write .",
+		"lint": "eslint --ext .js,.ts ./",
+		"build": "npx tsc",
+		"test": "jest --ci --reporters=default --coverage",
+		"ci": "npm run format && npm run lint && npm run build && npm run test",
+		"dev": "concurrently \"npx tsc --watch\" \"nodemon dist/index.js\"",
+		"start": "node dist/index.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"jest": {
+		"verbose": true,
+		"preset": "ts-jest/presets/js-with-ts-esm",
+		"testEnvironment": "node",
+		"extensionsToTreatAsEsm": [
+			".ts"
+		],
+		"globals": {
+			"ts-jest": {
+				"useESM": true
+			}
+		},
+		"moduleNameMapper": {
+			"^(\\.{1,2}/.*)\\.js$": "$1"
+		},
+		"setupFilesAfterEnv": [
+			"./__test__/mocks.ts"
+		],
+		"testPathIgnorePatterns": [
+			"/node_modules/",
+			"/dist/"
+		]
+	},
+	"prisma": {
+		"schema": "./models/schema.prisma"
+	},
+	"dependencies": {
+		"@quixo3/prisma-session-store": "^3.1.8",
+		"@types/uuid": "^8.3.4",
+		"dotenv": "^16.0.1",
+		"express": "^4.18.1",
+		"express-session": "^1.17.3",
+		"prisma": "^4.0.0",
+		"uuid": "^8.3.2"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.13",
+		"@types/express-session": "^1.17.5",
+		"@types/jest": "^28.1.4",
+		"@types/node": "^18.0.3",
+		"@typescript-eslint/eslint-plugin": "^5.30.6",
+		"@typescript-eslint/parser": "^5.30.6",
+		"concurrently": "^7.2.2",
+		"eslint": "^8.19.0",
+		"eslint-config-prettier": "^8.5.0",
+		"jest": "^28.1.2",
+		"prettier": "2.7.1",
+		"ts-jest": "^28.0.5",
+		"ts-node": "^10.8.2",
+		"typescript": "^4.7.4"
+	},
+	"peerDependencies": {
+		"eslint": ">=0.8.0"
+	}
+}
