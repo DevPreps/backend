@@ -13,8 +13,8 @@
 		"start": "node dist/index.js"
 	},
 	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"contributors": ["Jacob Turner", "Brandon Kane", "Lisa Li", "Daisy Yang", "Terry Lam", "Christovao Galambos", "Claire Seo"],
+	"license": "MIT",
 	"jest": {
 		"verbose": true,
 		"preset": "ts-jest/presets/js-with-ts-esm",
