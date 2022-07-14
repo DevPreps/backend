@@ -13,7 +13,15 @@
 		"start": "node dist/index.js"
 	},
 	"keywords": [],
-	"contributors": ["Jacob Turner", "Brandon Kane", "Lisa Li", "Daisy Yang", "Terry Lam", "Christovao Galambos", "Claire Seo"],
+	"contributors": [
+		"Jacob Turner",
+		"Brandon Kane",
+		"Lisa Li",
+		"Daisy Yang",
+		"Terry Lam",
+		"Christovao Galambos",
+		"Claire Seo"
+	],
 	"license": "MIT",
 	"jest": {
 		"verbose": true,
@@ -43,7 +51,6 @@
 	},
 	"dependencies": {
 		"@quixo3/prisma-session-store": "^3.1.8",
-		"@types/uuid": "^8.3.4",
 		"dotenv": "^16.0.1",
 		"express": "^4.18.1",
 		"express-session": "^1.17.3",
@@ -55,6 +62,7 @@
 		"@types/express-session": "^1.17.5",
 		"@types/jest": "^28.1.4",
 		"@types/node": "^18.0.3",
+		"@types/uuid": "^8.3.4",
 		"@typescript-eslint/eslint-plugin": "^5.30.6",
 		"@typescript-eslint/parser": "^5.30.6",
 		"concurrently": "^7.2.2",
@@ -63,7 +71,6 @@
 		"jest": "^28.1.2",
 		"prettier": "2.7.1",
 		"ts-jest": "^28.0.5",
-		"ts-node": "^10.8.2",
 		"typescript": "^4.7.4"
 	},
 	"peerDependencies": {

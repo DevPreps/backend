@@ -5,10 +5,10 @@ import { URL } from "url";
 import { v4 } from "uuid";
 
 const generateDatabaseURL = (schema: string) => {
-	if (!process.env.DATABASE_URL) {
+	if (!process.env.DB_TEST_URL) {
 		throw new Error("please provide a database url");
 	}
-	const url = new URL(process.env.DATABASE_URL);
+	const url = new URL(process.env.DB_TEST_URL);
 	url.searchParams.append("schema", schema);
 	return url.toString();
 };
@@ -24,7 +24,7 @@ const prismaBinary = join(
 );
 
 const url = generateDatabaseURL(schemaId);
-process.env.DATABASE_URL = url;
+process.env.DB_TEST_URL = url;
 export const prisma = new PrismaClient({
 	datasources: { db: { url } },
 });
@@ -33,7 +33,7 @@ beforeEach(() => {
 	execSync(`${prismaBinary} db push`, {
 		env: {
 			...process.env,
-			DATABASE_URL: generateDatabaseURL(schemaId),
+			DB_TEST_URL: generateDatabaseURL(schemaId),
 		},
 	});
 });
