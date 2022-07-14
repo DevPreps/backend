@@ -88,5 +88,6 @@ jobs:
         uses: npm ci
 
       - name: "run automated tests"
+        uses: npm test
         env:
           DB_TEST_URL: "postgres://postgres:postgres@localhost:5432/test"
