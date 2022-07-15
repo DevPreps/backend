@@ -16,7 +16,7 @@ on:
 jobs:
   format:
     name: Format codebase
-    runs-on: ububtu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: "checkout repository"
         uses: actions/checkout@v3
