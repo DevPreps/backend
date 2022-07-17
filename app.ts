@@ -1,6 +1,5 @@
 import express, { Express } from "express";
 import session from "express-session";
-import { PrismaClient } from "@prisma/client";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
 
@@ -26,11 +25,11 @@ const app = (store: PrismaSessionStore): Express => {
 
 	// Route handlers
 
-    // This is a test route that will be removed in the future
-    // It is here to test that the testing pipeline works
-    server.get("/", (req, res) => {
-        res.status(200).send("Hello World!");
-    });
+	// This is a test route that will be removed in the future
+	// It is here to test that the testing pipeline works
+	server.get("/", (req, res) => {
+		res.status(200).send("Hello World!");
+	});
 
 	return server;
 };
