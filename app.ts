@@ -1,13 +1,12 @@
 import express, { Express } from "express";
 import session from "express-session";
+import { PrismaClient } from "@prisma/client";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
-// import { PrismaClient } from '@prisma/client';
-import { db } from "./index.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const app = (): Express => {
+const app = (store: PrismaSessionStore): Express => {
 	const server: Express = express();
 
 	// Middleware
@@ -19,16 +18,19 @@ const app = (): Express => {
 			secret: process.env.SESSION_SECRET || "",
 			resave: true,
 			saveUninitialized: true,
-			store: new PrismaSessionStore(db, {
-				checkPeriod: 10 * 60 * 1000, // 1 hour in milliseconds
-				dbRecordIdIsSessionId: true,
-			}),
+			store: store,
 		})
 	);
 	server.use(express.json());
 	server.use(express.urlencoded({ extended: true }));
 
 	// Route handlers
+
+    // This is a test route that will be removed in the future
+    // It is here to test that the testing pipeline works
+    server.get("/", (req, res) => {
+        res.status(200).send("Hello World!");
+    });
 
 	return server;
 };

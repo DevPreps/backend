@@ -2,14 +2,13 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"description": "",
-	"type": "module",
 	"scripts": {
 		"format": "npx prettier --write .",
 		"lint": "eslint --ext .js,.ts ./",
 		"build": "npx tsc",
-		"test": "jest --ci --reporters=default --coverage",
+		"test": "jest --reporters=default --coverage --detectOpenHandles",
 		"ci": "npm run format && npm run lint && npm run build && npm run test",
-		"dev": "concurrently \"npx tsc --watch\" \"nodemon dist/index.js\"",
+		"dev": "concurrently \"npx tsc -p tsconfig.build.json --watch\" \"nodemon dist/index.js\"",
 		"start": "node dist/index.js"
 	},
 	"keywords": [],
@@ -18,34 +17,10 @@
 		"Brandon Kane",
 		"Lisa Li",
 		"Daisy Yang",
-		"Terry Lam",
 		"Christovao Galambos",
 		"Claire Seo"
 	],
 	"license": "MIT",
-	"jest": {
-		"verbose": true,
-		"preset": "ts-jest/presets/js-with-ts-esm",
-		"testEnvironment": "node",
-		"extensionsToTreatAsEsm": [
-			".ts"
-		],
-		"globals": {
-			"ts-jest": {
-				"useESM": true
-			}
-		},
-		"moduleNameMapper": {
-			"^(\\.{1,2}/.*)\\.js$": "$1"
-		},
-		"setupFilesAfterEnv": [
-			"./__test__/mocks.ts"
-		],
-		"testPathIgnorePatterns": [
-			"/node_modules/",
-			"/dist/"
-		]
-	},
 	"prisma": {
 		"schema": "./models/schema.prisma"
 	},
@@ -62,6 +37,7 @@
 		"@types/express-session": "^1.17.5",
 		"@types/jest": "^28.1.4",
 		"@types/node": "^18.0.3",
+		"@types/supertest": "^2.0.12",
 		"@types/uuid": "^8.3.4",
 		"@typescript-eslint/eslint-plugin": "^5.30.6",
 		"@typescript-eslint/parser": "^5.30.6",
@@ -70,6 +46,7 @@
 		"eslint-config-prettier": "^8.5.0",
 		"jest": "^28.1.2",
 		"prettier": "2.7.1",
+		"supertest": "^6.2.4",
 		"ts-jest": "^28.0.5",
 		"typescript": "^4.7.4"
 	},
