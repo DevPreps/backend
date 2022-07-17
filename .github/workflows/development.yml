@@ -90,4 +90,4 @@ jobs:
       - name: "run automated tests"
         run: npm test
         env:
-          DB_TEST_URL: "postgres://postgres:postgres@localhost:5432/test"
+          DB_URL: "postgres://root:postgres@localhost:5432/test"
