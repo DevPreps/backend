@@ -25,7 +25,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	// Manual shutdown of the test application session store and server.
+	// Manual shutdown of the test application session store.
 	// The DB connection is closed manually in the prisma mock file.
 	store.shutdown();
 });
