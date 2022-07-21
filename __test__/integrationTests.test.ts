@@ -21,7 +21,7 @@ beforeEach(() => {
 		dbRecordIdIsSessionId: true,
 	});
 	expressInstance = app(store);
-	request = supertest(expressInstance);
+	request = supertest(process.env.TEST_APP_URL || expressInstance);
 });
 
 afterEach(() => {
@@ -30,10 +30,13 @@ afterEach(() => {
 	store.shutdown();
 });
 
-describe("Route: '/'", () => {
-	test("GET should respond with text: 'Hello World!'", async () => {
-		const response = await request.get("/");
-		expect(response.text).toBe("Hello World!");
-		expect(response.status).toBe(200);
-	});
+describe("Integration tests for AUTH routes:", () => {
+    describe("/auth/login", () => {
+
+        test("POST with valid credentials should respond with 200 OK and session cookie", async () => {
+            const response = await request.post("/api/auth/login")
+            console.log(response)
+            expect(response.status).toBe(200);
+        });
+    })
 });

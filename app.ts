@@ -3,6 +3,9 @@ import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
 
+// Import routes
+import authRoutes from "./routes/authRoutes";
+
 dotenv.config();
 
 const app = (store: PrismaSessionStore): Express => {
@@ -24,12 +27,7 @@ const app = (store: PrismaSessionStore): Express => {
 	server.use(express.urlencoded({ extended: true }));
 
 	// Route handlers
-
-	// This is a test route that will be removed in the future
-	// It is here to test that the testing pipeline works
-	server.get("/", (req, res) => {
-		res.status(200).send("Hello World!");
-	});
+    server.use("/api/auth", authRoutes);
 
 	return server;
 };
