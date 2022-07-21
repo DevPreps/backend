@@ -1,0 +1,94 @@
+name: Development
+
+on:
+  push:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+    branches:
+      - main
+      - staging
+      - development
+
+jobs:
+  format:
+    name: Format codebase
+    runs-on: ubuntu-latest
+    steps:
+      - name: "checkout repository"
+        uses: actions/checkout@v3
+
+      - name: "setup node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: "install npm@latest"
+        run: npm i -g npm@latest
+
+      - name: "install dependencies"
+        uses: bahmutov/npm-install@v1
+
+      - name: "run prettier formatter"
+        run: npm run format
+
+  lint:
+    name: Check code syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: "checkout repository"
+        uses: actions/checkout@v3
+
+      - name: "setup node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: "install npm@latest"
+        run: npm i -g npm@latest
+
+      - name: "install dependencies"
+        uses: bahmutov/npm-install@v1
+
+      - name: "run eslint syntax checks"
+        run: npm run lint
+
+  test:
+    name: Test application codebase
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: "checkout repository"
+        uses: actions/checkout@v3
+
+      - name: "setup node"
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: "install dependencies"
+        run: npm ci
+
+      - name: "run automated tests"
+        run: npm test
+        env:
+          DB_URL: "postgres://root:postgres@localhost:5432/test"
+          SESSION_SECRET: "8769sd9uifhisuhIUFGSDIU98dsy9fciuh"
