@@ -30,10 +30,10 @@ model User {
     imageUrl  String
     linkedIn  String
     github    String
-    twiter    String
+    twitter    String
     Post      Post?
     SavedPost SavedPost?
-    comment   comment?
+    comment   Comment?
 }
 
 model Post {
