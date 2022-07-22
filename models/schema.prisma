@@ -14,3 +14,120 @@ model Session {
     data        String
     expiresAt   DateTime
 }
+
+model User {
+    id        String     @id @default(uuid())
+    firstName String
+    lastName  String
+    userName  String     @unique
+    email     String     @unique
+    password  String
+    role      Role       @default(USER)
+    isActive  Boolean
+    jobTitle  String
+    position  String
+    city      String
+    imageUrl  String
+    linkedIn  String
+    github    String
+    twiter    String
+    Post      Post?
+    SavedPost SavedPost?
+    comment   comment?
+}
+
+model Post {
+    id          String     @id @default(uuid())
+    user        User       @relation(fields: [userId], references: [id])
+    userId      String     @unique
+    companyName String
+    city        String
+    jobTitle    String
+    position    String
+    jobAdUrl    String
+    createdDate DateTime   @default(now())
+    updatedDate DateTime   @updatedAt
+    description String
+    status      Status     @default(DRAFT)
+    category    Category
+    TagToPost   TagToPost?
+    SavedPost   SavedPost?
+    comment     comment?
+}
+
+model TagToPost {
+    id     String @id @default(uuid())
+    post   Post   @relation(fields: [postId], references: [id])
+    postId String @unique
+    tag    Tag    @relation(fields: [tagId], references: [id])
+    tagId  String @unique
+}
+
+model SavedPost {
+    id     String @id @default(uuid())
+    user   User   @relation(fields: [userId], references: [id])
+    userId String @unique
+    post   Post   @relation(fields: [postId], references: [id])
+    postId String @unique
+}
+
+model Tag {
+    id        String     @id @default(uuid())
+    name      String
+    TagToPost TagToPost?
+}
+
+model Comment {
+    id          String      @id @default(uuid())
+    user        User        @relation(fields: [userId], references: [id])
+    userId      String      @unique
+    post        Post        @relation(fields: [postId], references: [id])
+    postId      String      @unique
+    type        CommentType
+    content     String
+    createdDate DateTime    @default(now())
+}
+
+model Report {
+    id        String      @id @default(uuid())
+    user      User        @relation(fields: [userId], references: [id])
+    userId    String      @unique
+    post      Post        @relation(fields: [postId], references: [id])
+    postId    String      @unique
+    type      CommentType
+    comment   Comment     @relation(fields: [commentId], references: [id])
+    commentId String      @unique
+}
+
+model Log {
+    id        String   @id @default(uuid())
+    ip        String
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String   @unique
+    role      Role
+    timestamp DateTime @default(now())
+    method    String
+    url       String
+}
+
+enum CommentType {
+    TYPE_COMENT
+    TYPE_POST
+}
+
+enum Category {
+    LEARN
+    INTERVIEW
+    PROJECT
+    GENERAL
+}
+
+enum Status {
+    PUBLISHED
+    DRAFT
+}
+
+enum Role {
+    USER
+    ADMIN
+}
