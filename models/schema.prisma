@@ -1,7 +1,6 @@
-
 datasource db {
     provider = "postgresql"
-    url = env("DB_URL")
+    url      = env("DB_URL")
 }
 
 generator client {
@@ -9,8 +8,157 @@ generator client {
 }
 
 model Session {
-    id          String  @id
-    sid         String  @unique
-    data        String
-    expiresAt   DateTime
+    id        String   @id
+    sid       String   @unique
+    data      String
+    expiresAt DateTime
+}
+
+model User {
+    id         String            @id @default(uuid())
+    firstName  String
+    lastName   String
+    userName   String            @unique
+    email      String            @unique
+    password   String
+    role       Role              @default(USER)
+    isActive   Boolean
+    jobTitle   String
+    position   Positon           @relation(fields: [positionId], references: [id])
+    positionId String
+    city       String
+    imageUrl   String
+    linkedIn   String
+    github     String
+    post       Posts[]
+    savedPost  SavedPosts[]
+    comment    Comments[]
+    logEntries Log[]
+    likes      Likes[]
+    reporter   ReportedContent[] @relation("reporter")
+    moderator  ReportedContent[] @relation("moderator")
+}
+
+model Posts {
+    id              String            @id @default(uuid())
+    user            User              @relation(fields: [userId], references: [id])
+    userId          String
+    companyName     String
+    city            String
+    jobTitle        String
+    position        String
+    jobAdUrl        String
+    createdDate     DateTime          @default(now())
+    updatedDate     DateTime          @updatedAt
+    description     String
+    status          Status            @default(DRAFT)
+    category        Category
+    postTags        PostTag[]
+    SavedBy         SavedPosts[]
+    targetPost      Comments[]        @relation("targetPost")
+    targetComment   Comments[]        @relation("targetComment")
+    likes           Likes[]
+    reportedContent ReportedContent[]
+}
+
+model PostTag {
+    id     String @id @default(uuid())
+    post   Posts  @relation(fields: [postId], references: [id])
+    postId String
+    tag    Tag    @relation(fields: [tagId], references: [id])
+    tagId  String
+}
+
+model SavedPosts {
+    id     String @id @default(uuid())
+    user   User   @relation(fields: [userId], references: [id])
+    userId String
+    post   Posts  @relation(fields: [postId], references: [id])
+    postId String
+}
+
+model Likes {
+    id          String @id @default(uuid())
+    likedUser   User   @relation(fields: [likedUserId], references: [id])
+    likedUserId String
+    likedPost   Posts  @relation(fields: [likedPostId], references: [id])
+    likedPostId String
+}
+
+model Tag {
+    id      String    @id @default(uuid())
+    name    String
+    postTag PostTag[]
+}
+
+model Comments {
+    id              String            @id @default(uuid())
+    user            User              @relation(fields: [userId], references: [id])
+    userId          String
+    targetPost      Posts?            @relation("targetPost", fields: [targetPostId], references: [id])
+    targetPostId    String?
+    targetComment   Posts?            @relation("targetComment", fields: [targetCommentId], references: [id])
+    targetCommentId String?
+    type            CommentType
+    content         String
+    createdDate     DateTime          @default(now())
+    updatedDate     DateTime          @updatedAt
+    reportedContent ReportedContent[]
+}
+
+model ReportedContent {
+    id                String      @id @default(uuid())
+    reporter          User        @relation("reporter", fields: [reporterId], references: [id])
+    reporterId        String
+    reportedPost      Posts?      @relation(fields: [repostedPostId], references: [id])
+    repostedPostId    String?
+    type              CommentType
+    reportedComment   Comments?   @relation(fields: [reportedCommentId], references: [id])
+    reportedCommentId String?
+    createdDate       DateTime    @default(now())
+    updatedDate       DateTime    @updatedAt
+    notes             String?
+    isResolved        Boolean     @default(false)
+    moderator         User?       @relation("moderator", fields: [moderatorId], references: [id])
+    moderatorId       String?
+    moderatorComment  String?
+}
+
+model Log {
+    id        String   @id @default(uuid())
+    ip        String
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    role      Role
+    timestamp DateTime @default(now())
+    method    String
+    url       String
+}
+
+model Positon {
+    id            String @id @default(uuid())
+    positionTitle String
+    User          User[]
+}
+
+enum CommentType {
+    TYPE_COMMENT
+    TYPE_POST
+}
+
+enum Category {
+    LEARN
+    INTERVIEW
+    PROJECT
+    GENERAL
+}
+
+enum Status {
+    PUBLISHED
+    DRAFT
+}
+
+enum Role {
+    USER
+    ADMIN
 }
