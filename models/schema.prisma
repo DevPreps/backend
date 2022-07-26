@@ -33,7 +33,7 @@ model User {
     post       Posts[]
     savedPost  SavedPosts[]
     comment    Comments[]
-    loginInfo  LoginHistory[]
+    logEntries Log[]
     likes      Likes[]
     reporter   ReportedContent[] @relation("reporter")
     moderator  ReportedContent[] @relation("moderator")
@@ -119,12 +119,12 @@ model ReportedContent {
     updatedDate       DateTime    @updatedAt
     notes             String?
     isResolved        Boolean     @default(false)
-    moderator         User        @relation("moderator", fields: [moderatorId], references: [id])
-    moderatorId       String
+    moderator         User?       @relation("moderator", fields: [moderatorId], references: [id])
+    moderatorId       String?
     moderatorComment  String?
 }
 
-model LoginHistory {
+model Log {
     id        String   @id @default(uuid())
     ip        String
     user      User     @relation(fields: [userId], references: [id])
@@ -142,7 +142,7 @@ model Positon {
 }
 
 enum CommentType {
-    TYPE_COMENT
+    TYPE_COMMENT
     TYPE_POST
 }
 
