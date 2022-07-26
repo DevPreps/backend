@@ -1,7 +1,6 @@
-
 datasource db {
     provider = "postgresql"
-    url = env("DB_URL")
+    url      = env("DB_URL")
 }
 
 generator client {
@@ -9,71 +8,72 @@ generator client {
 }
 
 model Session {
-    id          String  @id
-    sid         String  @unique
-    data        String
-    expiresAt   DateTime
+    id        String   @id
+    sid       String   @unique
+    data      String
+    expiresAt DateTime
 }
 
 model User {
-    id              String            @id @default(uuid())
-    firstName       String
-    lastName        String
-    userName        String            @unique
-    email           String            @unique
-    password        String
-    role            Role              @default(USER)
-    isActive        Boolean
-    jobTitle        String
-    position        Positon           @relation(fields: [positionId], references: [id])
-    positionId      String
-    city            String
-    imageUrl        String
-    linkedIn        String
-    github          String
-    post            Post[]
-    savedPost       SavedPost[]
-    comment         Comment[]
-    reportedContent ReportedContent[]
-    log             Log[]
-    likes           Likes[]
+    id         String            @id @default(uuid())
+    firstName  String
+    lastName   String
+    userName   String            @unique
+    email      String            @unique
+    password   String
+    role       Role              @default(USER)
+    isActive   Boolean
+    jobTitle   String
+    position   Positon           @relation(fields: [positionId], references: [id])
+    positionId String
+    city       String
+    imageUrl   String
+    linkedIn   String
+    github     String
+    post       Posts[]
+    savedPost  SavedPosts[]
+    comment    Comments[]
+    loginInfo  LoginHistory[]
+    likes      Likes[]
+    reporter   ReportedContent[] @relation("reporter")
+    moderator  ReportedContent[] @relation("moderator")
 }
 
-model Post {
-    id            String            @id @default(uuid())
-    user          User              @relation(fields: [userId], references: [id])
-    userId        String            @unique
-    companyName   String
-    city          String
-    jobTitle      String
-    position      String
-    jobAdUrl      String
-    createdDate   DateTime          @default(now())
-    updatedDate   DateTime          @updatedAt
-    description   String
-    status        Status            @default(DRAFT)
-    category      Category
-    postTags      PostTag[]
-    report        ReportedContent[]
-    SavedPost     SavedPost[]
-    targetPost    Comment[]         @relation("targetPost")
-    targetComment Comment[]         @relation("targetComment")
-    likes         Likes[]
+model Posts {
+    id              String            @id @default(uuid())
+    user            User              @relation(fields: [userId], references: [id])
+    userId          String
+    companyName     String
+    city            String
+    jobTitle        String
+    position        String
+    jobAdUrl        String
+    createdDate     DateTime          @default(now())
+    updatedDate     DateTime          @updatedAt
+    description     String
+    status          Status            @default(DRAFT)
+    category        Category
+    postTags        PostTag[]
+    SavedBy         SavedPosts[]
+    targetPost      Comments[]        @relation("targetPost")
+    targetComment   Comments[]        @relation("targetComment")
+    likes           Likes[]
+    reportedContent ReportedContent[]
 }
 
 model PostTag {
     id     String @id @default(uuid())
-    post   Post   @relation(fields: [postId], references: [id])
+    post   Posts  @relation(fields: [postId], references: [id])
     postId String
     tag    Tag    @relation(fields: [tagId], references: [id])
     tagId  String
 }
 
-model SavedPost {
+model SavedPosts {
     id     String @id @default(uuid())
     user   User   @relation(fields: [userId], references: [id])
     userId String
-    post   Post   @relation(fields: [postId], references: [id])
+    post   Posts  @relation(fields: [postId], references: [id])
     postId String
 }
 
@@ -81,7 +81,7 @@ model Likes {
     id          String @id @default(uuid())
     likedUser   User   @relation(fields: [likedUserId], references: [id])
     likedUserId String
-    likedPost   Post   @relation(fields: [likedPostId], references: [id])
+    likedPost   Posts  @relation(fields: [likedPostId], references: [id])
     likedPostId String
 }
 
@@ -91,36 +91,40 @@ model Tag {
     postTag PostTag[]
 }
 
-model Comment {
+model Comments {
     id              String            @id @default(uuid())
     user            User              @relation(fields: [userId], references: [id])
     userId          String
-    targetPost      Post?             @relation("targetPost", fields: [targetPostId], references: [id])
+    targetPost      Posts?            @relation("targetPost", fields: [targetPostId], references: [id])
     targetPostId    String?
-    targetCommant   Post?             @relation("targetComment", fields: [targetCommentId], references: [id])
+    targetComment   Posts?            @relation("targetComment", fields: [targetCommentId], references: [id])
     targetCommentId String?
     type            CommentType
     content         String
     createdDate     DateTime          @default(now())
-    updatedDate     DateTime?
+    updatedDate     DateTime          @updatedAt
     reportedContent ReportedContent[]
 }
 
 model ReportedContent {
     id                String      @id @default(uuid())
-    reportedUser      User        @relation(fields: [reportedUserId], references: [id])
-    reportedUserId    String
-    reportedPost      Post?       @relation(fields: [repostedPostId], references: [id])
+    reporter          User        @relation("reporter", fields: [reporterId], references: [id])
+    reporterId        String
+    reportedPost      Posts?      @relation(fields: [repostedPostId], references: [id])
     repostedPostId    String?
     type              CommentType
-    reportedComment   Comment?    @relation(fields: [reportedCommentId], references: [id])
+    reportedComment   Comments?   @relation(fields: [reportedCommentId], references: [id])
     reportedCommentId String?
     createdDate       DateTime    @default(now())
-    updatedDate       DateTime?
-    note              String
+    updatedDate       DateTime    @updatedAt
+    notes             String?
+    isResolved        Boolean     @default(false)
+    moderator         User        @relation("moderator", fields: [moderatorId], references: [id])
+    moderatorId       String
+    moderatorComment  String?
 }
 
-model Log {
+model LoginHistory {
     id        String   @id @default(uuid())
     ip        String
     user      User     @relation(fields: [userId], references: [id])
