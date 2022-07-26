@@ -31,11 +31,18 @@ afterEach(() => {
 });
 
 describe("Integration tests for AUTH routes:", () => {
-    describe("/auth/login", () => {
+    describe("/api/auth/register", () => {
+        test("POST with valid values should respond with 201 CREATED", async () => {
+            const response = await request.post("/api/auth/register")
+            expect(response.status).toBe(201);
+        })
+    })
+
+
+    describe("/api/auth/login", () => {
 
         test("POST with valid credentials should respond with 200 OK and session cookie", async () => {
             const response = await request.post("/api/auth/login")
-            console.log(response)
             expect(response.status).toBe(200);
         });
     })
