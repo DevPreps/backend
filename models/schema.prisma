@@ -16,20 +16,20 @@ model Session {
 
 model User {
     id         String            @id @default(uuid())
-    firstName  String
-    lastName   String
+    firstName  String?
+    lastName   String?
     userName   String            @unique
     email      String            @unique
     password   String
     role       Role              @default(USER)
-    isActive   Boolean
-    jobTitle   String
-    position   Positon           @relation(fields: [positionId], references: [id])
-    positionId String
-    city       String
-    imageUrl   String
-    linkedIn   String
-    github     String
+    isActive   Boolean?
+    jobTitle   String?
+    position   Positon?           @relation(fields: [positionId], references: [id])
+    positionId String?
+    city       String?
+    imageUrl   String?
+    linkedIn   String?
+    github     String?
     posts      Posts[]
     savedPosts SavedPosts[]
     comments   Comments[]
