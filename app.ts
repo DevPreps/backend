@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -22,6 +23,10 @@ const app = (store: PrismaSessionStore): Express => {
 	);
 	server.use(express.json());
 	server.use(express.urlencoded({ extended: true }));
+
+
+	// Enable CORS app wide
+	server.use(cors())
 
 	// Route handlers
 

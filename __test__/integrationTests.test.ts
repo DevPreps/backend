@@ -37,3 +37,10 @@ describe("Route: '/'", () => {
 		expect(response.status).toBe(200);
 	});
 });
+
+describe("CORS", () => {
+	it("should implement CORS", async () => {
+		const { headers } = await request.get("/");
+		expect(headers["access-control-allow-origin"]).toEqual("*");
+	});
+});
