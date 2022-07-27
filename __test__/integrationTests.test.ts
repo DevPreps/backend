@@ -33,7 +33,13 @@ afterEach(async () => {
 describe("Integration tests for AUTH routes:", () => {
     describe("/api/auth/register", () => {
         test("POST with valid values should respond with 201 CREATED", async () => {
-            const response = await request.post("/api/auth/register");
+            const response = await request.post("/api/auth/register")
+            .set("Accept", "application/json")
+            .send({
+                userName: "bumblebee",
+                email: "johndoe@gmail.com",
+                password: "password"
+            });
             expect(response.status).toBe(201);
         });
     });

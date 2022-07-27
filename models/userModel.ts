@@ -1,24 +1,30 @@
-import { User as UserModel, PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 
-export interface User extends UserModel {
-    // Custom methods
-    register: () => void;
+
+export type Register = (userData: UserData) => Promise<User>;
+
+interface UserMethods {
+    register: Register
 }
 
 export interface UserData {
-    userName: string,
-    email: string,
-    password: string,
+    userName: string;
+    email: string;
+    password: string;
 }
 
 const User = (prismaUser: PrismaClient["user"]) => {
-    return Object.assign(prismaUser, {
-        register: async (userData: UserData) => {
-            return await prismaUser.create({
+
+    const userMethods: UserMethods = {
+        register: (userData) => {
+            console.log("USER DATA: ", userData)
+            return prismaUser.create({
                 data: userData,
             });
         },
-    });
+    }
+    console.log("RAN")
+    return Object.assign(prismaUser, userMethods);
 };
 
 export default User;

@@ -20,7 +20,7 @@ beforeAll(() => {
     execSync(`${prismaBinary} db push`, {
         env: {
             ...process.env,
-            DB_URL: url,
+            TEST_DB_URL: url,
         }, //,
         // stdio: "inherit",
     });
