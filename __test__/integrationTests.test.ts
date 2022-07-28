@@ -12,46 +12,46 @@ let expressInstance: Express;
 let request: supertest.SuperTest<supertest.Test>;
 
 beforeEach(() => {
-	// The code below initialises the test application in a way which allows the
-	// database and session store to be shut down manually. This is necessary
-	// to avoid the test application from leaking memory and allows Jest to exit
-	// cleanly.
-	store = new PrismaSessionStore(prisma, {
-		checkPeriod: 10 * 60 * 1000, // 1 hour in milliseconds
-		dbRecordIdIsSessionId: true,
-	});
-	expressInstance = app(store);
-	request = supertest(expressInstance);
+    // The code below initialises the test application in a way which allows the
+    // database and session store to be shut down manually. This is necessary
+    // to avoid the test application from leaking memory and allows Jest to exit
+    // cleanly.
+    store = new PrismaSessionStore(prisma, {
+        checkPeriod: 10 * 60 * 1000, // 1 hour in milliseconds
+        dbRecordIdIsSessionId: true,
+    });
+    expressInstance = app(store);
+    request = supertest(expressInstance);
 });
 
 afterEach(() => {
-	// Manual shutdown of the test application session store.
-	// The DB connection is closed manually in the prisma mock file.
-	store.shutdown();
+    // Manual shutdown of the test application session store.
+    // The DB connection is closed manually in the prisma mock file.
+    store.shutdown();
 });
 
 describe("Route: '/'", () => {
-	test("GET should respond with text: 'Hello World!'", async () => {
-		const response = await request.get("/");
-		expect(response.text).toBe("Hello World!");
-		expect(response.status).toBe(200);
-	});
+    test("GET should respond with text: 'Hello World!'", async () => {
+        const response = await request.get("/");
+        expect(response.text).toBe("Hello World!");
+        expect(response.status).toBe(200);
+    });
 });
 
 describe("CORS", () => {
-	it("should implement CORS", async () => {
-		const { headers } = await request.get("/");
-		expect(headers["access-control-allow-origin"]).toEqual("*");
-	});
+    it("should implement CORS", async () => {
+        const { headers } = await request.get("/");
+        expect(headers["access-control-allow-origin"]).toEqual("*");
+    });
 });
 
 describe("Rate limit", () => {
-	it("Should allow no more than 2 requests per second", async () => {
-		const response1 = await request.get("/");
-		const response2 = await request.get("/");
-		const response3 = await request.get("/");
-		expect(response1.status).toBe(200);
-		expect(response2.status).toBe(200);
-		expect(response3.status).toBe(429);
-	})
-})
+    it("Should allow no more than 2 requests per second", async () => {
+        const response1 = await request.get("/");
+        const response2 = await request.get("/");
+        const response3 = await request.get("/");
+        expect(response1.status).toBe(200);
+        expect(response2.status).toBe(200);
+        expect(response3.status).toBe(429);
+    });
+});
