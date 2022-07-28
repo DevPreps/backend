@@ -3,6 +3,7 @@ import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
@@ -25,8 +26,19 @@ const app = (store: PrismaSessionStore): Express => {
 	server.use(express.urlencoded({ extended: true }));
 
 
-	// Enable CORS app wide
+	// Enable CORS app wide, for more information on how to use this package
+	// please refer to https://www.npmjs.com/package/cors
 	server.use(cors())
+
+	// Enable express-rate-limit, for more information on how to use this package
+	// please refer to https://www.npmjs.com/package/express-rate-limit
+	const limiter = rateLimit({
+		windowMs: 1000, // 1000 milliseconds / 1 second
+		max: 2, // Limit each IP to 2 requests per `window` (here, per 1 second)
+		standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+		legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+	})
+	server.use(limiter)
 
 	// Route handlers
 

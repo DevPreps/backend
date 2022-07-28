@@ -44,3 +44,14 @@ describe("CORS", () => {
 		expect(headers["access-control-allow-origin"]).toEqual("*");
 	});
 });
+
+describe("Rate limit", () => {
+	it("Should allow no more than 2 requests per second", async () => {
+		const response1 = await request.get("/");
+		const response2 = await request.get("/");
+		const response3 = await request.get("/");
+		expect(response1.status).toBe(200);
+		expect(response2.status).toBe(200);
+		expect(response3.status).toBe(429);
+	})
+})
