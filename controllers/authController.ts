@@ -5,8 +5,8 @@ import { Register } from "../models/userModel";
 import { User } from "@prisma/client";
 
 export const register =
-    (registerUser: Register) =>
-    async (req: Request, res: Response, next: NextFunction) => {
+    (registerUser: Register): RequestHandler =>
+    async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
         const result: User = await registerUser(req.body);
         return res.status(201).json(result);
     };
