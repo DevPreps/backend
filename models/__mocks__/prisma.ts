@@ -22,9 +22,9 @@ beforeAll(() => {
             ...process.env,
             DB_URL: url,
         },
-        stdio: "inherit",
+        // stdio: "inherit",
     });
-    console.log(`Database --> Connected to database: ${url}`);
+    // console.log(`Database --> Connected to database: ${url}`);
 });
 
 afterEach(async () => {
@@ -47,5 +47,5 @@ afterEach(async () => {
 
 afterAll(async () => {
     await prisma.$disconnect();
-    console.log(`Database --> Disconnected from database: ${url}`);
+    // console.log(`Database --> Disconnected from database: ${url}`);
 });
