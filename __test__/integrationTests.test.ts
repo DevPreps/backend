@@ -1,5 +1,6 @@
 import { Express } from "express"; // Types for Express
 import app from "../app";
+import db from "../models/db";
 import axios from "axios";
 
 import { prisma } from "../models/prisma";
@@ -10,6 +11,7 @@ jest.mock("../models/prisma");
 
 axios.defaults.baseURL = process.env.TEST_APP_URL || "http://localhost:9999";
 axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.validateStatus = (status) => status < 500;
 
 let store: PrismaSessionStore;
 let expressInstance: Express;
@@ -43,10 +45,44 @@ describe("Integration tests for AUTH routes:", () => {
                 email: "johndoe@gmail.com",
                 password: "password",
             });
-
             expect(response.status).toBe(201);
+
         });
+
+        test("responds with 400 Bad Request when userName or email already exist", async () => {
+            // Create a user first
+            await db.user.register({
+                userName: "hercules",
+                email: "hulk@gmail.com",
+                password: "password",
+            })
+            expect(await db.user.count()).toBe(1);
+            
+            const response = await axios.post("/api/auth/register", {
+                userName: "hercules",
+                email: "notTheSameEmail@gmail.com",
+                password: "password",
+            })
+            expect(response.status).toBe(400)
+
+            const response2 = await axios.post("/api/auth/register", {
+                userName: "notTheSameUserName",
+                email: "hulk@gmail.com",
+                password: "password",
+            })
+            expect(response2.status).toBe(400)
+        })
     });
+
+    // prevent password from being returned with user object
+
+    // Prevent registration if username or email already exists in DB
+    // Check that password hashed
+    // VALIDATION TESTS [400]:
+    // Prevent registration if fields missing
+    // Reject invalid inputs
+    // Reject unexpected attributes
+    // Others
 
     describe("/api/auth/login", () => {
         test("POST with valid credentials should respond with 200 OK and session cookie", async () => {

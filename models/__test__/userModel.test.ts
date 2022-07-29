@@ -3,7 +3,7 @@ import { prisma } from "../prisma";
 
 jest.mock("../prisma");
 
-const users = userModel(prisma.user);
+const users = userModel;
 
 describe("Unit Tests for User Model:", () => {
     test("returns an object which contains prisma user functions", () => {
@@ -30,7 +30,6 @@ describe("Unit Tests for User Model:", () => {
 
             expect(await prisma.user.count()).toBe(1);
         });
+
     });
 });
-
-// No password in register return object

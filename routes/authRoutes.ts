@@ -8,7 +8,7 @@ import db from "../models/db";
 
 const router = express.Router();
 
-router.route("/register").post(register(db.user.register));
+router.route("/register").post(register(db.user.findUnique, db.user.register));
 
 router.route("/login").post(login());
 
