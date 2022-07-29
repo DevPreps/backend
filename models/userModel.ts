@@ -18,7 +18,7 @@ const userModel = Users(prisma.user);
 export default userModel;
 
 // List method types for the custom model and wrap in a namespace for simplified import
-export namespace UserMethods {
+export declare namespace UserMethods {
     // Custom method types
     export type Register = (userData: RegistrationData) => Promise<User>;
 
@@ -26,7 +26,7 @@ export namespace UserMethods {
     export type FindUnique = typeof userModel.findUnique;
 }
 
-export type UserWithoutPassword = Omit<User, 'password'>;
+export type UserWithoutPassword = Omit<User, "password">;
 
 // Type object for custom methods used in this file only
 interface CustomMethods {

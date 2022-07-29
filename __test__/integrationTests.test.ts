@@ -46,7 +46,6 @@ describe("Integration tests for AUTH routes:", () => {
                 password: "password",
             });
             expect(response.status).toBe(201);
-
         });
 
         test("responds with 400 Bad Request when userName or email already exist", async () => {
@@ -55,23 +54,23 @@ describe("Integration tests for AUTH routes:", () => {
                 userName: "hercules",
                 email: "hulk@gmail.com",
                 password: "password",
-            })
+            });
             expect(await db.user.count()).toBe(1);
-            
+
             const response = await axios.post("/api/auth/register", {
                 userName: "hercules",
                 email: "notTheSameEmail@gmail.com",
                 password: "password",
-            })
-            expect(response.status).toBe(400)
+            });
+            expect(response.status).toBe(400);
 
             const response2 = await axios.post("/api/auth/register", {
                 userName: "notTheSameUserName",
                 email: "hulk@gmail.com",
                 password: "password",
-            })
-            expect(response2.status).toBe(400)
-        })
+            });
+            expect(response2.status).toBe(400);
+        });
     });
 
     // prevent password from being returned with user object

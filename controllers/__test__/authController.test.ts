@@ -1,7 +1,6 @@
 // Import controllers
 import { register, login } from "../authController";
-import { UserMethods, UserWithoutPassword } from "../../models/userModel";
-import { User } from "@prisma/client";
+import { UserWithoutPassword } from "../../models/userModel";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 beforeEach(() => {
@@ -95,7 +94,6 @@ describe("Unit Tests for AUTH controllers", () => {
         });
 
         // prevent password from being returned with user object - integration test but need to change from USER type to UserSelect?
-        
     });
 
     describe("Login controller:", () => {

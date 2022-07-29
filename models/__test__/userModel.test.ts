@@ -30,6 +30,5 @@ describe("Unit Tests for User Model:", () => {
 
             expect(await prisma.user.count()).toBe(1);
         });
-
     });
 });
