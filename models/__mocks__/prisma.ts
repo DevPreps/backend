@@ -1,50 +1,51 @@
 import { PrismaClient } from "@prisma/client";
 import { execSync } from "child_process";
 import { join } from "path";
-import { URL } from "url";
-import { v4 } from "uuid";
 
-const generateDatabaseURL = (schema: string) => {
-	if (!process.env.DB_URL) {
-		throw new Error("please provide a database url");
-	}
-	const url = new URL(process.env.DB_URL);
-	url.searchParams.append("schema", schema);
-	return url.toString();
-};
-
-const schemaId = `test-${v4()}`;
 const prismaBinary = join(
-	__dirname,
-	"..",
-	"..",
-	"node_modules",
-	".bin",
-	"prisma"
+    __dirname,
+    "..",
+    "..",
+    "node_modules",
+    ".bin",
+    "prisma"
 );
-
-const url = generateDatabaseURL(schemaId);
-process.env.DB_URL = url;
+const url = process.env.TEST_DB_URL;
 
 export const prisma = new PrismaClient({
-	datasources: { db: { url } },
+    datasources: { db: { url } },
 });
 
-beforeEach(() => {
-	execSync(`${prismaBinary} db push`, {
-		env: {
-			...process.env,
-			DB_URL: generateDatabaseURL(schemaId),
-		},
-		stdio: "inherit",
-	});
-	console.log(`Database --> Connected to database: ${url}`);
+beforeAll(() => {
+    execSync(`${prismaBinary} db push`, {
+        env: {
+            ...process.env,
+            DB_URL: url,
+        },
+        // stdio: "inherit",
+    });
+    // console.log(`Database --> Connected to database: ${url}`);
 });
+
 afterEach(async () => {
-	await prisma.$executeRawUnsafe(
-		`DROP SCHEMA IF EXISTS "${schemaId}" CASCADE;`
-	);
+    const tablenames = await prisma.$queryRaw<
+        Array<{ tablename: string }>
+    >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
-	await prisma.$disconnect();
-	console.log(`Database --> Disconnected from database: ${url}`);
+    for (const { tablename } of tablenames) {
+        if (tablename !== "_prisma_migrations") {
+            try {
+                await prisma.$executeRawUnsafe(
+                    `TRUNCATE TABLE "public"."${tablename}" CASCADE;`
+                );
+            } catch (error) {
+                console.log({ error });
+            }
+        }
+    }
+});
+
+afterAll(async () => {
+    await prisma.$disconnect();
+    // console.log(`Database --> Disconnected from database: ${url}`);
 });
