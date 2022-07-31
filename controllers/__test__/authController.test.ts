@@ -34,9 +34,13 @@ describe("Unit Tests for AUTH controllers", () => {
             const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
             const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockResolvedValue({});
-            expect(typeof register(mockGetUserByEmail, mockGetUserByUserName, mockRegister)).toBe(
-                "function"
-            );
+            expect(
+                typeof register(
+                    mockGetUserByEmail,
+                    mockGetUserByUserName,
+                    mockRegister
+                )
+            ).toBe("function");
         });
 
         test("returns a 201 CREATED response with valid inputs", async () => {
@@ -53,7 +57,11 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            const controller = register(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockRegister
+            );
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith(mockReturnUser);
@@ -61,8 +69,10 @@ describe("Unit Tests for AUTH controllers", () => {
 
         test("returns 400 Bad Request if userName already exists in database", async () => {
             const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
-            const mockGetUserByUserName = jest.fn().mockResolvedValue(mockReturnUser);
-            const mockRegister = jest.fn()
+            const mockGetUserByUserName = jest
+                .fn()
+                .mockResolvedValue(mockReturnUser);
+            const mockRegister = jest.fn();
 
             const req = getMockReq({
                 body: {
@@ -74,17 +84,23 @@ describe("Unit Tests for AUTH controllers", () => {
 
             const { res, next } = getMockRes();
 
-            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            const controller = register(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockRegister
+            );
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
             expect(mockRegister).not.toHaveBeenCalled();
-        })
+        });
 
         test("returns 400 Bad Request if email already exists in database", async () => {
-            const mockGetUserByEmail = jest.fn().mockResolvedValue(mockReturnUser);
+            const mockGetUserByEmail = jest
+                .fn()
+                .mockResolvedValue(mockReturnUser);
             const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
-            const mockRegister = jest.fn()
-            
+            const mockRegister = jest.fn();
+
             const req = getMockReq({
                 body: {
                     userName: "helenOfTroy",
@@ -94,7 +110,11 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            const controller = register(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockRegister
+            );
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
             expect(mockRegister).not.toHaveBeenCalled();
@@ -115,7 +135,11 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            const controller = register(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockRegister
+            );
             await controller(req, res, next);
             expect(next).toHaveBeenCalledWith(new Error("Error"));
         });
@@ -133,7 +157,11 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            const controller = register(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockRegister
+            );
             await controller(req, res, next);
             expect(mockRegister.mock.calls[0][0].password).toMatch(/\$2b\$/);
         });

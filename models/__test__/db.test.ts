@@ -39,9 +39,9 @@ describe("Unit Tests for Prisma Middleware", () => {
     });
 
     test("middleware allows password to be retuned if included in Prisma select query", async () => {
-        const user = await db.user.findUnique({ 
+        const user = await db.user.findUnique({
             where: { email: "test@email.com" },
-            select: { password: true }
+            select: { password: true },
         });
         expect(user?.password).toBe("testPassword");
         const user2 = await db.user.findMany({

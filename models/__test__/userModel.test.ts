@@ -60,21 +60,23 @@ describe("Unit Tests for User Model:", () => {
             const user = await users.getUserByUserName("get");
             expect(user?.userName).toBe("get");
             expect(user?.password).toBeUndefined();
-        })
+        });
 
         test("user.getCredentials returns user email and password", async () => {
             // First create a user in the database
             await users.register({
                 userName: "cred",
                 email: "cred@gmail.com",
-                password: "credPassword"
+                password: "credPassword",
             });
             expect(await users.count()).toBe(1);
 
             // Then get user credentials
-            const userCredentials = await users.getCredentials("cred@gmail.com");
-            expect(userCredentials?.email).toBe("cred@gmail.com")
+            const userCredentials = await users.getCredentials(
+                "cred@gmail.com"
+            );
+            expect(userCredentials?.email).toBe("cred@gmail.com");
             expect(userCredentials?.password).toMatch("credPassword"); // Password not hashed as user was created directly
-        })
+        });
     });
 });

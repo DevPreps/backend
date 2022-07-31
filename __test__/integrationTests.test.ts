@@ -92,5 +92,4 @@ describe("Integration tests for AUTH routes:", () => {
     // compare credentials with database
     // 401 Unauthorized if credentials do not match
     // 200 OK if credentials match
-    
 });

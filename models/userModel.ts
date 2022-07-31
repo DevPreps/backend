@@ -1,10 +1,9 @@
-import { PrismaClient, Prisma, User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { prisma } from "./prisma";
 
 // Create custom model with custom methods by combining prisma client and custom methods
 const Users = (prismaUser: PrismaClient["user"]) => {
     const userMethods: CustomMethods = {
-
         register: (registrationData) => {
             return prismaUser.create({
                 data: registrationData,
@@ -19,7 +18,7 @@ const Users = (prismaUser: PrismaClient["user"]) => {
 
         getUserByUserName: (userName) => {
             return prismaUser.findUnique({
-                where: { userName: userName}
+                where: { userName: userName },
             });
         },
 
@@ -27,8 +26,8 @@ const Users = (prismaUser: PrismaClient["user"]) => {
             return prismaUser.findUnique({
                 where: { email: email },
                 select: { email: true, password: true },
-            })
-        }
+            });
+        },
     };
     return Object.assign(prismaUser, userMethods);
 };
@@ -43,10 +42,11 @@ export declare namespace UserMethods {
     export type Register = (
         registrationData: RegistrationData
     ) => Promise<User>;
-
-    export type GetUserByEmail =    (email: string) => Promise<User | null>;
+    export type GetUserByEmail = (email: string) => Promise<User | null>;
     export type GetUserByUserName = (userName: string) => Promise<User | null>;
-    export type GetCredentials =    (email: string) => Promise<{ email: string, password: string } | null>
+    export type GetCredentials = (
+        email: string
+    ) => Promise<{ email: string; password: string } | null>;
 
     // Existing prisma generated user method types
     export type FindUnique = typeof userModel.findUnique;
