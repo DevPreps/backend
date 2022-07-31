@@ -73,10 +73,6 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 
-    // prevent password from being returned with user object
-
-    // Prevent registration if username or email already exists in DB
-    // Check that password hashed
     // VALIDATION TESTS [400]:
     // Prevent registration if fields missing
     // Reject invalid inputs
@@ -89,4 +85,12 @@ describe("Integration tests for AUTH routes:", () => {
             expect(response.status).toBe(200);
         });
     });
+
+    // Add check for session cookie on successgul login
+    // Check if user already logged in - middleware should prevent this
+    // 400 Bad Request if user does not exist - perhaps a generic error message - bad credentials - outside can't tell if user exists or not
+    // compare credentials with database
+    // 401 Unauthorized if credentials do not match
+    // 200 OK if credentials match
+    
 });

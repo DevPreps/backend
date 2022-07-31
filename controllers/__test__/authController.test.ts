@@ -31,15 +31,17 @@ describe("Unit Tests for AUTH controllers", () => {
         });
 
         test("returns a function", async () => {
-            const mockFindUnique = jest.fn().mockResolvedValue(null);
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockResolvedValue({});
-            expect(typeof register(mockFindUnique, mockRegister)).toBe(
+            expect(typeof register(mockGetUserByEmail, mockGetUserByUserName, mockRegister)).toBe(
                 "function"
             );
         });
 
         test("returns a 201 CREATED response with valid inputs", async () => {
-            const mockFindUnique = jest.fn().mockResolvedValue(null);
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockResolvedValue(mockReturnUser);
 
             const req = getMockReq({
@@ -51,14 +53,56 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockFindUnique, mockRegister);
+            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith(mockReturnUser);
         });
 
+        test("returns 400 Bad Request if userName already exists in database", async () => {
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(mockReturnUser);
+            const mockRegister = jest.fn()
+
+            const req = getMockReq({
+                body: {
+                    userName: "vercel",
+                    email: "vercel@gmail.com",
+                    password: "password",
+                },
+            });
+
+            const { res, next } = getMockRes();
+
+            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            await controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockRegister).not.toHaveBeenCalled();
+        })
+
+        test("returns 400 Bad Request if email already exists in database", async () => {
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(mockReturnUser);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
+            const mockRegister = jest.fn()
+            
+            const req = getMockReq({
+                body: {
+                    userName: "helenOfTroy",
+                    email: "helen@gmail.com",
+                    password: "password",
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
+            await controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockRegister).not.toHaveBeenCalled();
+        });
+
         test("Errors passed to next middleware to be caught in custom error handler", async () => {
-            const mockFindUnique = jest.fn().mockResolvedValue(null);
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockImplementation(() => {
                 throw new Error("Error");
             });
@@ -71,13 +115,14 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockFindUnique, mockRegister);
+            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
             await controller(req, res, next);
             expect(next).toHaveBeenCalledWith(new Error("Error"));
         });
 
         test("User password hashed before being persisted to the database", async () => {
-            const mockFindUnique = jest.fn().mockResolvedValue(null);
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockResolvedValue(mockReturnUser);
             const req = getMockReq({
                 body: {
@@ -88,7 +133,7 @@ describe("Unit Tests for AUTH controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = register(mockFindUnique, mockRegister);
+            const controller = register(mockGetUserByEmail, mockGetUserByUserName, mockRegister);
             await controller(req, res, next);
             expect(mockRegister.mock.calls[0][0].password).toMatch(/\$2b\$/);
         });
@@ -101,4 +146,11 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(typeof login()).toBe("function");
         });
     });
+
+    // Add check for session cookie on successgul login
+    // 400 Bad Request if user does not exist - perhaps a generic error message - bad credentials - outside can't tell if user exists or not
+    // compare credentials with database
+    // 401 Unauthorized if credentials do not match
+    // 200 OK if credentials match - return user object
+    // Check that errors passed to next() for handling
 });

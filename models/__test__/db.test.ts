@@ -13,6 +13,8 @@ describe("Unit Tests for Database Object:", () => {
         expect(db.user.count).toBeDefined();
         expect(db.user.register).toBeDefined();
         expect(db.user.getUserByEmail).toBeDefined();
+        expect(db.user.getUserByUserName).toBeDefined();
+        expect(db.user.getCredentials).toBeDefined();
     });
 });
 
@@ -36,13 +38,16 @@ describe("Unit Tests for Prisma Middleware", () => {
         expect(user2[0]?.password).toBeUndefined();
     });
 
-    // test("middleware allows password to be retuned if included in Prisma select query", async () => {
-    //     const user = await db.user.getUserByEmail("test@email.com");
-    //     expect(user?.password).toBe("testPassword");
-    //     const user2 = await db.user.findMany({
-    //         where: { email: "test@email.com" },
-    //         select: { password: true },
-    //     });
-    //     expect(user2[0]?.password).toBe("testPassword");
-    // });
+    test("middleware allows password to be retuned if included in Prisma select query", async () => {
+        const user = await db.user.findUnique({ 
+            where: { email: "test@email.com" },
+            select: { password: true }
+        });
+        expect(user?.password).toBe("testPassword");
+        const user2 = await db.user.findMany({
+            where: { email: "test@email.com" },
+            select: { password: true },
+        });
+        expect(user2[0]?.password).toBe("testPassword");
+    });
 });

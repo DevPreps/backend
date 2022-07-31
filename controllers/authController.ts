@@ -6,7 +6,8 @@ import { UserMethods } from "../models/userModel";
 
 export const register =
     (
-        userExists: UserMethods.FindUnique,
+        getUserByEmail: UserMethods.GetUserByEmail,
+        getUserByUserName: UserMethods.GetUserByUserName,
         registerUser: UserMethods.Register
     ): RequestHandler =>
     async (
@@ -16,12 +17,8 @@ export const register =
     ): Promise<void | Response> => {
         try {
             // Check if user already exists
-            const userNameExists = await userExists({
-                where: { userName: req.body.userName },
-            });
-            const emailExists = await userExists({
-                where: { email: req.body.email },
-            });
+            const userNameExists = await getUserByUserName(req.body.userName);
+            const emailExists = await getUserByEmail(req.body.email);
             if (userNameExists || emailExists)
                 return res.status(400).json({
                     message:
