@@ -18,6 +18,6 @@ router
         )
     );
 
-router.route("/login").post(login());
+router.route("/login").post(login(db.user.getCredentials, db.user.getUserByEmail));
 
 export default router;

@@ -64,7 +64,7 @@ describe("Unit Tests for AUTH controllers", () => {
             );
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith(mockReturnUser);
+            expect(res.json).toHaveBeenCalledWith({ status: "success", data: mockReturnUser });
         });
 
         test("returns 400 Bad Request if userName already exists in database", async () => {
@@ -171,7 +171,9 @@ describe("Unit Tests for AUTH controllers", () => {
 
     describe("Login controller:", () => {
         test("returns a function", () => {
-            expect(typeof login()).toBe("function");
+            const mockGetCredentials = jest.fn()
+            const mockGetUserByEmail = jest.fn()
+            expect(typeof login(mockGetCredentials, mockGetUserByEmail)).toBe("function");
         });
     });
 
@@ -181,4 +183,5 @@ describe("Unit Tests for AUTH controllers", () => {
     // 401 Unauthorized if credentials do not match
     // 200 OK if credentials match - return user object
     // Check that errors passed to next() for handling
+    // Check that req.session.user and re.session.loggedIn are set correctly
 });

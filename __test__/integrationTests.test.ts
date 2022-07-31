@@ -42,8 +42,8 @@ describe("Integration tests for AUTH routes:", () => {
         test("POST with valid values should respond with 201 CREATED", async () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
-                email: "johndoe@gmail.com",
-                password: "password",
+                email: "johndoe@email.com",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(201);
         });
@@ -52,22 +52,22 @@ describe("Integration tests for AUTH routes:", () => {
             // Create a user first
             await db.user.register({
                 userName: "hercules",
-                email: "hulk@gmail.com",
-                password: "password",
+                email: "hulk@email.com",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             const response = await axios.post("/api/auth/register", {
                 userName: "hercules",
-                email: "notTheSameEmail@gmail.com",
-                password: "password",
+                email: "notTheSameEmail@email.com",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(400);
 
             const response2 = await axios.post("/api/auth/register", {
                 userName: "notTheSameUserName",
-                email: "hulk@gmail.com",
-                password: "password",
+                email: "hulk@email.com",
+                password: "Abc-1234",
             });
             expect(response2.status).toBe(400);
         });
@@ -81,15 +81,52 @@ describe("Integration tests for AUTH routes:", () => {
 
     describe("/api/auth/login", () => {
         test("POST with valid credentials should respond with 200 OK and session cookie", async () => {
-            const response = await axios.post("/api/auth/login");
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "validUser",
+                email: "valid@email.com",
+                password: "Abc-1234"
+            })
+            expect(await db.user.count()).toBe(1);
+
+            const response = await axios.post("/api/auth/login", {
+                email: "valid@email.com",
+                password: "Abc-1234"
+            });
             expect(response.status).toBe(200);
+            expect(response.data.data.userName).toBe("validUser");
+            expect(typeof response.headers["set-cookie"]).toBeDefined();
         });
+
+        test("responds with 400 Bad Request if email does not exist in the database", async () => {
+            // Make sure there are no users in the database
+            expect(await db.user.count()).toBe(0);
+            
+            const response = await axios.post("/api/auth/login", {
+                email: "badcredentials@email.com",
+                password: "Abc-1234"
+            })
+
+            expect(response.status).toBe(400);
+        })
+
+        test("responds with 400 Bad Request if user credentials do not match", async () => {
+            // Create a user first
+            await db.user.register({
+                userName: "badcreds",
+                email: "badcreds@email.com",
+                password: "Abc-1234"
+            });
+            expect(await db.user.count()).toBe(1);
+            
+            const response = await axios.post("/api/auth/login", {
+                email: "badcreds@email.com",
+                password: "Abc-1234"
+            })
+            expect(response.status).toBe(400);
+        })
     });
 
-    // Add check for session cookie on successgul login
     // Check if user already logged in - middleware should prevent this
-    // 400 Bad Request if user does not exist - perhaps a generic error message - bad credentials - outside can't tell if user exists or not
-    // compare credentials with database
-    // 401 Unauthorized if credentials do not match
-    // 200 OK if credentials match
+    // Validation Tests [400]:
 });
