@@ -4,7 +4,7 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import bcrypt from "bcrypt";
 
 // Import TS types
-import { UserWithoutPassword, UserMethods } from "../../models/userModel";
+import { UserWithoutPassword } from "../../models/userModel";
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -184,7 +184,7 @@ describe("Unit Tests for AUTH controllers", () => {
             );
         });
 
-        let password: string = "password";
+        const password = "password";
         let mockCredentials: { email: string; password: string };
         let mockUser: UserWithoutPassword;
 
@@ -195,7 +195,7 @@ describe("Unit Tests for AUTH controllers", () => {
             mockCredentials = {
                 email: "login@email.com",
                 password: hashedPassword,
-            }
+            };
 
             mockUser = {
                 id: "4730c0b6-7a4a-4b6f-801b-f539303dbae0",
@@ -211,12 +211,13 @@ describe("Unit Tests for AUTH controllers", () => {
                 imageUrl: null,
                 linkedIn: null,
                 github: null,
-            }
-        })
+            };
+        });
 
         test("returns 200 OK with valid inputs", async () => {
-
-            const mockGetCredentials = jest.fn().mockResolvedValue(mockCredentials);
+            const mockGetCredentials = jest
+                .fn()
+                .mockResolvedValue(mockCredentials);
             const mockGetUserByEmail = jest.fn().mockResolvedValue(mockUser);
 
             const req = getMockReq({
@@ -224,7 +225,7 @@ describe("Unit Tests for AUTH controllers", () => {
                     email: mockCredentials.email,
                     password: password,
                 },
-                session: {}
+                session: {},
             });
             const { res, next } = getMockRes();
 
@@ -233,10 +234,10 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(res.status).toHaveBeenCalledWith(200);
             expect(req.session.user).toMatchObject(mockUser);
             expect(req.session.loggedIn).toBe(true);
-        })
+        });
 
         test("returns 400 Bad Request if user does not exist", async () => {
-            const mockGetCredentials = jest.fn().mockResolvedValue(null)
+            const mockGetCredentials = jest.fn().mockResolvedValue(null);
             const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
 
             const req = getMockReq({
@@ -244,21 +245,25 @@ describe("Unit Tests for AUTH controllers", () => {
                     email: mockCredentials.email,
                     password: password,
                 },
-                session: {}
+                session: {},
             });
             const { res, next } = getMockRes();
 
             const controller = login(mockGetCredentials, mockGetUserByEmail);
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(mockGetCredentials).toHaveBeenCalledWith(mockCredentials.email);
+            expect(mockGetCredentials).toHaveBeenCalledWith(
+                mockCredentials.email
+            );
             expect(mockGetUserByEmail).not.toHaveBeenCalled();
             expect(req.session.user).toBe(undefined);
             expect(req.session.loggedIn).toBe(undefined);
-        })
+        });
 
         test("returns 400 Bad Request if user password doesn't match", async () => {
-            const mockGetCredentials = jest.fn().mockResolvedValue(mockCredentials);
+            const mockGetCredentials = jest
+                .fn()
+                .mockResolvedValue(mockCredentials);
             const mockGetUserByEmail = jest.fn().mockResolvedValue(mockUser);
 
             const req = getMockReq({
@@ -266,28 +271,32 @@ describe("Unit Tests for AUTH controllers", () => {
                     email: mockCredentials.email,
                     password: "wrongpassword",
                 },
-                session: {}
+                session: {},
             });
             const { res, next } = getMockRes();
 
             const controller = login(mockGetCredentials, mockGetUserByEmail);
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(mockGetCredentials).toHaveBeenCalledWith(mockCredentials.email);
+            expect(mockGetCredentials).toHaveBeenCalledWith(
+                mockCredentials.email
+            );
             expect(mockGetUserByEmail).not.toHaveBeenCalled();
             expect(req.session.user).toBe(undefined);
             expect(req.session.loggedIn).toBe(undefined);
-        })
+        });
 
         test("getCredentials errors passed through to next()", async () => {
-            const mockGetCredentials = jest.fn().mockImplementation(() => { throw new Error("Error") });
+            const mockGetCredentials = jest.fn().mockImplementation(() => {
+                throw new Error("Error");
+            });
             const mockGetUserByEmail = jest.fn().mockResolvedValue("a user");
             const req = getMockReq({
                 body: {
                     email: mockCredentials.email,
                     password: password,
                 },
-                session: {}
+                session: {},
             });
             const { res, next } = getMockRes();
 
@@ -297,17 +306,21 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(mockGetUserByEmail).not.toHaveBeenCalled();
             expect(req.session.user).toBe(undefined);
             expect(req.session.loggedIn).toBe(undefined);
-        })
+        });
 
         test("getUserByEmail errors passed through to next()", async () => {
-            const mockGetCredentials = jest.fn().mockResolvedValue(mockCredentials);
-            const mockGetUserByEmail = jest.fn().mockImplementation(() => { throw new Error("Error") });
+            const mockGetCredentials = jest
+                .fn()
+                .mockResolvedValue(mockCredentials);
+            const mockGetUserByEmail = jest.fn().mockImplementation(() => {
+                throw new Error("Error");
+            });
             const req = getMockReq({
                 body: {
                     email: mockCredentials.email,
                     password: password,
                 },
-                session: {}
+                session: {},
             });
             const { res, next } = getMockRes();
 
@@ -316,6 +329,6 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(next).toHaveBeenCalledWith(new Error("Error"));
             expect(req.session.user).toBe(undefined);
             expect(req.session.loggedIn).toBe(undefined);
-        })
+        });
     });
 });

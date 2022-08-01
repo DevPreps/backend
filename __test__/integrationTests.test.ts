@@ -42,8 +42,8 @@ describe("Integration tests for AUTH routes:", () => {
         test("POST with valid values should respond with 201 CREATED", async () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
-                email: "johndoe@email.com",
-                password: "Abc-1234",
+                email: "johndoe@gmail.com",
+                password: "password",
             });
             expect(response.status).toBe(201);
         });
@@ -52,22 +52,22 @@ describe("Integration tests for AUTH routes:", () => {
             // Create a user first
             await db.user.register({
                 userName: "hercules",
-                email: "hulk@email.com",
-                password: "Abc-1234",
+                email: "hulk@gmail.com",
+                password: "password",
             });
             expect(await db.user.count()).toBe(1);
 
             const response = await axios.post("/api/auth/register", {
                 userName: "hercules",
-                email: "notTheSameEmail@email.com",
-                password: "Abc-1234",
+                email: "notTheSameEmail@gmail.com",
+                password: "password",
             });
             expect(response.status).toBe(400);
 
             const response2 = await axios.post("/api/auth/register", {
                 userName: "notTheSameUserName",
-                email: "hulk@email.com",
-                password: "Abc-1234",
+                email: "hulk@gmail.com",
+                password: "password",
             });
             expect(response2.status).toBe(400);
         });
@@ -94,8 +94,6 @@ describe("Integration tests for AUTH routes:", () => {
                 password: "Abc-1234",
             });
             expect(response.status).toBe(200);
-            expect(response.data.data.userName).toBe("validUser");
-            expect(typeof response.headers["set-cookie"]).toBeDefined();
         });
 
         test("responds with 400 Bad Request if email does not exist in the database", async () => {
@@ -127,6 +125,10 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 
+    // Add check for session cookie on successgul login
     // Check if user already logged in - middleware should prevent this
-    // Validation Tests [400]:
+    // 400 Bad Request if user does not exist - perhaps a generic error message - bad credentials - outside can't tell if user exists or not
+    // compare credentials with database
+    // 401 Unauthorized if credentials do not match
+    // 200 OK if credentials match
 });

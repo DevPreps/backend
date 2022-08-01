@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 // Import TS types
 import { UserMethods } from "../models/userModel";
 import { User } from "@prisma/client";
-import { nextTick } from "process";
 
 // Extend express-session SessionData to include user data
 declare module "express-session" {
@@ -58,20 +57,16 @@ export const login =
             const credentials = await getCredentials(email);
             // Check if user exists
             if (!credentials)
-                return res
-                    .status(400)
-                    .json({
-                        status: "error",
-                        message: "Invalid email or password",
-                    });
+                return res.status(400).json({
+                    status: "error",
+                    message: "Invalid email or password",
+                });
             // Check if password is correct
             if (!bcrypt.compareSync(password, credentials.password))
-                return res
-                    .status(400)
-                    .json({
-                        status: "error",
-                        message: "Invalid email or password",
-                    });
+                return res.status(400).json({
+                    status: "error",
+                    message: "Invalid email or password",
+                });
 
             // Get user object
             const user = await getUserByEmail(email);
@@ -84,6 +79,6 @@ export const login =
 
             return res.status(200).json({ status: "success", data: user });
         } catch (error) {
-            return next(error)
+            return next(error);
         }
     };
