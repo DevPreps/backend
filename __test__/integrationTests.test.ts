@@ -85,13 +85,13 @@ describe("Integration tests for AUTH routes:", () => {
             await axios.post("/api/auth/register", {
                 userName: "validUser",
                 email: "valid@email.com",
-                password: "Abc-1234"
-            })
+                password: "Abc-1234",
+            });
             expect(await db.user.count()).toBe(1);
 
             const response = await axios.post("/api/auth/login", {
                 email: "valid@email.com",
-                password: "Abc-1234"
+                password: "Abc-1234",
             });
             expect(response.status).toBe(200);
             expect(response.data.data.userName).toBe("validUser");
@@ -101,30 +101,30 @@ describe("Integration tests for AUTH routes:", () => {
         test("responds with 400 Bad Request if email does not exist in the database", async () => {
             // Make sure there are no users in the database
             expect(await db.user.count()).toBe(0);
-            
+
             const response = await axios.post("/api/auth/login", {
                 email: "badcredentials@email.com",
-                password: "Abc-1234"
-            })
+                password: "Abc-1234",
+            });
 
             expect(response.status).toBe(400);
-        })
+        });
 
         test("responds with 400 Bad Request if user credentials do not match", async () => {
             // Create a user first
             await db.user.register({
                 userName: "badcreds",
                 email: "badcreds@email.com",
-                password: "Abc-1234"
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
-            
+
             const response = await axios.post("/api/auth/login", {
                 email: "badcreds@email.com",
-                password: "Abc-1234"
-            })
+                password: "Abc-1234",
+            });
             expect(response.status).toBe(400);
-        })
+        });
     });
 
     // Check if user already logged in - middleware should prevent this

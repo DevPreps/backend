@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 // Import TS types
 import { UserMethods } from "../models/userModel";
 import { User } from "@prisma/client";
+import { nextTick } from "process";
 
 // Extend express-session SessionData to include user data
 declare module "express-session" {
@@ -12,7 +13,6 @@ declare module "express-session" {
         loggedIn: boolean;
     }
 }
-
 
 export const register =
     (
@@ -39,7 +39,7 @@ export const register =
             const password = req.body.password;
             const hashedPassword = bcrypt.hashSync(password, 6);
             req.body.password = hashedPassword;
-          
+
             const result = await registerUser(req.body);
             return res.status(201).json({ status: "success", data: result });
         } catch (error) {
@@ -47,23 +47,43 @@ export const register =
         }
     };
 
+export const login =
+    (
+        getCredentials: UserMethods.GetCredentials,
+        getUserByEmail: UserMethods.GetUserByEmail
+    ): RequestHandler =>
+    async (req, res, next) => {
+        try {
+            const { email, password } = req.body;
+            const credentials = await getCredentials(email);
+            // Check if user exists
+            if (!credentials)
+                return res
+                    .status(400)
+                    .json({
+                        status: "error",
+                        message: "Invalid email or password",
+                    });
+            // Check if password is correct
+            if (!bcrypt.compareSync(password, credentials.password))
+                return res
+                    .status(400)
+                    .json({
+                        status: "error",
+                        message: "Invalid email or password",
+                    });
 
-export const login = (getCredentials: UserMethods.GetCredentials, getUserByEmail: UserMethods.GetUserByEmail): RequestHandler => async (req, res) => {
-    const { email, password } = req.body;
-    const credentials = await getCredentials(email);
-    // Check if user exists
-    if (!credentials) return res.status(400).json({ status: "error", message: "Invalid email or password" });
-    // Check if password is correct
-    if(!bcrypt.compareSync(password, credentials.password)) return res.status(400).json({ status: "error", message: "Invalid email or password" });
-    
-    // Get user object
-    const user = await getUserByEmail(email);
-    
-    // Set session variables
-    if(user) {
-        req.session.user = user;
-        req.session.loggedIn = true;
-    }
-    
-    return res.status(200).json({ status: "success", data: user });
-};
+            // Get user object
+            const user = await getUserByEmail(email);
+
+            // Set session variables
+            if (user) {
+                req.session.user = user;
+                req.session.loggedIn = true;
+            }
+
+            return res.status(200).json({ status: "success", data: user });
+        } catch (error) {
+            return next(error)
+        }
+    };
