@@ -25,6 +25,7 @@
         "schema": "./models/schema.prisma"
     },
     "dependencies": {
+        "@prisma/client": "^4.0.0",
         "@quixo3/prisma-session-store": "^3.1.8",
         "bcrypt": "^5.0.1",
         "dotenv": "^16.0.1",
