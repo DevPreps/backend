@@ -7,6 +7,8 @@ import { prisma } from "../models/prisma";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
 
+import { faker } from '@faker-js/faker';
+
 jest.mock("../models/prisma");
 
 axios.defaults.baseURL = process.env.TEST_APP_URL || "http://localhost:9999";
@@ -73,6 +75,38 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 
+    // user validation test
+    describe("user validation test : ", () => {
+        test.each([
+            {missingFieldName: 'firstName', expectedMessage: 'invalid firstname'},
+            {missingFieldName: 'lastName', expectedMessage: 'invalid lastname'},
+            {missingFieldName: 'userName', expectedMessage: 'invalid username'},
+            {missingFieldName: 'email', expectedMessage: 'invalid email'},
+            {missingFieldName: 'password', expectedMessage: 'invalid password'},
+            {missingFieldName: 'role', expectedMessage: 'invalid role'},
+        ])(`return 400 when $missingFieldName field is missing`,
+           async ({missingFieldName, expectedMessage}) => {
+            const user: User = createRandomUser();
+    
+            delete user[missingFieldName as keyof typeof user];
+    
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+            expect(response.data.message).toBe(expectedMessage);
+        });
+    
+        test('return 400 when password is too short', async () => {
+            const user: User = {
+                ...createRandomUser(),
+                password: '123'
+            };
+    
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+            expect(response.data.message).toBe(`password should be at least 4 characters`);
+        })
+    })
+
     // prevent password from being returned with user object
 
     // Prevent registration if username or email already exists in DB
@@ -90,3 +124,25 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 });
+
+interface User {
+    userId: string,
+    firstName: string,
+    lastName: string,
+    username: string,
+    email: string,
+    password: string,
+    role: string
+}
+
+function createRandomUser(): User {
+  return {
+    userId: faker.datatype.uuid(),
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+    username: faker.internet.userName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    role: 'user'
+  };
+}
