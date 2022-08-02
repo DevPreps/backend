@@ -162,5 +162,5 @@ describe("Integration tests for AUTH routes:", () => {
     });
 
     // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
-    // 401 Unauthorized if not logged in
+    // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
 });
