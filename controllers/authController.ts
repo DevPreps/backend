@@ -94,6 +94,9 @@ export const login =
 // -------------------------------------------------------------------------
 export const logout = (): RequestHandler => (req, res, next) => {
     try {
+        // Clear and delete session variables. This will log the user out.
+        // The callback function is required for error handling as express-session
+        // does not support promises.
         delete req.session.user;
         delete req.session.loggedIn;
         const callback = (err: Error) => {
