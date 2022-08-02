@@ -1,7 +1,9 @@
 import { prisma } from "./prisma";
-import * as models from "./index";
+import userModel from "./userModel";
 
-// Implement Prisma middleware
+//// Implement Prisma middleware
+
+// Remove password from the user object
 prisma.$use(async (params, next) => {
     let result = await next(params);
     if (params?.model === "User" && params?.args?.select?.password !== true) {
@@ -17,9 +19,9 @@ prisma.$use(async (params, next) => {
     return result;
 });
 
-// Override the default Prisma client with custom model methods
+//// Override the default Prisma client with custom model methods
 const db = {
-    user: models.userModel,
+    user: userModel,
 };
 
 export default db;
