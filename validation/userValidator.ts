@@ -1,4 +1,4 @@
-import * as yup from 'yup'; 
+import * as yup from "yup"; 
 
 export const userSchema = yup.object({
     firstName: yup.string().trim().required(),

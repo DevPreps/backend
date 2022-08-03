@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
-import { AnyObjectSchema } from 'yup';
+import { NextFunction, Request, Response } from "express";
+import { AnyObjectSchema } from "yup";
 
 export const validateMiddleware = (schema: AnyObjectSchema) => {
     return async (req: Request, res: Response, next: NextFunction) => {

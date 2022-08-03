@@ -7,7 +7,7 @@ import { prisma } from "../models/prisma";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
 
-import { faker } from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
 jest.mock("../models/prisma");
 

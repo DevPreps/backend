@@ -1,5 +1,5 @@
 import express from "express";
-import { validateMiddleware } from '../middleware/validator';
+import { validateMiddleware } from "../middleware/validator";
 import { userSchema } from '../validation/userValidator';
 
 // Import controllers
