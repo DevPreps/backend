@@ -23,7 +23,7 @@ beforeEach(async () => {
     // to avoid the test application from leaking memory and allows Jest to exit
     // cleanly.
     store = new PrismaSessionStore(prisma, {
-        checkPeriod: 10 * 60 * 1000, // 1 hour in milliseconds
+        checkPeriod: 60 * 60 * 1000, // 1 hour in milliseconds
         dbRecordIdIsSessionId: true,
     });
     expressInstance = app(store);
