@@ -78,12 +78,12 @@ describe("Integration tests for AUTH routes:", () => {
     // user validation test
     describe("user validation test : ", () => {
         test.each([
-            {missingFieldName: 'firstName', expectedMessage: 'invalid firstname'},
-            {missingFieldName: 'lastName', expectedMessage: 'invalid lastname'},
-            {missingFieldName: 'userName', expectedMessage: 'invalid username'},
-            {missingFieldName: 'email', expectedMessage: 'invalid email'},
-            {missingFieldName: 'password', expectedMessage: 'invalid password'},
-            {missingFieldName: 'role', expectedMessage: 'invalid role'},
+            {missingFieldName: "firstName", expectedMessage: "invalid firstname"},
+            {missingFieldName: "lastName", expectedMessage: "invalid lastname"},
+            {missingFieldName: "userNam", expectedMessage: "invalid username"},
+            {missingFieldName: "email", expectedMessage: "invalid email"},
+            {missingFieldName: "password", expectedMessage: "invalid password"},
+            {missingFieldName: "role", expectedMessage: "invalid role"},
         ])(`return 400 when $missingFieldName field is missing`,
            async ({missingFieldName, expectedMessage}) => {
             const user: User = createRandomUser();
@@ -97,10 +97,10 @@ describe("Integration tests for AUTH routes:", () => {
             // expect(response.data.message).toBe(expectedMessage);
         });
     
-        test('return 400 when password is too short', async () => {
+        test("return 400 when password is too short", async () => {
             const user: User = {
                 ...createRandomUser(),
-                password: '123'
+                password: "123"
             };
     
             const response = await axios.post("api/auth/register", user);
