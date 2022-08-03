@@ -93,6 +93,7 @@ describe("Integration tests for AUTH routes:", () => {
             const response = await axios.post("api/auth/register", user);
     
             expect(response.status).toBe(400);
+            console.log(response.data);
             // expect(response.data.message).toBe(expectedMessage);
         });
     
@@ -104,7 +105,7 @@ describe("Integration tests for AUTH routes:", () => {
     
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
-            // expect(response.data.message).toBe(`password should be at least 4 characters`);
+            // expect(response.data.message).toBe("password should be at least 4 characters");
         })
     })
 
