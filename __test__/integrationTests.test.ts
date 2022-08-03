@@ -85,13 +85,13 @@ describe("Integration tests for AUTH routes:", () => {
             await axios.post("/api/auth/register", {
                 userName: "validUser",
                 email: "valid@email.com",
-                password: "Abc-1234"
-            })
+                password: "Abc-1234",
+            });
             expect(await db.user.count()).toBe(1);
 
             const response = await axios.post("/api/auth/login", {
                 email: "valid@email.com",
-                password: "Abc-1234"
+                password: "Abc-1234",
             });
             expect(response.status).toBe(200);
             expect(response.data.data.userName).toBe("validUser");
