@@ -28,6 +28,13 @@ const Users = (prismaUser: PrismaClient["user"]) => {
                 select: { email: true, password: true },
             });
         },
+
+        updateUser: (userId, updateData) => {
+            return prismaUser.update({
+                where: { id: userId || undefined },
+                data: updateData ,
+            });
+        },
     };
     return Object.assign(prismaUser, userMethods);
 };
@@ -47,6 +54,10 @@ export declare namespace UserMethods {
     export type GetCredentials = (
         email: string
     ) => Promise<{ email: string; password: string } | null>;
+    export type UpdateUser = (
+        id: string | undefined,
+        updateData: UpdateData
+    ) => Promise<User>;
 
     // Existing prisma generated user method types
     export type FindUnique = typeof userModel.findUnique;
@@ -60,6 +71,7 @@ interface CustomMethods {
     getUserByEmail: UserMethods.GetUserByEmail;
     getUserByUserName: UserMethods.GetUserByUserName;
     getCredentials: UserMethods.GetCredentials;
+    updateUser: UserMethods.UpdateUser;
 }
 
 // Type objects for custom method inputs
@@ -67,4 +79,29 @@ export interface RegistrationData {
     userName: string;
     email: string;
     password: string;
+}
+
+/**
+ * __This interface is made for the UpdateUser endpoint in the UserController.__
+ *
+ * **UpdateData** builds on the mandatory fields in **RegistrationData**:
+ * - userName: string;
+ * - email: string;
+ * - password: string;
+ *
+ * These fields are mandatory however the **UpdateData** interface includes
+ * __optional types__ that make up the user's personal and profile information:
+ * firstName, lastName, jobTitle, city, imageUrl, linkenIn,
+ * github.
+ *
+ * These fields all have a type = string | underfined.
+ */
+export interface UpdateData extends RegistrationData {
+    firstName?: string;
+    lastName?: string;
+    jobTitle?: string;
+    city?: string;
+    imageUrl?: string;
+    linkedIn?: string;
+    github?: string;
 }
