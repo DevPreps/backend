@@ -16,27 +16,27 @@ model Session {
 
 model User {
     id         String            @id @default(uuid())
-    firstName  String
-    lastName   String
+    firstName  String?
+    lastName   String?
     userName   String            @unique
     email      String            @unique
     password   String
     role       Role              @default(USER)
-    isActive   Boolean
-    jobTitle   String
-    position   Positon           @relation(fields: [positionId], references: [id])
-    positionId String
-    city       String
-    imageUrl   String
-    linkedIn   String
-    github     String
-    post       Posts[]
-    savedPost  SavedPosts[]
-    comment    Comments[]
+    isActive   Boolean?
+    jobTitle   String?
+    position   Positon?          @relation(fields: [positionId], references: [id])
+    positionId String?
+    city       String?
+    imageUrl   String?
+    linkedIn   String?
+    github     String?
+    posts      Posts[]
+    savedPosts SavedPosts[]
+    comments   Comments[]
     logEntries Log[]
     likes      Likes[]
-    reporter   ReportedContent[] @relation("reporter")
-    moderator  ReportedContent[] @relation("moderator")
+    reported   ReportedContent[] @relation("reporter")
+    moderated  ReportedContent[] @relation("moderator")
 }
 
 model Posts {
@@ -54,11 +54,11 @@ model Posts {
     status          Status            @default(DRAFT)
     category        Category
     postTags        PostTag[]
-    SavedBy         SavedPosts[]
-    targetPost      Comments[]        @relation("targetPost")
-    targetComment   Comments[]        @relation("targetComment")
+    savedBy         SavedPosts[]
+    comments        Comments[]        @relation("targetPost")
+    targetComment   Comments[]        @relation("targetComment") // Matches field to prevent errors but will always be empty
     likes           Likes[]
-    reportedContent ReportedContent[]
+    reports         ReportedContent[]
 }
 
 model PostTag {
@@ -86,9 +86,9 @@ model Likes {
 }
 
 model Tag {
-    id      String    @id @default(uuid())
-    name    String
-    postTag PostTag[]
+    id       String    @id @default(uuid())
+    name     String
+    postTags PostTag[]
 }
 
 model Comments {
@@ -103,7 +103,7 @@ model Comments {
     content         String
     createdDate     DateTime          @default(now())
     updatedDate     DateTime          @updatedAt
-    reportedContent ReportedContent[]
+    reports         ReportedContent[]
 }
 
 model ReportedContent {
@@ -132,7 +132,7 @@ model Log {
     role      Role
     timestamp DateTime @default(now())
     method    String
-    url       String
+    path      String
 }
 
 model Positon {
