@@ -1,5 +1,5 @@
 // Import controllers
-import { register, login } from "../authController";
+import { register, login, logout } from "../authController";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import bcrypt from "bcrypt";
 
@@ -11,6 +11,9 @@ beforeEach(() => {
 });
 
 describe("Unit Tests for AUTH controllers", () => {
+    // Register Controller
+    // -------------------------------------------------------------------------
+
     describe("Register controller:", () => {
         let mockReturnUser: UserWithoutPassword;
 
@@ -126,7 +129,7 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(mockRegister).not.toHaveBeenCalled();
         });
 
-        test("Errors passed to next middleware to be caught in custom error handler", async () => {
+        test("errors passed to next middleware to be caught in custom error handler", async () => {
             const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
             const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockImplementation(() => {
@@ -150,7 +153,7 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(next).toHaveBeenCalledWith(new Error("Error"));
         });
 
-        test("User password hashed before being persisted to the database", async () => {
+        test("user password hashed before being persisted to the database", async () => {
             const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
             const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
             const mockRegister = jest.fn().mockResolvedValue(mockReturnUser);
@@ -171,9 +174,10 @@ describe("Unit Tests for AUTH controllers", () => {
             await controller(req, res, next);
             expect(mockRegister.mock.calls[0][0].password).toMatch(/\$2b\$/);
         });
-
-        // prevent password from being returned with user object - integration test but need to change from USER type to UserSelect?
     });
+
+    // Login Controller
+    // -------------------------------------------------------------------------
 
     describe("Login controller:", () => {
         test("returns a function", () => {
@@ -329,6 +333,101 @@ describe("Unit Tests for AUTH controllers", () => {
             expect(next).toHaveBeenCalledWith(new Error("Error"));
             expect(req.session.user).toBe(undefined);
             expect(req.session.loggedIn).toBe(undefined);
+        });
+    });
+
+    // Logout controller
+    // -------------------------------------------------------------------------
+
+    describe("Logout controller:", () => {
+        test("controller returns a function", () => {
+            expect(typeof logout()).toBe("function");
+        });
+
+        let mockUser: UserWithoutPassword;
+        beforeEach(() => {
+            mockUser = {
+                id: "4730c0b6-7a4a-4b6f-801b-f539303dbae0",
+                firstName: null,
+                lastName: null,
+                userName: "loggedinuser",
+                email: "loggedin@gmail.com",
+                role: "USER",
+                isActive: null,
+                jobTitle: null,
+                positionId: null,
+                city: null,
+                imageUrl: null,
+                linkedIn: null,
+                github: null,
+            };
+        });
+
+        test("returns 200 OK and destroys session object", async () => {
+            const req = getMockReq({
+                session: {
+                    user: mockUser,
+                    loggedIn: true,
+                    save: jest.fn(),
+                    destroy: jest.fn(),
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = logout();
+            controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(req.session.user).toBe(undefined);
+            expect(req.session.loggedIn).toBe(undefined);
+            expect(req.session.save).toHaveBeenCalled();
+            expect(req.session.destroy).toHaveBeenCalled();
+        });
+
+        test("session.save() errors passed through to next()", async () => {
+            const req = getMockReq({
+                session: {
+                    user: mockUser,
+                    loggedIn: true,
+                    save: jest.fn().mockImplementation(() => {
+                        throw new Error("Error");
+                    }),
+                    destroy: jest.fn(),
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = logout();
+            controller(req, res, next);
+
+            expect(req.session.save).toHaveBeenCalled();
+            expect(req.session.destroy).not.toHaveBeenCalled();
+            const saveFunc = jest.mocked(req.session).save.mock.calls[0][0];
+            if (saveFunc) saveFunc(new Error("Error"));
+            expect(next).toHaveBeenCalledWith(new Error("Error"));
+        });
+
+        test("session.save() errors passed through to next()", async () => {
+            const req = getMockReq({
+                session: {
+                    user: mockUser,
+                    loggedIn: true,
+                    save: jest.fn(),
+                    destroy: jest.fn().mockImplementation(() => {
+                        throw new Error("Error");
+                    }),
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = logout();
+            controller(req, res, next);
+
+            expect(req.session.save).toHaveBeenCalled();
+            expect(req.session.destroy).toHaveBeenCalled();
+            const destroyFunc = jest.mocked(req.session).destroy.mock
+                .calls[0][0];
+            if (destroyFunc) destroyFunc(new Error("Error"));
+            expect(next).toHaveBeenCalledWith(new Error("Error"));
         });
     });
 });

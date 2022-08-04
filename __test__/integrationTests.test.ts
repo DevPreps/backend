@@ -23,7 +23,7 @@ beforeEach(async () => {
     // to avoid the test application from leaking memory and allows Jest to exit
     // cleanly.
     store = new PrismaSessionStore(prisma, {
-        checkPeriod: 10 * 60 * 1000, // 1 hour in milliseconds
+        checkPeriod: 60 * 60 * 1000, // 1 hour in milliseconds
         dbRecordIdIsSessionId: true,
     });
     expressInstance = app(store);
@@ -38,6 +38,9 @@ afterEach(async () => {
 });
 
 describe("Integration tests for AUTH routes:", () => {
+    // Register route handler
+    // -------------------------------------------------------------------------
+
     describe("/api/auth/register", () => {
         test("POST with valid values should respond with 201 CREATED", async () => {
             const response = await axios.post("/api/auth/register", {
@@ -78,6 +81,9 @@ describe("Integration tests for AUTH routes:", () => {
     // Reject invalid inputs
     // Reject unexpected attributes
     // Others
+
+    // Login route handler
+    // -------------------------------------------------------------------------
 
     describe("/api/auth/login", () => {
         test("POST with valid credentials should respond with 200 OK and session cookie", async () => {
@@ -128,4 +134,33 @@ describe("Integration tests for AUTH routes:", () => {
     });
 
     // Validation Tests [400]:
+
+    // Logout route handler
+    // -------------------------------------------------------------------------
+
+    describe("/api/auth/logout", () => {
+        test("responds with 200 OK without session cookie", async () => {
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "logoutUser",
+                email: "logout@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Login first
+            const response = await axios.post("/api/auth/login", {
+                email: "logout@email.com",
+                password: "Abc-1234",
+            });
+            expect(response.status).toBe(200);
+
+            // Logout
+            const logoutResponse = await axios.get("/api/auth/logout");
+            expect(logoutResponse.status).toBe(200);
+        });
+    });
+
+    // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
+    // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
 });
