@@ -95,8 +95,4 @@ describe("Route Protector Middleware:", () => {
     });
 });
 
-// calls next(error) when any check fails
-// takes an object and runs each key as a check with the value as the check's argument
-// checks if a user is logged in and passes the check based on the boolean given ie.
-// if loggedIn is true, checks if user is logged in
-// if loggedIn is false, checks if user is not logged in
+// takes an object and runs each key as a check with the value as the check's argument - Implement when there is more than one checker

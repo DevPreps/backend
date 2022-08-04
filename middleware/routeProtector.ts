@@ -1,8 +1,11 @@
-/*
-    This route level middleware defines a set of protections which can be applied to routes
-    to define the access rights required to access them.
+import { RequestHandler, Request, Response, NextFunction } from "express"; // TypeScript types
 
-    Usage:
+/**
+    **This route level middleware defines a set of protections which can be applied to routes
+    to define the access rights required to access them.*
+
+    #### Usage:
+
     This middleware should be applied to all routes that require access protection. This
     middleware takes a single argument, which is an object containing the specific protections
     to apply for the given route. The object can contain the following properties:
@@ -14,7 +17,7 @@
     Any property not defined in the object will be ignored.
 
     The following example defines a route that requires the user to be logged in and to have the role 'ADMIN' to access it:
-
+    ```
         router.route("/admin")
             .get(
                 protect(
@@ -26,10 +29,8 @@
                 validate(someAdminValidator),
                 someAdminRouteHandler()
             );
+    ```
 */
-
-import { RequestHandler, Request, Response, NextFunction } from "express"; // TypeScript types
-
 const protect =
     (protections: Protections): RequestHandler =>
     (req: Request, res: Response, next: NextFunction) => {

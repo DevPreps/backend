@@ -61,19 +61,22 @@ export const login =
         try {
             const { email, password } = req.body;
             const credentials = await getCredentials(email);
+
             // Check if user exists
-            if (!credentials)
+            if (!credentials) {
                 return res.status(400).json({
                     status: "error",
                     message: "Invalid email or password",
                 });
+            }
 
             // Check if password is correct
-            if (!bcrypt.compareSync(password, credentials.password))
+            if (!bcrypt.compareSync(password, credentials.password)) {
                 return res.status(400).json({
                     status: "error",
                     message: "Invalid email or password",
                 });
+            }
 
             // Get user object
             const user = await getUserByEmail(email);
