@@ -368,7 +368,6 @@ describe("Unit Tests for AUTH controllers", () => {
                 session: {
                     user: mockUser,
                     loggedIn: true,
-                    save: jest.fn(),
                     destroy: jest.fn(),
                 },
             });
@@ -377,9 +376,6 @@ describe("Unit Tests for AUTH controllers", () => {
             const controller = logout();
             controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(req.session.user).toBe(undefined);
-            expect(req.session.loggedIn).toBe(undefined);
-            expect(req.session.save).toHaveBeenCalled();
             expect(req.session.destroy).toHaveBeenCalled();
         });
 
@@ -388,30 +384,6 @@ describe("Unit Tests for AUTH controllers", () => {
                 session: {
                     user: mockUser,
                     loggedIn: true,
-                    save: jest.fn().mockImplementation(() => {
-                        throw new Error("Error");
-                    }),
-                    destroy: jest.fn(),
-                },
-            });
-            const { res, next } = getMockRes();
-
-            const controller = logout();
-            controller(req, res, next);
-
-            expect(req.session.save).toHaveBeenCalled();
-            expect(req.session.destroy).not.toHaveBeenCalled();
-            const saveFunc = jest.mocked(req.session).save.mock.calls[0][0];
-            if (saveFunc) saveFunc(new Error("Error"));
-            expect(next).toHaveBeenCalledWith(new Error("Error"));
-        });
-
-        test("session.save() errors passed through to next()", async () => {
-            const req = getMockReq({
-                session: {
-                    user: mockUser,
-                    loggedIn: true,
-                    save: jest.fn(),
                     destroy: jest.fn().mockImplementation(() => {
                         throw new Error("Error");
                     }),
@@ -422,7 +394,6 @@ describe("Unit Tests for AUTH controllers", () => {
             const controller = logout();
             controller(req, res, next);
 
-            expect(req.session.save).toHaveBeenCalled();
             expect(req.session.destroy).toHaveBeenCalled();
             const destroyFunc = jest.mocked(req.session).destroy.mock
                 .calls[0][0];
