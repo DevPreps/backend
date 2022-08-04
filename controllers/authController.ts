@@ -13,6 +13,9 @@ declare module "express-session" {
     }
 }
 
+// Register controller
+// -------------------------------------------------------------------------
+
 export const register =
     (
         getUserByEmail: UserMethods.GetUserByEmail,
@@ -46,6 +49,9 @@ export const register =
         }
     };
 
+// Login controller
+// -------------------------------------------------------------------------
+
 export const login =
     (
         getCredentials: UserMethods.GetCredentials,
@@ -61,6 +67,7 @@ export const login =
                     status: "error",
                     message: "Invalid email or password",
                 });
+
             // Check if password is correct
             if (!bcrypt.compareSync(password, credentials.password))
                 return res.status(400).json({
@@ -82,3 +89,25 @@ export const login =
             return next(error);
         }
     };
+
+// Logout controller
+// -------------------------------------------------------------------------
+export const logout = (): RequestHandler => (req, res, next) => {
+    try {
+        // Clear and delete session variables. This will log the user out.
+        // The callback function is required for error handling as express-session
+        // does not support promises.
+        delete req.session.user;
+        delete req.session.loggedIn;
+        const callback = (err: Error) => {
+            if (err) next(err);
+        };
+        req.session.save(callback);
+        req.session.destroy(callback);
+        return res
+            .status(200)
+            .json({ status: "success", message: "Logged out successfully" });
+    } catch (error) {
+        return next(error);
+    }
+};
