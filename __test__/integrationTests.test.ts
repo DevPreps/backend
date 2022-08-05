@@ -128,7 +128,7 @@ describe("Integration tests for AUTH routes:", () => {
             {missingFieldName: "userName"},
             {missingFieldName: "email"},
             {missingFieldName: "password"},
-        ])(`return 400 when $missingFieldName field is missing`,
+        ])("return 400 when $missingFieldName field is missing",
            async ({missingFieldName}) => {
             const user: UserRegister = createRandomUserForRegister();
     
