@@ -1,9 +1,9 @@
 // Import controllers
 import { update } from "../userController";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { UserWithoutPassword } from "../../models/userModel";
 
 // Import TS types
+import { UserWithoutPassword } from "../../models/userModel";
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -17,11 +17,11 @@ describe("Unit Tests for User controllers", () => {
         beforeAll(() => {
             // Mock return User
             mockReturnUser = {
-                id: "4730c0b6-7a4a-4b6f-801b-f539303dbae0",
+                id: "2851c0b6-9b2f-2h0u-219x-h421084ghel1",
                 firstName: null,
                 lastName: null,
-                userName: "bumblebee",
-                email: "johndoe@gmail.com",
+                userName: "morganFreeman",
+                email: "morganfreeman@gmail.com",
                 role: "USER",
                 isActive: null,
                 jobTitle: null,
@@ -34,7 +34,71 @@ describe("Unit Tests for User controllers", () => {
         });
 
         test("returns a function", async () => {
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
+            const mockUpdate = jest.fn().mockResolvedValue({});
+            expect(
+                typeof update(
+                    mockGetUserByEmail,
+                    mockGetUserByUserName,
+                    mockUpdate
+                )
+            ).toBe("function");
+        });
 
-        })
-    })
-})
+        test("return 400 if userName is taken by a different id when updating",
+            async () => {
+                const mockGetUserByEmail = jest.fn().mockResolvedValue(null)
+                const mockGetUserByUserName = jest.fn().mockResolvedValue(mockReturnUser);
+                const mockUpdate = jest.fn();
+
+                const req = getMockReq({
+                    body: {
+                        id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
+                        userName: "Athena",
+                        email: "athena@gmail.com",
+                        password: "Password1",
+                    },
+                });
+                const { res, next } = getMockRes();
+
+                const controller = update(
+                    mockGetUserByEmail,
+                    mockGetUserByUserName,
+                    mockUpdate
+                );
+                await controller(req, res, next);
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(mockUpdate).not.toHaveBeenCalled();
+            });
+
+        test("return 400 if email is taken by a different id when updating",
+            async () => {
+                const mockGetUserByEmail = jest.fn().mockResolvedValue(mockReturnUser)
+                const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
+                const mockUpdate = jest.fn();
+
+                const req = getMockReq({
+                    body: {
+                        id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
+                        userName: "Calypso",
+                        email: "calypso@gmail.com",
+                        password: "Password1",
+                    },
+                });
+                const { res, next } = getMockRes();
+
+                const controller = update(
+                    mockGetUserByEmail,
+                    mockGetUserByUserName,
+                    mockUpdate
+                );
+                await controller(req, res, next);
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(mockUpdate).not.toHaveBeenCalled();
+            });
+
+
+        });
+    });
+//});
