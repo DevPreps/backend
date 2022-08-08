@@ -91,7 +91,7 @@ describe("Unit Tests for User Model:", () => {
 
             // Get the user so we can use their id to update with
             const user = await users.getUserByEmail("jeff@gmail.com");
-            
+
             expect(user?.userName).toBe("jeff");
             // Now update "jeff"
             const updateData = {
@@ -104,14 +104,15 @@ describe("Unit Tests for User Model:", () => {
                 city: "",
                 imageUrl: "",
                 linkedIn: "",
-                github: "",}
+                github: "",
+            };
 
             const userUpdated = await users.update({
-                where: {id: user?.id},
+                where: { id: user?.id },
                 data: updateData,
-            })
+            });
             expect(userUpdated?.firstName).toBe("Jeff");
             expect(userUpdated?.lastName).toBe("Bezos");
-        })
+        });
     });
 });

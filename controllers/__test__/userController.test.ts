@@ -46,59 +46,59 @@ describe("Unit Tests for User controllers", () => {
             ).toBe("function");
         });
 
-        test("return 400 if userName is taken by a different id when updating",
-            async () => {
-                const mockGetUserByEmail = jest.fn().mockResolvedValue(null)
-                const mockGetUserByUserName = jest.fn().mockResolvedValue(mockReturnUser);
-                const mockUpdate = jest.fn();
+        test("return 400 if userName is taken by a different id when updating", async () => {
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest
+                .fn()
+                .mockResolvedValue(mockReturnUser);
+            const mockUpdate = jest.fn();
 
-                const req = getMockReq({
-                    body: {
-                        id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
-                        userName: "Athena",
-                        email: "athena@gmail.com",
-                        password: "Password1",
-                    },
-                });
-                const { res, next } = getMockRes();
-
-                const controller = update(
-                    mockGetUserByEmail,
-                    mockGetUserByUserName,
-                    mockUpdate
-                );
-                await controller(req, res, next);
-                expect(res.status).toHaveBeenCalledWith(400);
-                expect(mockUpdate).not.toHaveBeenCalled();
+            const req = getMockReq({
+                body: {
+                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
+                    userName: "Athena",
+                    email: "athena@gmail.com",
+                    password: "Password1",
+                },
             });
+            const { res, next } = getMockRes();
 
-        test("return 400 if email is taken by a different id when updating",
-            async () => {
-                const mockGetUserByEmail = jest.fn().mockResolvedValue(mockReturnUser)
-                const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
-                const mockUpdate = jest.fn();
+            const controller = update(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockUpdate
+            );
+            await controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockUpdate).not.toHaveBeenCalled();
+        });
 
-                const req = getMockReq({
-                    body: {
-                        id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
-                        userName: "Calypso",
-                        email: "calypso@gmail.com",
-                        password: "Password1",
-                    },
-                });
-                const { res, next } = getMockRes();
+        test("return 400 if email is taken by a different id when updating", async () => {
+            const mockGetUserByEmail = jest
+                .fn()
+                .mockResolvedValue(mockReturnUser);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
+            const mockUpdate = jest.fn();
 
-                const controller = update(
-                    mockGetUserByEmail,
-                    mockGetUserByUserName,
-                    mockUpdate
-                );
-                await controller(req, res, next);
-                expect(res.status).toHaveBeenCalledWith(400);
-                expect(mockUpdate).not.toHaveBeenCalled();
+            const req = getMockReq({
+                body: {
+                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
+                    userName: "Calypso",
+                    email: "calypso@gmail.com",
+                    password: "Password1",
+                },
             });
+            const { res, next } = getMockRes();
 
-
+            const controller = update(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockUpdate
+            );
+            await controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockUpdate).not.toHaveBeenCalled();
         });
     });
+});
 //});

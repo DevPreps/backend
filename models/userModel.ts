@@ -1,4 +1,4 @@
-import { PrismaClient, User, } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { prisma } from "./prisma";
 
 // Create custom model with custom methods by combining prisma client and custom methods
