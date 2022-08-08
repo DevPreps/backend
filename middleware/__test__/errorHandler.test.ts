@@ -1,4 +1,4 @@
-import errorHandler from '../errorHandler';
+import errorHandler from "../errorHandler";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 describe("(Unit tests) Custom Error Handler:", () => {
@@ -10,9 +10,8 @@ describe("(Unit tests) Custom Error Handler:", () => {
         const error = new Error("Test error");
         const req = getMockReq();
         const { res, next } = getMockRes();
-        
+
         await errorHandler()(error, req, res, next);
         expect(res.status).toHaveBeenCalledWith(500);
-        
     });
 });

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from ".prisma/client";
 import { execSync } from "child_process";
 import { join } from "path";
 import { URL } from "url";
