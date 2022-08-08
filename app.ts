@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
+import errorHandler from "./middleware/errorHandler";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
@@ -54,6 +55,9 @@ const app = (store: PrismaSessionStore): Express => {
             message: "This is the web service API for the DevPrep project",
         });
     });
+
+    // Error handler
+    server.use(errorHandler());
 
     return server;
 };
