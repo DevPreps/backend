@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
+import errorHandler from "./middleware/errorHandler";
 
 // Import routes
 import authRoutes from "./routes/authRoutes";
@@ -28,6 +29,9 @@ const app = (store: PrismaSessionStore): Express => {
 
     // Route handlers
     server.use("/api/auth", authRoutes);
+
+    // Error handler
+    server.use(errorHandler());
 
     return server;
 };
