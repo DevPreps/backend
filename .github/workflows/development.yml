@@ -91,4 +91,5 @@ jobs:
               run: npm test
               env:
                   DB_URL: "postgres://root:postgres@localhost:5432/test"
+                  TEST_DB_URL: "postgres://root:postgres@localhost:5432/test"
                   SESSION_SECRET: "8769sd9uifhisuhIUFGSDIU98dsy9fciuh"

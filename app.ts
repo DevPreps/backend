@@ -5,6 +5,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
+// Import routes
+import authRoutes from "./routes/authRoutes";
+
 dotenv.config();
 
 const app = (store: PrismaSessionStore): Express => {
@@ -16,13 +19,17 @@ const app = (store: PrismaSessionStore): Express => {
 
     // Enable express-rate-limit, for more information on how to use this package
     // please refer to https://www.npmjs.com/package/express-rate-limit
+    // This middleware is disabled for the test environment as it causes issues
     const limiter = rateLimit({
         windowMs: 1000, // 1000 milliseconds / 1 second
         max: 2, // Limit each IP to 2 requests per `window` (here, per 1 second)
         standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
         legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     });
-    server.use(limiter);
+
+    if (process.env.NODE_ENV !== "test") {
+        server.use(limiter);
+    }
 
     // Middleware
     server.use(
@@ -40,11 +47,12 @@ const app = (store: PrismaSessionStore): Express => {
     server.use(express.urlencoded({ extended: true }));
 
     // Route handlers
-
-    // This is a test route that will be removed in the future
-    // It is here to test that the testing pipeline works
-    server.get("/", (req, res) => {
-        res.status(200).send("Hello World!");
+    server.use("/api/auth", authRoutes);
+    server.use("/", (req, res) => {
+        return res.status(200).json({
+            status: "success",
+            message: "This is the web service API for the DevPrep project",
+        });
     });
 
     return server;

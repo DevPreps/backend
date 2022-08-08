@@ -65,7 +65,7 @@ npm install
 
 As this project utilises the Prisma library to connect to a PostgreSQL database, you will need to download and set up a PostgreSQL database client. The official client can be downloaded [here](https://www.postgresql.org/download/). After installing the database you need to tell the project where to find the database. This is achieved via environment variables. Create a .env file in the root directory of the project and enter the PostgreSQL connection string for your database. Enter the following into the .env file replacing anything with angle brackets with values relevant for your implementation:
 
-`DB_URL=postgres:<username>:<password>@localhost:<database-port>/<database-name>`
+`DB_URL=postgres://<username>:<password>@localhost:<database-port>/<database-name>`
 
 #### Migrate the Database Schema
 
@@ -104,7 +104,7 @@ After pushing the database you may need to generate the Prisma Client for the ap
 This project assumes that a number of environment variables will be present in addition to the DB_URL mentioned above. Below is a list of all of the environment variables needed for the application to operate as intended.
 |Variable|Description |
 |--|--|
-| DB_URL | The database connection string for the PostgreSQL database. Expected Format: `DB_URL=postgres:<username>:<password>@localhost:<database-port>/<database-name>` |
+| DB_URL | The database connection string for the PostgreSQL database. Expected Format: `DB_URL=postgres://<username>:<password>@localhost:<database-port>/<database-name>` |
 | SESSION_SECRET | A randomised string for hashing session information. This variable is required by express-session. |
 | PORT | [optional] You can provide a port number for the development server to run on. If not provided, the server will run on post 3000 by default. |
 
