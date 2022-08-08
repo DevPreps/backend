@@ -1,4 +1,4 @@
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, User, } from "@prisma/client";
 import { prisma } from "./prisma";
 
 // Create custom model with custom methods by combining prisma client and custom methods
@@ -31,8 +31,8 @@ const Users = (prismaUser: PrismaClient["user"]) => {
 
         updateUser: (userId, updateData) => {
             return prismaUser.update({
-                where: { id: userId || undefined },
-                data: updateData ,
+                data: updateData,
+                where: { id: userId },
             });
         },
     };
