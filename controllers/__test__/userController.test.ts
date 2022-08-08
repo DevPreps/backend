@@ -20,8 +20,8 @@ describe("Unit Tests for User controllers", () => {
                 id: "2851c0b6-9b2f-2h0u-219x-h421084ghel1",
                 firstName: null,
                 lastName: null,
-                userName: "morganFreeman",
-                email: "morganfreeman@gmail.com",
+                userName: "Alcinous",
+                email: "alcinous@gmail.com",
                 role: "USER",
                 isActive: null,
                 jobTitle: null,
@@ -44,6 +44,34 @@ describe("Unit Tests for User controllers", () => {
                     mockUpdate
                 )
             ).toBe("function");
+        });
+
+        test("return 201 if user update succeeds ", async () => {
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
+            const mockUpdate = jest.fn().mockResolvedValue(mockReturnUser);
+
+            const req = getMockReq({
+                body: {
+                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
+                    userName: "Poseidon",
+                    email: "poseidon@gmail.com",
+                    password: "Password1",
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = update(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockUpdate
+            );
+            await controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith({
+                status: "Success",
+                data: mockReturnUser,
+            });
         });
 
         test("return 400 if userName is taken by a different id when updating", async () => {
@@ -99,6 +127,30 @@ describe("Unit Tests for User controllers", () => {
             expect(res.status).toHaveBeenCalledWith(400);
             expect(mockUpdate).not.toHaveBeenCalled();
         });
+
+        test("errors passed to next middleware to be caught in custom error handler", async () => {
+            const mockGetUserByEmail = jest.fn().mockResolvedValue(null);
+            const mockGetUserByUserName = jest.fn().mockResolvedValue(null);
+            const mockUpdate = jest.fn().mockImplementation(() => {
+                throw new Error("Error");
+            });
+            const req = getMockReq({
+                body: {
+                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
+                    userName: "Telemachus",
+                    email: "telemachus@gmail.com",
+                    password: "Password1",
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = update(
+                mockGetUserByEmail,
+                mockGetUserByUserName,
+                mockUpdate
+            );
+            await controller(req, res, next);
+            expect(next).toHaveBeenCalledWith(new Error("Error"));
+        });
     });
 });
-//});
