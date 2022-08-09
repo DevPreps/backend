@@ -320,6 +320,6 @@ function createRandomUserForRegister(): RegistrationData {
   return {
     userName: faker.internet.userName(),
     email: faker.internet.email(),
-    password: faker.internet.password(10, false, /\w/, '!Aa0'),
+    password: faker.internet.password(10, false, /\w/, "!Aa0"),
   };
 }

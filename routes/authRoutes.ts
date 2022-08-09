@@ -2,7 +2,7 @@ import express from "express";
 import db from "../models/db";
 import protect from "../middleware/routeProtector";
 import { validate } from "../middleware/validator";
-import { registerSchema } from '../validation/userRegisterValidator';
+import { registerSchema } from "../validation/userRegisterValidator";
 
 // Import controllers
 import { register, login, logout } from "../controllers/authController";
