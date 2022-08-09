@@ -70,12 +70,12 @@ describe("Rate limit", () => {
     });
 });
 
-describe("Integration tests for AUTH routes:", () => {
-    // Register route handler integration tests
-    // -------------------------------------------------------------------------
+// Register route handler integration tests
+// -------------------------------------------------------------------------
 
+describe("Integration tests for AUTH routes:", () => {
     describe("/api/auth/register", () => {
-        test("POST with valid values should respond with 201 CREATED", async () => {
+        test("POST with valid values should respond with 201 Created", async () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
                 email: "johndoe@email.com",
@@ -285,3 +285,16 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 });
+
+// Post route handler integration tests
+// -------------------------------------------------------------------------
+describe("Integration tests for POST routes:", () => {
+    describe("/api/posts/create", () => {
+        test("responds with 201 Created and returns the created post", async () => {
+            const response = await axios.post("/api/posts/create");
+            expect(response.status).toBe(201);
+        });
+    });
+});
+
+// returns 400 error with invalid inputs

@@ -30,7 +30,7 @@ model User {
     imageUrl   String?
     linkedIn   String?
     github     String?
-    posts      Posts[]
+    posts      Post[]
     savedPosts SavedPosts[]
     comments   Comments[]
     logEntries Log[]
@@ -39,18 +39,19 @@ model User {
     moderated  ReportedContent[] @relation("moderator")
 }
 
-model Posts {
+model Post {
     id              String            @id @default(uuid())
     user            User              @relation(fields: [userId], references: [id])
     userId          String
-    companyName     String
-    city            String
-    jobTitle        String
-    position        String
-    jobAdUrl        String
+    title           String
+    companyName     String?
+    city            String?
+    jobTitle        String?
+    position        String?
+    jobAdUrl        String?
+    content         String
     createdDate     DateTime          @default(now())
     updatedDate     DateTime          @updatedAt
-    description     String
     status          Status            @default(DRAFT)
     category        Category
     postTags        PostTag[]
@@ -63,7 +64,7 @@ model Posts {
 
 model PostTag {
     id     String @id @default(uuid())
-    post   Posts  @relation(fields: [postId], references: [id])
+    post   Post  @relation(fields: [postId], references: [id])
     postId String
     tag    Tag    @relation(fields: [tagId], references: [id])
     tagId  String
@@ -73,7 +74,7 @@ model SavedPosts {
     id     String @id @default(uuid())
     user   User   @relation(fields: [userId], references: [id])
     userId String
-    post   Posts  @relation(fields: [postId], references: [id])
+    post   Post  @relation(fields: [postId], references: [id])
     postId String
 }
 
@@ -81,7 +82,7 @@ model Likes {
     id          String @id @default(uuid())
     likedUser   User   @relation(fields: [likedUserId], references: [id])
     likedUserId String
-    likedPost   Posts  @relation(fields: [likedPostId], references: [id])
+    likedPost   Post  @relation(fields: [likedPostId], references: [id])
     likedPostId String
 }
 
@@ -95,9 +96,9 @@ model Comments {
     id              String            @id @default(uuid())
     user            User              @relation(fields: [userId], references: [id])
     userId          String
-    targetPost      Posts?            @relation("targetPost", fields: [targetPostId], references: [id])
+    targetPost      Post?            @relation("targetPost", fields: [targetPostId], references: [id])
     targetPostId    String?
-    targetComment   Posts?            @relation("targetComment", fields: [targetCommentId], references: [id])
+    targetComment   Post?            @relation("targetComment", fields: [targetCommentId], references: [id])
     targetCommentId String?
     type            CommentType
     content         String
@@ -110,7 +111,7 @@ model ReportedContent {
     id                String      @id @default(uuid())
     reporter          User        @relation("reporter", fields: [reporterId], references: [id])
     reporterId        String
-    reportedPost      Posts?      @relation(fields: [repostedPostId], references: [id])
+    reportedPost      Post?      @relation(fields: [repostedPostId], references: [id])
     repostedPostId    String?
     type              CommentType
     reportedComment   Comments?   @relation(fields: [reportedCommentId], references: [id])

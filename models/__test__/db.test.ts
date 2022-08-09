@@ -16,6 +16,13 @@ describe("Unit Tests for Database Object:", () => {
         expect(db.user.getUserByUserName).toBeDefined();
         expect(db.user.getCredentials).toBeDefined();
     });
+
+    test("contains post object with default and custom methods", () => {
+        expect(db.post).toBeDefined();
+        expect(typeof db.post).toBe("object");
+        expect(db.post.count).toBeDefined();
+        expect(db.post.createPost).toBeDefined();
+    });
 });
 
 describe("Unit Tests for Prisma Middleware", () => {

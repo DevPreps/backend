@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 
 // Create custom model with custom methods by combining prisma client and custom methods
 const Users = (prismaUser: PrismaClient["user"]) => {
-    const userMethods: CustomMethods = {
+    const customMethods: CustomMethods = {
         register: (registrationData) => {
             return prismaUser.create({
                 data: registrationData,
@@ -29,7 +29,7 @@ const Users = (prismaUser: PrismaClient["user"]) => {
             });
         },
     };
-    return Object.assign(prismaUser, userMethods);
+    return Object.assign(prismaUser, customMethods);
 };
 
 // Generate the custom model

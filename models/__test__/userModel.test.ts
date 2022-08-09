@@ -16,8 +16,9 @@ describe("Unit Tests for User Model:", () => {
         expect(users.getUserByUserName).toBeDefined();
     });
 
-    // Register method
     describe("Custom Methods:", () => {
+        // Register
+        // -------------------------------------------------------------------------
         test("users.register registers a user in the database", async () => {
             expect(await users.count()).toBe(0);
 
@@ -32,6 +33,8 @@ describe("Unit Tests for User Model:", () => {
             expect(await users.count()).toBe(1);
         });
 
+        // Get user by email
+        // -------------------------------------------------------------------------
         test("user.getUserByEmail returns entire user object - without password", async () => {
             // First create a user in the database
             await users.register({
@@ -47,6 +50,8 @@ describe("Unit Tests for User Model:", () => {
             expect(user?.password).toBeUndefined();
         });
 
+        // Get user by userName
+        // -------------------------------------------------------------------------
         test("user.getUserByUserName returns entire user object - without password", async () => {
             // First create a user in the database
             await users.register({
@@ -62,6 +67,8 @@ describe("Unit Tests for User Model:", () => {
             expect(user?.password).toBeUndefined();
         });
 
+        // Get credentials
+        // -------------------------------------------------------------------------
         test("user.getCredentials returns user email and password", async () => {
             // First create a user in the database
             await users.register({
