@@ -34,18 +34,20 @@ export const update =
             if (
                 (userNameExists && req.body.id !== userNameExists?.id) ||
                 (emailExists && req.body.id !== emailExists?.id)
-            ) {
+            )
                 return res.status(400).json({
                     status: "error",
                     message:
                         "A user already exists with that username or email address",
                 });
-            }
+
             const password = req.body.password;
             const hashedPassword = bcrypt.hashSync(password, 6);
             req.body.password = hashedPassword;
+
             const result = await updateUser(req.body.id, req.body);
-            return res.status(201).json({ status: "Success", data: result });
+            console.log("Updated user " + req.body.userName + " successfully!");
+            return res.status(201).json({ status: "success", data: result });
         } catch (error) {
             return next(error);
         }

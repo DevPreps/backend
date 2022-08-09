@@ -31,8 +31,8 @@ const Users = (prismaUser: PrismaClient["user"]) => {
 
         updateUser: (userId, updateData) => {
             return prismaUser.update({
-                data: updateData,
                 where: { id: userId },
+                data: updateData,
             });
         },
     };
@@ -55,7 +55,7 @@ export declare namespace UserMethods {
         email: string
     ) => Promise<{ email: string; password: string } | null>;
     export type UpdateUser = (
-        id: string | undefined,
+        userId: string,
         updateData: UpdateData
     ) => Promise<User>;
 
@@ -97,11 +97,11 @@ export interface RegistrationData {
  * These fields all have a type = string | underfined.
  */
 export interface UpdateData extends RegistrationData {
-    firstName?: string;
-    lastName?: string;
-    jobTitle?: string;
-    city?: string;
-    imageUrl?: string;
-    linkedIn?: string;
-    github?: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    jobTitle?: string | null;
+    city?: string | null;
+    imageUrl?: string | null;
+    linkedIn?: string | null;
+    github?: string | null;
 }

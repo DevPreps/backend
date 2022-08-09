@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 // Import routes
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ const app = (store: PrismaSessionStore): Express => {
 
     // Route handlers
     server.use("/api/auth", authRoutes);
+    server.use("/api/user", userRoutes);
 
     return server;
 };

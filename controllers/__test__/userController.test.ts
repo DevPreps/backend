@@ -69,7 +69,7 @@ describe("Unit Tests for User controllers", () => {
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(201);
             expect(res.json).toHaveBeenCalledWith({
-                status: "Success",
+                status: "success",
                 data: mockReturnUser,
             });
         });

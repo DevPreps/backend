@@ -163,4 +163,141 @@ describe("Integration tests for AUTH routes:", () => {
 
     // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
     // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
+
+    // User update route handler
+
+    describe("/api/user/update", () => {
+        test("User is able to update their user data", async () => {
+            // Create a user
+            const initialUser = await axios.post("api/auth/register", {
+                userName: "Achilles",
+                email: "achilles@email.com",
+                password: "iTookAnArrowToTheHeel!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Login the new user
+            // TODO: This login doesn't do anything and is not required for now
+            // This must be changed so that only logged in users may update.
+            const response = await axios.post("/api/auth/login", {
+                email: "achilles@email.com",
+                password: "iTookAnArrowToTheHeel!",
+            });
+            expect(response.status).toBe(200);
+            // Update our user
+            const updatedUser = await axios.put("/api/user/update", {
+                // Have to pass id as variable as its dynamicly created
+                id: initialUser.data.data.id,
+                userName: "Homer",
+                email: "homer@gmail.com",
+                password: "iTookAnArrowToTheHeel!",
+            });
+            expect(updatedUser.status).toBe(201);
+            expect(updatedUser.data.data.userName).toBe("Homer");
+            expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
+        });
+
+        test("User is unable to update using an already taken userName", async () => {
+            // Create a user
+            const initialUser1 = await axios.post("api/auth/register", {
+                userName: "Penelope",
+                email: "penelope@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Create a user
+            const initialUser2 = await axios.post("api/auth/register", {
+                userName: "Odysseus",
+                email: "odysseus@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(2);
+            expect(initialUser1.data.data.id).not.toBe(
+                initialUser2.data.data.id
+            );
+            // Login the new user
+            // TODO: This login doesn't do anything and is not required for now
+            // This must be changed so that only logged in users may update.
+            const response = await axios.post("/api/auth/login", {
+                email: "odysseus@email.com",
+                password: "Password1!",
+            });
+            expect(response.status).toBe(200);
+            // Update our user
+            const updatedUser = await axios.put("/api/user/update", {
+                // Have to pass id as variable as its dynamicly created
+                id: initialUser2.data.data.id,
+                userName: "Penelope",
+                email: "odysseus@gmail.com",
+                password: "Password1!",
+            });
+            expect(updatedUser.status).toBe(400);
+        });
+
+        test("User is unable to update using an already taken email", async () => {
+            // Create a user
+            const initialUser1 = await axios.post("api/auth/register", {
+                userName: "Eurycleia",
+                email: "eurycleia@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Create a user
+            const initialUser2 = await axios.post("api/auth/register", {
+                userName: "Hercules",
+                email: "hercules@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(2);
+            expect(initialUser1.data.data.id).not.toBe(
+                initialUser2.data.data.id
+            );
+            // Login the new user
+            // TODO: This login doesn't do anything and is not required for now
+            // This must be changed so that only logged in users may update.
+            const response = await axios.post("/api/auth/login", {
+                email: "hercules@email.com",
+                password: "Password1!",
+            });
+            expect(response.status).toBe(200);
+            // Update our user
+            const updatedUser = await axios.put("/api/user/update", {
+                // Have to pass id as variable as its dynamicly created
+                id: initialUser2.data.data.id,
+                userName: "Hercules",
+                email: "eurycleia@email.com",
+                password: "Password1!",
+            });
+            expect(updatedUser.status).toBe(400);
+        });
+
+        test("User is unable to be updated without an id", async () => {
+            // Create a user
+            await axios.post("api/auth/register", {
+                userName: "Jupiter",
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Login the new user
+            // TODO: This login doesn't do anything and is not required for now
+            // This must be changed so that only logged in users may update.
+            const response = await axios.post("/api/auth/login", {
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
+            expect(response.status).toBe(200);
+            // Update our user
+            const updatedUser = await axios.put("/api/user/update", {
+                id: "hahahahahahahaha",
+                userName: "Jupiter",
+                email: "jupiter@email.com",
+                password: "MyPasswordIsNotGoingToChange!",
+            });
+            expect(updatedUser.status).toBe(400);
+        });
+    });
 });
