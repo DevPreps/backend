@@ -6,6 +6,9 @@ import axios from "axios";
 import { prisma } from "../models/prisma";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
+import { RegistrationData } from "../models/userModel"
+
+import { faker } from "@faker-js/faker";
 
 import { faker } from "@faker-js/faker";
 
@@ -163,7 +166,7 @@ describe("Integration tests for AUTH routes:", () => {
             {missingFieldName: "password"},
         ])("return 400 when $missingFieldName field is missing",
            async ({missingFieldName}) => {
-            const user: UserRegister = createRandomUserForRegister();
+            const user: RegistrationData = createRandomUserForRegister();
     
             delete user[missingFieldName as keyof typeof user];
     
@@ -173,7 +176,7 @@ describe("Integration tests for AUTH routes:", () => {
         });
     
         test("return 400 when password is too short", async () => {
-            const user: UserRegister = {
+            const user: RegistrationData = {
                 ...createRandomUserForRegister(),
                 password: "123"
             };
@@ -315,16 +318,10 @@ describe("Integration tests for AUTH routes:", () => {
     });
 });
 
-interface UserRegister {
-    userName: string,
-    email: string,
-    password: string,
-}
-
-function createRandomUserForRegister(): UserRegister {
+function createRandomUserForRegister(): RegistrationData {
   return {
     userName: faker.internet.userName(),
     email: faker.internet.email(),
-    password: faker.internet.password(10),
+    password: faker.internet.password(10, false, /\w/, '!Aa0'),
   };
 }
