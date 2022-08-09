@@ -1,6 +1,8 @@
 import express from "express";
 import db from "../models/db";
 import protect from "../middleware/routeProtector";
+import { validateMiddleware } from "../middleware/validator";
+import { registerSchema } from "../validation/userRegisterValidator";
 
 // Import controllers
 import { register, login, logout } from "../controllers/authController";
@@ -11,6 +13,7 @@ router
     .route("/register")
     .post(
         protect({ loggedIn: false }),
+	    validateMiddleware(registerSchema),
         register(
             db.user.getUserByEmail,
             db.user.getUserByUserName,

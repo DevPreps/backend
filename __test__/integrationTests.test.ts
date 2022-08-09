@@ -7,6 +7,8 @@ import { prisma } from "../models/prisma";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
 
+import { faker } from "@faker-js/faker";
+
 jest.mock("../models/prisma");
 
 axios.defaults.baseURL = process.env.TEST_APP_URL || "http://localhost:9999";
@@ -153,6 +155,33 @@ describe("Integration tests for AUTH routes:", () => {
     // Reject invalid inputs
     // Reject unexpected attributes
     // Others
+    // user validation test
+    describe("user validation test : ", () => {
+        test.each([
+            {missingFieldName: "userName"},
+            {missingFieldName: "email"},
+            {missingFieldName: "password"},
+        ])("return 400 when $missingFieldName field is missing",
+           async ({missingFieldName}) => {
+            const user: UserRegister = createRandomUserForRegister();
+    
+            delete user[missingFieldName as keyof typeof user];
+    
+            const response = await axios.post("api/auth/register", user);
+    
+            expect(response.status).toBe(400);
+        });
+    
+        test("return 400 when password is too short", async () => {
+            const user: UserRegister = {
+                ...createRandomUserForRegister(),
+                password: "123"
+            };
+    
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        })
+    })
 
     // Login route handler integration tests
     // -------------------------------------------------------------------------
@@ -285,3 +314,17 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 });
+
+interface UserRegister {
+    userName: string,
+    email: string,
+    password: string,
+}
+
+function createRandomUserForRegister(): UserRegister {
+  return {
+    userName: faker.internet.userName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(10),
+  };
+}
