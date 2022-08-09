@@ -38,7 +38,7 @@
         "yup": "^0.32.11"
     },
     "devDependencies": {
-        "@faker-js/faker": "^7.3.0",
+        "@faker-js/faker": "^7.4.0",
         "@jest-mock/express": "^2.0.1",
         "@types/bcrypt": "^5.0.0",
         "@types/cors": "^2.8.12",

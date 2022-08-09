@@ -10,8 +10,6 @@ import { RegistrationData } from "../models/userModel"
 
 import { faker } from "@faker-js/faker";
 
-import { faker } from "@faker-js/faker";
-
 jest.mock("../models/prisma");
 
 axios.defaults.baseURL = process.env.TEST_APP_URL || "http://localhost:9999";
