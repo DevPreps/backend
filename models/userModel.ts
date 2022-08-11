@@ -55,7 +55,7 @@ export declare namespace UserMethods {
         email: string
     ) => Promise<{ email: string; password: string } | null>;
     export type UpdateUser = (
-        userId: string,
+        userId: string | undefined,
         updateData: UpdateData
     ) => Promise<User>;
 

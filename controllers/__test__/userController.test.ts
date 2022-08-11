@@ -53,11 +53,11 @@ describe("Unit Tests for User controllers", () => {
 
             const req = getMockReq({
                 body: {
-                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
                     userName: "Poseidon",
                     email: "poseidon@gmail.com",
                     password: "Password1",
                 },
+                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
             });
             const { res, next } = getMockRes();
 
@@ -83,11 +83,11 @@ describe("Unit Tests for User controllers", () => {
 
             const req = getMockReq({
                 body: {
-                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
                     userName: "Athena",
                     email: "athena@gmail.com",
                     password: "Password1",
                 },
+                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
             });
             const { res, next } = getMockRes();
 
@@ -110,11 +110,11 @@ describe("Unit Tests for User controllers", () => {
 
             const req = getMockReq({
                 body: {
-                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
                     userName: "Calypso",
                     email: "calypso@gmail.com",
                     password: "Password1",
                 },
+                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
             });
             const { res, next } = getMockRes();
 
@@ -136,11 +136,11 @@ describe("Unit Tests for User controllers", () => {
             });
             const req = getMockReq({
                 body: {
-                    id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",
                     userName: "Telemachus",
                     email: "telemachus@gmail.com",
                     password: "Password1",
                 },
+                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
             });
             const { res, next } = getMockRes();
 
