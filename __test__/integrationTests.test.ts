@@ -37,8 +37,41 @@ afterEach(async () => {
     server.close();
 });
 
+// Middleware tests
+// ----------------------------------------------------------------------------
+
+describe("CORS", () => {
+    it("should implement CORS", async () => {
+        const response = await axios.get("/");
+        expect(response.headers["access-control-allow-origin"]).toEqual("*");
+    });
+});
+
+describe("Rate limit", () => {
+    beforeAll(() => {
+        // Change operating environment just for this test as rate limiter is disabled for test environment
+        process.env.NODE_ENV = "development";
+        expect(process.env.NODE_ENV).toEqual("development");
+    });
+
+    afterAll(() => {
+        // Reset operating environment
+        process.env.NODE_ENV = "test";
+        expect(process.env.NODE_ENV).toEqual("test");
+    });
+
+    it("Should allow no more than 2 requests per second", async () => {
+        const response1 = await axios.get("/");
+        const response2 = await axios.get("/");
+        const response3 = await axios.get("/");
+        expect(response1.status).toBe(200);
+        expect(response2.status).toBe(200);
+        expect(response3.status).toBe(429);
+    });
+});
+
 describe("Integration tests for AUTH routes:", () => {
-    // Register route handler
+    // Register route handler integration tests
     // -------------------------------------------------------------------------
 
     describe("/api/auth/register", () => {
@@ -74,6 +107,45 @@ describe("Integration tests for AUTH routes:", () => {
             });
             expect(response2.status).toBe(400);
         });
+
+        test("responds with 401 Unauthorized when user already logged in", async () => {
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "loggedInUser",
+                email: "loggedin@email.com",
+                password: "password",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "loggedin@email.com",
+                password: "password",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            expect(loginResponse.headers["set-cookie"][0]).toMatch(/sid/);
+
+            // Get session cookie
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            // Try to register a new user when logged in
+            const response = await axios({
+                url: "/api/auth/register",
+                method: "POST",
+                headers: {
+                    Cookie: cookie,
+                },
+                data: {
+                    userName: "newuser",
+                    email: "newuser@email.com",
+                    password: "password",
+                },
+            });
+            expect(response.status).toBe(401);
+        });
     });
 
     // VALIDATION TESTS [400]:
@@ -82,7 +154,7 @@ describe("Integration tests for AUTH routes:", () => {
     // Reject unexpected attributes
     // Others
 
-    // Login route handler
+    // Login route handler integration tests
     // -------------------------------------------------------------------------
 
     describe("/api/auth/login", () => {
@@ -101,7 +173,7 @@ describe("Integration tests for AUTH routes:", () => {
             });
             expect(response.status).toBe(200);
             expect(response.data.data.userName).toBe("validUser");
-            expect(typeof response.headers["set-cookie"]).toBeDefined();
+            expect(response.headers["set-cookie"]).toBeDefined();
         });
 
         test("responds with 400 Bad Request if email does not exist in the database", async () => {
@@ -131,11 +203,49 @@ describe("Integration tests for AUTH routes:", () => {
             });
             expect(response.status).toBe(400);
         });
+
+        test("responds with 401 Unauthorized if user is already logged in", async () => {
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "loggedInUser",
+                email: "loggedin@email.com",
+                password: "password",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "loggedin@email.com",
+                password: "password",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            expect(loginResponse.headers["set-cookie"][0]).toMatch(/sid/);
+
+            // Get session cookie
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            // Try to login again when logged in
+            const response = await axios({
+                url: "/api/auth/login",
+                method: "POST",
+                headers: {
+                    Cookie: cookie,
+                },
+                data: {
+                    email: "loggedin@email.com",
+                    password: "password",
+                },
+            });
+            expect(response.status).toBe(401);
+        });
     });
 
     // Validation Tests [400]:
 
-    // Logout route handler
+    // Logout route handler integration tests
     // -------------------------------------------------------------------------
 
     describe("/api/auth/logout", () => {
@@ -155,11 +265,19 @@ describe("Integration tests for AUTH routes:", () => {
             });
             expect(response.status).toBe(200);
 
+            // Get session cookie
+            if (!response.headers["set-cookie"])
+                throw new Error("No cookie returned");
+            const cookie: string = response.headers["set-cookie"][0];
+
             // Logout
-            const logoutResponse = await axios.get("/api/auth/logout");
+            const logoutResponse = await axios.get("/api/auth/logout", {
+                headers: {
+                    Cookie: cookie,
+                },
+            });
             expect(logoutResponse.status).toBe(200);
         });
-    });
 
     // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
     // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
@@ -315,5 +433,11 @@ describe("Integration tests for AUTH routes:", () => {
             });
             expect(updatedUser.status).toBe(400);
         });
+        test("responds with 401 Unauthorized without session cookie", async () => {
+            const response = await axios.get("/api/auth/logout");
+            expect(response.status).toBe(401);
+
+    });
+    });
     });
 });

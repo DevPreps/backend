@@ -61,19 +61,22 @@ export const login =
         try {
             const { email, password } = req.body;
             const credentials = await getCredentials(email);
+
             // Check if user exists
-            if (!credentials)
+            if (!credentials) {
                 return res.status(400).json({
                     status: "error",
                     message: "Invalid email or password",
                 });
+            }
 
             // Check if password is correct
-            if (!bcrypt.compareSync(password, credentials.password))
+            if (!bcrypt.compareSync(password, credentials.password)) {
                 return res.status(400).json({
                     status: "error",
                     message: "Invalid email or password",
                 });
+            }
 
             // Get user object
             const user = await getUserByEmail(email);
@@ -97,12 +100,9 @@ export const logout = (): RequestHandler => (req, res, next) => {
         // Clear and delete session variables. This will log the user out.
         // The callback function is required for error handling as express-session
         // does not support promises.
-        delete req.session.user;
-        delete req.session.loggedIn;
         const callback = (err: Error) => {
             if (err) next(err);
         };
-        req.session.save(callback);
         req.session.destroy(callback);
         return res
             .status(200)
