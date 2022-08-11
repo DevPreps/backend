@@ -114,5 +114,29 @@ describe("Unit Tests for User Model:", () => {
             expect(userUpdated?.firstName).toBe("Jeff");
             expect(userUpdated?.lastName).toBe("Bezos");
         });
+
+        test("user.getUserById with a valid id should return a user", async () => {
+            // First create a user in the database
+            const jeff = await users.register({
+                userName: "jeff",
+                email: "jeff@gmail.com",
+                password: "jeffPassword",
+            });
+            expect(await users.count()).toBe(1);
+            expect(jeff.id).toBeDefined();
+
+            // Now test if we can get a user by their id
+            const user = await users.getUserById(jeff.id);
+            expect(user?.userName).toBe("jeff");
+            expect(user?.id).toBe(jeff?.id);
+        });
+        test("Should be unable to getUserById on an id that doesn't exist", async () => {
+            // It's important to check if the error this causes breaks our app or not
+            const binChicken = await users.getUserById(
+                "dj12j-21kd-21dk12d34-d21kd23"
+            );
+
+            expect(binChicken).toBe(null);
+        });
     });
 });

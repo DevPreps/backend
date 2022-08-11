@@ -1,3 +1,7 @@
+//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+// USER ENTITY UPDATE & DELETE FUNCTIONS  \\
+//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 
@@ -59,7 +63,7 @@ export const update =
                 .status(400)
                 .json({ status: "error", message: "User has no session" });
         } catch (error) {
-            console.log("Error at userController " + error);
+            console.log(`userController.ts ERROR: ${error}`);
             return next(error);
         }
     };

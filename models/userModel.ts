@@ -35,6 +35,12 @@ const Users = (prismaUser: PrismaClient["user"]) => {
                 data: updateData,
             });
         },
+
+        getUserById: (userId) => {
+            return prismaUser.findUnique({
+                where: { id: userId },
+            });
+        },
     };
     return Object.assign(prismaUser, userMethods);
 };
@@ -58,7 +64,7 @@ export declare namespace UserMethods {
         userId: string | undefined,
         updateData: UpdateData
     ) => Promise<User>;
-
+    export type GetUserById = (id: string) => Promise<User | null>;
     // Existing prisma generated user method types
     export type FindUnique = typeof userModel.findUnique;
 }
@@ -72,6 +78,7 @@ interface CustomMethods {
     getUserByUserName: UserMethods.GetUserByUserName;
     getCredentials: UserMethods.GetCredentials;
     updateUser: UserMethods.UpdateUser;
+    getUserById: UserMethods.GetUserById;
 }
 
 // Type objects for custom method inputs
