@@ -185,18 +185,24 @@ describe("Integration tests for AUTH routes:", () => {
             expect(response.data.data.id).toBeDefined();
 
             // Get session cookie
-            if (!response.headers["set-cookie"]){
-                throw new Error("No cookie returned");};
-            const cookie: string = response.headers["set-cookie"][0]
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
             // Update our user
-            const updatedUser = await axios.put("/api/user/update", {
-                userName: "Homer",
-                email: "homer@gmail.com",
-                password: "iTookAnArrowToTheHeel!",
-            }, {headers: {Cookie: cookie}});
+            const updatedUser = await axios.put(
+                "/api/user/update",
+                {
+                    userName: "Homer",
+                    email: "homer@gmail.com",
+                    password: "iTookAnArrowToTheHeel!",
+                },
+                { headers: { Cookie: cookie } }
+            );
             expect(updatedUser.status).toBe(201);
-         //   expect(updatedUser.data.data.userName).toBe("Homer");
-        //    expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
+            expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
+            //   expect(updatedUser.data.data.userName).toBe("Homer");
+            //    expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
         });
 
         test("User is unable to update using an already taken userName", async () => {
@@ -226,16 +232,21 @@ describe("Integration tests for AUTH routes:", () => {
             expect(response.status).toBe(200);
 
             // Get session cookie
-            if (!response.headers["set-cookie"]){
-                throw new Error("No cookie returned");};
-            const cookie: string = response.headers["set-cookie"][0]
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
 
             // Update our user
-            const updatedUser = await axios.put("/api/user/update", {
-                userName: "Penelope",
-                email: "odysseus@gmail.com",
-                password: "Password1!",
-            }, {headers: {Cookie: cookie}});
+            const updatedUser = await axios.put(
+                "/api/user/update",
+                {
+                    userName: "Penelope",
+                    email: "odysseus@gmail.com",
+                    password: "Password1!",
+                },
+                { headers: { Cookie: cookie } }
+            );
             expect(updatedUser.status).toBe(400);
         });
 
@@ -267,16 +278,21 @@ describe("Integration tests for AUTH routes:", () => {
             expect(response.status).toBe(200);
 
             // Get session cookie
-            if (!response.headers["set-cookie"]){
-                throw new Error("No cookie returned");};
-            const cookie: string = response.headers["set-cookie"][0]
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
 
             // Update our user
-            const updatedUser = await axios.put("/api/user/update", {
-                userName: "Hercules",
-                email: "eurycleia@email.com",
-                password: "Password1!",
-            }, {headers: {Cookie: cookie}});
+            const updatedUser = await axios.put(
+                "/api/user/update",
+                {
+                    userName: "Hercules",
+                    email: "eurycleia@email.com",
+                    password: "Password1!",
+                },
+                { headers: { Cookie: cookie } }
+            );
             expect(updatedUser.status).toBe(400);
         });
 

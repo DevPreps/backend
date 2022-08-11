@@ -57,7 +57,9 @@ describe("Unit Tests for User controllers", () => {
                     email: "poseidon@gmail.com",
                     password: "Password1",
                 },
-                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
+                session: {
+                    user: { id: "2851c0b6-9b2f-2h0u-219x-h421084ghel" },
+                },
             });
             const { res, next } = getMockRes();
 
@@ -87,7 +89,9 @@ describe("Unit Tests for User controllers", () => {
                     email: "athena@gmail.com",
                     password: "Password1",
                 },
-                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
+                session: {
+                    user: { id: "2851c0b6-9b2f-2h0u-219x-h421084ghel" },
+                },
             });
             const { res, next } = getMockRes();
 
@@ -114,7 +118,9 @@ describe("Unit Tests for User controllers", () => {
                     email: "calypso@gmail.com",
                     password: "Password1",
                 },
-                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
+                session: {
+                    user: { id: "2851c0b6-9b2f-2h0u-219x-h421084ghel" },
+                },
             });
             const { res, next } = getMockRes();
 
@@ -140,7 +146,9 @@ describe("Unit Tests for User controllers", () => {
                     email: "telemachus@gmail.com",
                     password: "Password1",
                 },
-                session: {user: {id: "2851c0b6-9b2f-2h0u-219x-h421084ghel",}},
+                session: {
+                    user: { id: "2851c0b6-9b2f-2h0u-219x-h421084ghel" },
+                },
             });
             const { res, next } = getMockRes();
 

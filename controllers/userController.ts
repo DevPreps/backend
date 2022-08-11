@@ -32,7 +32,8 @@ export const update =
             const userNameExists = await getUserByUserName(req?.body?.userName);
             const emailExists = await getUserByEmail(req?.body?.email);
             if (
-                (userNameExists && req?.session?.user?.id !== userNameExists?.id) ||
+                (userNameExists &&
+                    req?.session?.user?.id !== userNameExists?.id) ||
                 (emailExists && req?.session?.user?.id !== emailExists?.id)
             )
                 return res.status(400).json({
@@ -45,14 +46,20 @@ export const update =
             const password = req.body.password;
             const hashedPassword = bcrypt.hashSync(password, 6);
             req.body.password = hashedPassword;
-            if(req?.session?.user?.id){
-            const result = await updateUser(req.session.user.id, req.body);
-            console.log("Updated user " + req.body.userName + " successfully!");
-            return res.status(201).json({ status: "success", data: result });
-            };
-            return res.status(400).json({ status: "error", message: "User has no session" })
+            if (req?.session?.user?.id) {
+                const result = await updateUser(req.session.user.id, req.body);
+                console.log(
+                    "Updated user " + req.body.userName + " successfully!"
+                );
+                return res
+                    .status(201)
+                    .json({ status: "success", data: result });
+            }
+            return res
+                .status(400)
+                .json({ status: "error", message: "User has no session" });
         } catch (error) {
-            console.log("Error at userController " + error)
+            console.log("Error at userController " + error);
             return next(error);
         }
     };
