@@ -279,165 +279,164 @@ describe("Integration tests for AUTH routes:", () => {
             expect(logoutResponse.status).toBe(200);
         });
 
-    // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
-    // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
+        // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
+        // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
 
-    // User update route handler
+        // User update route handler
 
-    describe("/api/user/update", () => {
-        test("User is able to update their user data", async () => {
-            // Create a user
-            const initialUser = await axios.post("api/auth/register", {
-                userName: "Achilles",
-                email: "achilles@email.com",
-                password: "iTookAnArrowToTheHeel!",
-            });
-            expect(await db.user.count()).toBe(1);
-
-            // Login the new user
-            const response = await axios.post("/api/auth/login", {
-                email: "achilles@email.com",
-                password: "iTookAnArrowToTheHeel!",
-            });
-            expect(response.status).toBe(200);
-            expect(response.data.data.id).toBeDefined();
-
-            // Get session cookie
-            if (!response.headers["set-cookie"]) {
-                throw new Error("No cookie returned");
-            }
-            const cookie: string = response.headers["set-cookie"][0];
-            // Update our user
-            const updatedUser = await axios.put(
-                "/api/user/update",
-                {
-                    userName: "Homer",
-                    email: "homer@gmail.com",
+        describe("/api/user/update", () => {
+            test("User is able to update their user data", async () => {
+                // Create a user
+                const initialUser = await axios.post("api/auth/register", {
+                    userName: "Achilles",
+                    email: "achilles@email.com",
                     password: "iTookAnArrowToTheHeel!",
-                },
-                { headers: { Cookie: cookie } }
-            );
-            expect(updatedUser.status).toBe(201);
-            expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
-            //   expect(updatedUser.data.data.userName).toBe("Homer");
-            //    expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
-        });
+                });
+                expect(await db.user.count()).toBe(1);
 
-        test("User is unable to update using an already taken userName", async () => {
-            // Create a user
-            const initialUser1 = await axios.post("api/auth/register", {
-                userName: "Penelope",
-                email: "penelope@email.com",
-                password: "Password1!",
+                // Login the new user
+                const response = await axios.post("/api/auth/login", {
+                    email: "achilles@email.com",
+                    password: "iTookAnArrowToTheHeel!",
+                });
+                expect(response.status).toBe(200);
+                expect(response.data.data.id).toBeDefined();
+
+                // Get session cookie
+                if (!response.headers["set-cookie"]) {
+                    throw new Error("No cookie returned");
+                }
+                const cookie: string = response.headers["set-cookie"][0];
+                // Update our user
+                const updatedUser = await axios.put(
+                    "/api/user/update",
+                    {
+                        userName: "Homer",
+                        email: "homer@gmail.com",
+                        password: "iTookAnArrowToTheHeel!",
+                    },
+                    { headers: { Cookie: cookie } }
+                );
+                expect(updatedUser.status).toBe(201);
+                expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
+                //   expect(updatedUser.data.data.userName).toBe("Homer");
+                //    expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
             });
-            expect(await db.user.count()).toBe(1);
 
-            // Create a user
-            const initialUser2 = await axios.post("api/auth/register", {
-                userName: "Odysseus",
-                email: "odysseus@email.com",
-                password: "Password1!",
-            });
-            expect(await db.user.count()).toBe(2);
-            expect(initialUser1.data.data.id).not.toBe(
-                initialUser2.data.data.id
-            );
-            // Login the new user
-            const response = await axios.post("/api/auth/login", {
-                email: "odysseus@email.com",
-                password: "Password1!",
-            });
-            expect(response.status).toBe(200);
-
-            // Get session cookie
-            if (!response.headers["set-cookie"]) {
-                throw new Error("No cookie returned");
-            }
-            const cookie: string = response.headers["set-cookie"][0];
-
-            // Update our user
-            const updatedUser = await axios.put(
-                "/api/user/update",
-                {
+            test("User is unable to update using an already taken userName", async () => {
+                // Create a user
+                const initialUser1 = await axios.post("api/auth/register", {
                     userName: "Penelope",
-                    email: "odysseus@gmail.com",
+                    email: "penelope@email.com",
                     password: "Password1!",
-                },
-                { headers: { Cookie: cookie } }
-            );
-            expect(updatedUser.status).toBe(400);
-        });
+                });
+                expect(await db.user.count()).toBe(1);
 
-        test("User is unable to update using an already taken email", async () => {
-            // Create a user
-            const initialUser1 = await axios.post("api/auth/register", {
-                userName: "Eurycleia",
-                email: "eurycleia@email.com",
-                password: "Password1!",
+                // Create a user
+                const initialUser2 = await axios.post("api/auth/register", {
+                    userName: "Odysseus",
+                    email: "odysseus@email.com",
+                    password: "Password1!",
+                });
+                expect(await db.user.count()).toBe(2);
+                expect(initialUser1.data.data.id).not.toBe(
+                    initialUser2.data.data.id
+                );
+                // Login the new user
+                const response = await axios.post("/api/auth/login", {
+                    email: "odysseus@email.com",
+                    password: "Password1!",
+                });
+                expect(response.status).toBe(200);
+
+                // Get session cookie
+                if (!response.headers["set-cookie"]) {
+                    throw new Error("No cookie returned");
+                }
+                const cookie: string = response.headers["set-cookie"][0];
+
+                // Update our user
+                const updatedUser = await axios.put(
+                    "/api/user/update",
+                    {
+                        userName: "Penelope",
+                        email: "odysseus@gmail.com",
+                        password: "Password1!",
+                    },
+                    { headers: { Cookie: cookie } }
+                );
+                expect(updatedUser.status).toBe(400);
             });
-            expect(await db.user.count()).toBe(1);
 
-            // Create a user
-            const initialUser2 = await axios.post("api/auth/register", {
-                userName: "Hercules",
-                email: "hercules@email.com",
-                password: "Password1!",
-            });
-            expect(await db.user.count()).toBe(2);
-            expect(initialUser1.data.data.id).not.toBe(
-                initialUser2.data.data.id
-            );
-            // Login the new user
-            const response = await axios.post("/api/auth/login", {
-                email: "hercules@email.com",
-                password: "Password1!",
-            });
-
-            expect(response.status).toBe(200);
-
-            // Get session cookie
-            if (!response.headers["set-cookie"]) {
-                throw new Error("No cookie returned");
-            }
-            const cookie: string = response.headers["set-cookie"][0];
-
-            // Update our user
-            const updatedUser = await axios.put(
-                "/api/user/update",
-                {
-                    userName: "Hercules",
+            test("User is unable to update using an already taken email", async () => {
+                // Create a user
+                const initialUser1 = await axios.post("api/auth/register", {
+                    userName: "Eurycleia",
                     email: "eurycleia@email.com",
                     password: "Password1!",
-                },
-                { headers: { Cookie: cookie } }
-            );
-            expect(updatedUser.status).toBe(400);
-        });
+                });
+                expect(await db.user.count()).toBe(1);
 
-        test("User is unable to be updated without a valid session", async () => {
-            // Create a user
-            await axios.post("api/auth/register", {
-                userName: "Jupiter",
-                email: "jupiter@email.com",
-                password: "Password1!",
+                // Create a user
+                const initialUser2 = await axios.post("api/auth/register", {
+                    userName: "Hercules",
+                    email: "hercules@email.com",
+                    password: "Password1!",
+                });
+                expect(await db.user.count()).toBe(2);
+                expect(initialUser1.data.data.id).not.toBe(
+                    initialUser2.data.data.id
+                );
+                // Login the new user
+                const response = await axios.post("/api/auth/login", {
+                    email: "hercules@email.com",
+                    password: "Password1!",
+                });
+
+                expect(response.status).toBe(200);
+
+                // Get session cookie
+                if (!response.headers["set-cookie"]) {
+                    throw new Error("No cookie returned");
+                }
+                const cookie: string = response.headers["set-cookie"][0];
+
+                // Update our user
+                const updatedUser = await axios.put(
+                    "/api/user/update",
+                    {
+                        userName: "Hercules",
+                        email: "eurycleia@email.com",
+                        password: "Password1!",
+                    },
+                    { headers: { Cookie: cookie } }
+                );
+                expect(updatedUser.status).toBe(400);
             });
-            expect(await db.user.count()).toBe(1);
 
-            // Lets not login and get a cookie for this one
+            test("User is unable to be updated without a valid session", async () => {
+                // Create a user
+                await axios.post("api/auth/register", {
+                    userName: "Jupiter",
+                    email: "jupiter@email.com",
+                    password: "Password1!",
+                });
+                expect(await db.user.count()).toBe(1);
 
-            // Update our user
-            const updatedUser = await axios.put("/api/user/update", {
-                userName: "Jupiter",
-                email: "jupiter@email.com",
-                password: "MyPasswordIsNotGoingToChange!",
+                // Lets not login and get a cookie for this one
+
+                // Update our user
+                const updatedUser = await axios.put("/api/user/update", {
+                    userName: "Jupiter",
+                    email: "jupiter@email.com",
+                    password: "MyPasswordIsNotGoingToChange!",
+                });
+                expect(updatedUser.status).toBe(400);
             });
-            expect(updatedUser.status).toBe(400);
+            test("responds with 401 Unauthorized without session cookie", async () => {
+                const response = await axios.get("/api/auth/logout");
+                expect(response.status).toBe(401);
+            });
         });
-        test("responds with 401 Unauthorized without session cookie", async () => {
-            const response = await axios.get("/api/auth/logout");
-            expect(response.status).toBe(401);
-
-    });
-    });
     });
 });
