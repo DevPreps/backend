@@ -43,25 +43,16 @@ export const update =
                 return res.status(400).json({
                     status: "error",
                     message:
-                        "A user already exists with that username or email address",
+                        "A user already ``   exists with that username or email address",
                 });
 
             // Encrypt the password
             const password = req.body.password;
             const hashedPassword = bcrypt.hashSync(password, 6);
             req.body.password = hashedPassword;
-            if (req?.session?.user?.id) {
-                const result = await updateUser(req.session.user.id, req.body);
-                console.log(
-                    "Updated user " + req.body.userName + " successfully!"
-                );
-                return res
-                    .status(201)
-                    .json({ status: "success", data: result });
-            }
-            return res
-                .status(400)
-                .json({ status: "error", message: "User has no session" });
+            const result = await updateUser(req?.session?.user?.id, req.body);
+            console.log("Updated user " + req.body.userName + " successfully!");
+            return res.status(201).json({ status: "success", data: result });
         } catch (error) {
             console.log(`userController.ts ERROR: ${error}`);
             return next(error);

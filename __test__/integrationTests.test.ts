@@ -431,7 +431,7 @@ describe("Integration tests for AUTH routes:", () => {
                     email: "jupiter@email.com",
                     password: "MyPasswordIsNotGoingToChange!",
                 });
-                expect(updatedUser.status).toBe(400);
+                expect(updatedUser.status).toBe(401);
             });
             test("responds with 401 Unauthorized without session cookie", async () => {
                 const response = await axios.get("/api/auth/logout");
