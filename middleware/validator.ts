@@ -11,3 +11,15 @@ export const validate = (schema: AnyObjectSchema) => {
         }
     };
 };
+
+export const sessionValidate = (schema: AnyObjectSchema) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            await schema.validate(req.session);
+            return next();
+        } catch (error) {
+            return res.status(400).json({ error });
+        }
+    };
+};
+
