@@ -291,10 +291,54 @@ describe("Integration tests for AUTH routes:", () => {
 describe("Integration tests for POST routes:", () => {
     describe("/api/posts/create", () => {
         test("responds with 201 Created and returns the created post", async () => {
-            const response = await axios.post("/api/posts/create");
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "postUser",
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            // Get session cookie
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            const response = await axios({
+                url: "/api/posts/create",
+                method: "POST",
+                headers: {
+                    Cookie: cookie,
+                },
+                data: {
+                    title: "test",
+                    content: "test",
+                    status: "DRAFT",
+                    category: "GENERAL",
+                }
+            });
             expect(response.status).toBe(201);
+        });
+
+        test("responds with 401 Unauthorised when not logged in", async () => {
+            const response = await axios.post("/api/posts/create", {
+                title: "test",
+                content: "test",
+                status: "DRAFT",
+                category: "GENERAL",
+            });
+            expect(response.status).toBe(401);
         });
     });
 });
 
 // returns 400 error with invalid inputs
+// user should be logged in
+// 
