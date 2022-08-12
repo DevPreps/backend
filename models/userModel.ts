@@ -89,21 +89,14 @@ export interface RegistrationData {
 }
 
 /**
- * __This interface is made for the UpdateUser endpoint in the UserController.__
- *
- * **UpdateData** builds on the mandatory fields in **RegistrationData**:
- * - userName: string;
- * - email: string;
- * - password: string;
- *
- * These fields are mandatory however the **UpdateData** interface includes
+ * The **UpdateData** interface includes
  * __optional types__ that make up the user's personal and profile information:
  * firstName, lastName, jobTitle, city, imageUrl, linkenIn,
- * github.
- *
- * These fields all have a type = string | underfined.
+ * github, userName and email.
  */
-export interface UpdateData extends RegistrationData {
+export interface UpdateData {
+    userName: string;
+    email: string;
     firstName?: string | null;
     lastName?: string | null;
     jobTitle?: string | null;
