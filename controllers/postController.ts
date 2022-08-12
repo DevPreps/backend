@@ -9,6 +9,7 @@ export const createPost =
                 userId: req.session?.user?.id,
                 ...req.body,
             };
+            console.log(postData);
 
             const result = await createPost(postData);
             return res.status(201).json({ status: "success", data: result });

@@ -339,6 +339,4 @@ describe("Integration tests for POST routes:", () => {
     });
 });
 
-// returns 400 error with invalid inputs
-// user should be logged in
-//
+// returns 400 error with invalid inputs - validation tests
