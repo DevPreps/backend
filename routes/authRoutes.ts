@@ -2,7 +2,7 @@ import express from "express";
 import db from "../models/db";
 import protect from "../middleware/routeProtector";
 import { validate } from "../middleware/validator";
-import { registerSchema } from "../validation/userRegisterValidator";
+import { registerSchema, loginSchema } from "../validation/userValidator";
 
 // Import controllers
 import { register, login, logout } from "../controllers/authController";
@@ -25,6 +25,7 @@ router
     .route("/login")
     .post(
         protect({ loggedIn: false }),
+        validate(loginSchema),
         login(db.user.getCredentials, db.user.getUserByEmail)
     );
 

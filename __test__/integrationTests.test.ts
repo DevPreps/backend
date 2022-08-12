@@ -276,6 +276,33 @@ describe("Integration tests for AUTH routes:", () => {
     });
 
     // Validation Tests [400]:
+    describe("user login validation test : ", () => {
+        test.each([
+            { missingFieldName: "email" },
+            { missingFieldName: "password" },
+        ])(
+            "return 400 when $missingFieldName field is missing",
+            async ({ missingFieldName }) => {
+                const user: LoginData = createRandomUserForLogin();
+
+                delete user[missingFieldName as keyof typeof user];
+
+                const response = await axios.post("api/auth/login", user);
+
+                expect(response.status).toBe(400);
+            }
+        );
+
+        test("return 400 when password is too short", async () => {
+            const user: LoginData = {
+                ...createRandomUserForLogin(),
+                password: "123",
+            };
+
+            const response = await axios.post("api/auth/login", user);
+            expect(response.status).toBe(400);
+        });
+    });
 
     // Logout route handler integration tests
     // -------------------------------------------------------------------------
@@ -321,6 +348,18 @@ describe("Integration tests for AUTH routes:", () => {
 function createRandomUserForRegister(): RegistrationData {
     return {
         userName: faker.internet.userName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(10, false, /\w/, "!Aa0"),
+    };
+}
+
+interface LoginData {
+    email: string;
+    password: string;
+}
+
+function createRandomUserForLogin(): LoginData {
+    return {
         email: faker.internet.email(),
         password: faker.internet.password(10, false, /\w/, "!Aa0"),
     };
