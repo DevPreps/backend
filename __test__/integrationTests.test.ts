@@ -82,7 +82,7 @@ describe("Integration tests for AUTH routes:", () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
                 email: "johndoe@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(201);
         });
@@ -92,21 +92,21 @@ describe("Integration tests for AUTH routes:", () => {
             await db.user.register({
                 userName: "hercules",
                 email: "hulk@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             const response = await axios.post("/api/auth/register", {
                 userName: "hercules",
                 email: "notTheSameEmail@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(400);
 
             const response2 = await axios.post("/api/auth/register", {
                 userName: "notTheSameUserName",
                 email: "hulk@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(response2.status).toBe(400);
         });
@@ -116,14 +116,14 @@ describe("Integration tests for AUTH routes:", () => {
             await axios.post("/api/auth/register", {
                 userName: "loggedInUser",
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             // Log the user in
             const loginResponse = await axios.post("/api/auth/login", {
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(loginResponse.status).toBe(200);
 
@@ -144,7 +144,7 @@ describe("Integration tests for AUTH routes:", () => {
                 data: {
                     userName: "newuser",
                     email: "newuser@email.com",
-                    password: "password",
+                    password: "Abc-1234",
                 },
             });
             expect(response.status).toBe(401);
@@ -241,14 +241,14 @@ describe("Integration tests for AUTH routes:", () => {
             await axios.post("/api/auth/register", {
                 userName: "loggedInUser",
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             // Log the user in
             const loginResponse = await axios.post("/api/auth/login", {
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(loginResponse.status).toBe(200);
 
@@ -268,7 +268,7 @@ describe("Integration tests for AUTH routes:", () => {
                 },
                 data: {
                     email: "loggedin@email.com",
-                    password: "password",
+                    password: "Abc-1234",
                 },
             });
             expect(response.status).toBe(401);
