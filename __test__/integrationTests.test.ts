@@ -322,7 +322,7 @@ describe("Integration tests for POST routes:", () => {
                     content: "test",
                     status: "DRAFT",
                     category: "GENERAL",
-                }
+                },
             });
             expect(response.status).toBe(201);
         });
@@ -341,4 +341,4 @@ describe("Integration tests for POST routes:", () => {
 
 // returns 400 error with invalid inputs
 // user should be logged in
-// 
+//

@@ -7,9 +7,8 @@ import { createPost } from "../controllers/postController";
 
 const router = express.Router();
 
-router.route("/create").post(
-    protect({ loggedIn: true }),    
-    createPost(db.post.createPost)
-);
+router
+    .route("/create")
+    .post(protect({ loggedIn: true }), createPost(db.post.createPost));
 
 export default router;
