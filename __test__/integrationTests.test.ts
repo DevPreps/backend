@@ -241,10 +241,6 @@ describe("Integration tests for AUTH routes:", () => {
             });
             expect(response.status).toBe(401);
         });
-        test("responds with 401 Unauthorized without session cookie", async () => {
-            const response = await axios.get("/api/auth/logout");
-            expect(response.status).toBe(401);
-        });
     });
 
     // Validation Tests [400]:
@@ -440,10 +436,6 @@ describe("Integration tests for AUTH routes:", () => {
                 password: "MyPasswordIsNotGoingToChange!",
             });
             expect(updatedUser.status).toBe(401);
-        });
-        test("responds with 401 Unauthorized without session cookie", async () => {
-            const response = await axios.get("/api/auth/logout");
-            expect(response.status).toBe(401);
         });
     });
 });

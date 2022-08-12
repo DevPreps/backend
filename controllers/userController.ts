@@ -45,7 +45,6 @@ export const update =
                         "A user already exists with that username or email address",
                 });
 
-            // Encrypt the password
             const result = await updateUser(req?.session?.user?.id, req.body);
             return res.status(201).json({ status: "success", data: result });
         } catch (error) {
