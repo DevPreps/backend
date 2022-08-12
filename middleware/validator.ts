@@ -6,8 +6,8 @@ export const validate = (schema: AnyObjectSchema) => {
         try {
             await schema.validate(req.body);
             return next();
-        } catch(error) {
-            return res.status(400).json({error});
+        } catch (error) {
+            return res.status(400).json({ error });
         }
     };
 };

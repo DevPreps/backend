@@ -13,7 +13,7 @@ router
     .route("/register")
     .post(
         protect({ loggedIn: false }),
-	    validate(registerSchema),
+        validate(registerSchema),
         register(
             db.user.getUserByEmail,
             db.user.getUserByUserName,

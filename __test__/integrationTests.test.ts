@@ -6,7 +6,7 @@ import axios from "axios";
 import { prisma } from "../models/prisma";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
-import { RegistrationData } from "../models/userModel"
+import { RegistrationData } from "../models/userModel";
 
 import { faker } from "@faker-js/faker";
 
@@ -159,30 +159,32 @@ describe("Integration tests for AUTH routes:", () => {
     // user validation test
     describe("user validation test : ", () => {
         test.each([
-            {missingFieldName: "userName"},
-            {missingFieldName: "email"},
-            {missingFieldName: "password"},
-        ])("return 400 when $missingFieldName field is missing",
-           async ({missingFieldName}) => {
-            const user: RegistrationData = createRandomUserForRegister();
-    
-            delete user[missingFieldName as keyof typeof user];
-    
-            const response = await axios.post("api/auth/register", user);
-    
-            expect(response.status).toBe(400);
-        });
-    
+            { missingFieldName: "userName" },
+            { missingFieldName: "email" },
+            { missingFieldName: "password" },
+        ])(
+            "return 400 when $missingFieldName field is missing",
+            async ({ missingFieldName }) => {
+                const user: RegistrationData = createRandomUserForRegister();
+
+                delete user[missingFieldName as keyof typeof user];
+
+                const response = await axios.post("api/auth/register", user);
+
+                expect(response.status).toBe(400);
+            }
+        );
+
         test("return 400 when password is too short", async () => {
             const user: RegistrationData = {
                 ...createRandomUserForRegister(),
-                password: "123"
+                password: "123",
             };
-    
+
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
-        })
-    })
+        });
+    });
 
     // Login route handler integration tests
     // -------------------------------------------------------------------------
@@ -317,9 +319,9 @@ describe("Integration tests for AUTH routes:", () => {
 });
 
 function createRandomUserForRegister(): RegistrationData {
-  return {
-    userName: faker.internet.userName(),
-    email: faker.internet.email(),
-    password: faker.internet.password(10, false, /\w/, "!Aa0"),
-  };
+    return {
+        userName: faker.internet.userName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(10, false, /\w/, "!Aa0"),
+    };
 }
