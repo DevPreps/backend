@@ -8,6 +8,7 @@ import rateLimit from "express-rate-limit";
 
 // Import routes
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ const app = (store: PrismaSessionStore): Express => {
 
     // Route handlers
     server.use("/api/auth", authRoutes);
+    server.use("/api/user", userRoutes);
     server.use("/", (req, res) => {
         return res.status(200).json({
             status: "success",
