@@ -3,23 +3,21 @@ import { prisma } from "./prisma";
 
 const Posts = (prismaPost: PrismaClient["post"]) => {
     const customMethods: CustomMethods = {
-        createPost: (postData) => {
-            // const tagIds = postData?.postTags?.map(tag => ({ 
-            //     tagId: prisma.tag.findUnique({
-            //         where: { name: tag }
-            //     })
-            // }));
-            // console.log(tagIds);
+        createPost: async (postData) => {
+            const tags = await prisma.tag.findMany({});
+            const tagIds = postData?.postTags?.map((tag) => {
+                return { tagId: tags?.filter((t) => t.name === tag)[0].id };
+            });
 
-            return prismaPost.create({ 
+            return prismaPost.create({
                 data: {
                     ...postData,
-                    // postTags: {
-                    //     createMany: {
-                    //         data: tagIds
-                    //     }
-                    // }
-                }
+                    postTags: {
+                        createMany: {
+                            data: tagIds,
+                        },
+                    },
+                },
             });
         },
     };
@@ -49,5 +47,5 @@ export interface PostData {
     jobTitle?: string;
     position?: string;
     jobAdUrl?: string;
-    // postTags: string[];
+    postTags: string[];
 }

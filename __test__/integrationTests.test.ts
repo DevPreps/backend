@@ -306,6 +306,12 @@ describe("Integration tests for POST routes:", () => {
             });
             expect(loginResponse.status).toBe(200);
 
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
             // Get session cookie
             if (!loginResponse.headers["set-cookie"])
                 throw new Error("No cookie set");
@@ -322,6 +328,7 @@ describe("Integration tests for POST routes:", () => {
                     content: "test",
                     status: "DRAFT",
                     category: "GENERAL",
+                    postTags: ["JS"],
                 },
             });
             expect(response.status).toBe(201);

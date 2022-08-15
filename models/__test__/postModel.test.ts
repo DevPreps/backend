@@ -28,15 +28,35 @@ describe("Unit Tests for Post Model:", () => {
             });
             expect(await db.user.count()).toBe(1);
 
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
             await posts.createPost({
                 userId: user.id,
                 title: "test",
                 content: "test",
                 status: "DRAFT",
                 category: "GENERAL",
-                // postTags: ["JS, TS"]
+                postTags: ["JS", "TS"],
             });
             expect(await posts.count()).toBe(1);
+
+            const result = await posts.findFirst({
+                where: {
+                    userId: user.id,
+                },
+                include: {
+                    postTags: {
+                        include: {
+                            tag: true,
+                        },
+                    },
+                },
+            });
+            expect(result?.postTags.length).toBe(2);
         });
     });
 });

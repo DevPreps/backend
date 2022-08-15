@@ -26,6 +26,7 @@ describe("Unit Tests for Post Controllers", () => {
                     content: "test",
                     status: "DRAFT",
                     category: "GENERAL",
+                    postTags: ["JS", "TS"],
                 },
             });
             const { res, next } = getMockRes();
