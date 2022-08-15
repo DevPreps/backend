@@ -346,4 +346,5 @@ describe("Integration tests for POST routes:", () => {
     });
 });
 
+// Return error when tags not in database
 // returns 400 error with invalid inputs - validation tests
