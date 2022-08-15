@@ -23,6 +23,12 @@ describe("Unit Tests for Database Object:", () => {
         expect(db.post.count).toBeDefined();
         expect(db.post.createPost).toBeDefined();
     });
+
+    test("contains tag object with default methods", () => {
+        expect(db.tag).toBeDefined();
+        expect(typeof db.tag).toBe("object");
+        expect(db.tag.count).toBeDefined();
+    });
 });
 
 describe("Unit Tests for Prisma Middleware", () => {

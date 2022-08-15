@@ -88,7 +88,7 @@ model Likes {
 
 model Tag {
     id       String    @id @default(uuid())
-    name     String
+    name     String    @unique
     postTags PostTag[]
 }
 

@@ -34,6 +34,7 @@ describe("Unit Tests for Post Model:", () => {
                 content: "test",
                 status: "DRAFT",
                 category: "GENERAL",
+                // postTags: ["JS, TS"]
             });
             expect(await posts.count()).toBe(1);
         });

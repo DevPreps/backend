@@ -4,7 +4,23 @@ import { prisma } from "./prisma";
 const Posts = (prismaPost: PrismaClient["post"]) => {
     const customMethods: CustomMethods = {
         createPost: (postData) => {
-            return prismaPost.create({ data: postData });
+            // const tagIds = postData?.postTags?.map(tag => ({ 
+            //     tagId: prisma.tag.findUnique({
+            //         where: { name: tag }
+            //     })
+            // }));
+            // console.log(tagIds);
+
+            return prismaPost.create({ 
+                data: {
+                    ...postData,
+                    // postTags: {
+                    //     createMany: {
+                    //         data: tagIds
+                    //     }
+                    // }
+                }
+            });
         },
     };
 
@@ -33,4 +49,5 @@ export interface PostData {
     jobTitle?: string;
     position?: string;
     jobAdUrl?: string;
+    // postTags: string[];
 }
