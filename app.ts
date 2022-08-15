@@ -10,6 +10,7 @@ import session from "express-session";
 // Import routes
 import authRoutes from "./routes/authRoutes";
 import postRoutes from "./routes/postRoutes";
+import userRoutes from "./routes/userRoutes";
 
 // Import TypeScript types
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
@@ -55,6 +56,8 @@ const app = (store: PrismaSessionStore): Express => {
     // Route handlers
     server.use("/api/auth", authRoutes);
     server.use("/api/posts", postRoutes);
+    server.use("/api/user", userRoutes);
+
     server.use("/", (req, res) => {
         return res.status(200).json({
             status: "success",

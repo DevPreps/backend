@@ -28,6 +28,19 @@ const Users = (prismaUser: PrismaClient["user"]) => {
                 select: { email: true, password: true },
             });
         },
+
+        updateUser: (userId, updateData) => {
+            return prismaUser.update({
+                where: { id: userId },
+                data: updateData,
+            });
+        },
+
+        getUserById: (userId) => {
+            return prismaUser.findUnique({
+                where: { id: userId },
+            });
+        },
     };
     return Object.assign(prismaUser, customMethods);
 };
@@ -47,7 +60,11 @@ export declare namespace UserMethods {
     export type GetCredentials = (
         email: string
     ) => Promise<{ email: string; password: string } | null>;
-
+    export type UpdateUser = (
+        userId: string | undefined,
+        updateData: UpdateData
+    ) => Promise<User>;
+    export type GetUserById = (id: string) => Promise<User | null>;
     // Existing prisma generated user method types
     export type FindUnique = typeof userModel.findUnique;
 }
@@ -60,6 +77,8 @@ interface CustomMethods {
     getUserByEmail: UserMethods.GetUserByEmail;
     getUserByUserName: UserMethods.GetUserByUserName;
     getCredentials: UserMethods.GetCredentials;
+    updateUser: UserMethods.UpdateUser;
+    getUserById: UserMethods.GetUserById;
 }
 
 // Type objects for custom method inputs
@@ -67,4 +86,22 @@ export interface RegistrationData {
     userName: string;
     email: string;
     password: string;
+}
+
+/**
+ * The **UpdateData** interface includes
+ * __optional types__ that make up the user's personal and profile information:
+ * firstName, lastName, jobTitle, city, imageUrl, linkenIn,
+ * github, userName and email.
+ */
+export interface UpdateData {
+    userName: string;
+    email: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    jobTitle?: string | null;
+    city?: string | null;
+    imageUrl?: string | null;
+    linkedIn?: string | null;
+    github?: string | null;
 }
