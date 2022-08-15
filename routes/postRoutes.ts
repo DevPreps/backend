@@ -9,6 +9,9 @@ const router = express.Router();
 
 router
     .route("/create")
-    .post(protect({ loggedIn: true }), createPost(db.post.createPost));
+    .post(
+        protect({ loggedIn: true }),
+        createPost(db.tag.getAllTags, db.post.createPost)
+    );
 
 export default router;

@@ -340,11 +340,11 @@ describe("Integration tests for POST routes:", () => {
                 content: "test",
                 status: "DRAFT",
                 category: "GENERAL",
+                postTags: ["JS"],
             });
             expect(response.status).toBe(401);
         });
     });
 });
 
-// Return error when tags not in database
 // returns 400 error with invalid inputs - validation tests
