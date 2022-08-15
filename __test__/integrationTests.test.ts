@@ -70,12 +70,12 @@ describe("Rate limit", () => {
     });
 });
 
-describe("Integration tests for AUTH routes:", () => {
-    // Register route handler integration tests
-    // -------------------------------------------------------------------------
+// Register route handler integration tests
+// -------------------------------------------------------------------------
 
+describe("Integration tests for AUTH routes:", () => {
     describe("/api/auth/register", () => {
-        test("POST with valid values should respond with 201 CREATED", async () => {
+        test("POST with valid values should respond with 201 Created", async () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
                 email: "johndoe@email.com",
@@ -283,11 +283,10 @@ describe("Integration tests for AUTH routes:", () => {
             const response = await axios.get("/api/auth/logout");
             expect(response.status).toBe(401);
         });
-        // 200 OK logged out - is logged in (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
-        // 401 Unauthorized if not logged in - (THIS REQUIRES A MIDDLEWARE TO CHECK IF USER IS LOGGED IN)
     });
-    // User update route handler
 
+    // User update route handler
+    // -------------------------------------------------------------------------
     describe("/api/user/update", () => {
         test("User is able to update their user data", async () => {
             // Create a user
@@ -323,8 +322,7 @@ describe("Integration tests for AUTH routes:", () => {
             );
             expect(updatedUser.status).toBe(201);
             expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
-            //   expect(updatedUser.data.data.userName).toBe("Homer");
-            //    expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
+            expect(updatedUser.data.data.userName).toBe("Homer");
         });
 
         test("User is unable to update using an already taken userName", async () => {
@@ -439,3 +437,66 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 });
+
+// Post route handler integration tests
+// -------------------------------------------------------------------------
+describe("Integration tests for POST routes:", () => {
+    describe("/api/posts/create", () => {
+        test("responds with 201 Created and returns the created post", async () => {
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "postUser",
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
+            // Get session cookie
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            const response = await axios({
+                url: "/api/posts/create",
+                method: "POST",
+                headers: {
+                    Cookie: cookie,
+                },
+                data: {
+                    title: "test",
+                    content: "test",
+                    status: "DRAFT",
+                    category: "GENERAL",
+                    postTags: ["JS"],
+                },
+            });
+            expect(response.status).toBe(201);
+        });
+
+        test("responds with 401 Unauthorised when not logged in", async () => {
+            const response = await axios.post("/api/posts/create", {
+                title: "test",
+                content: "test",
+                status: "DRAFT",
+                category: "GENERAL",
+                postTags: ["JS"],
+            });
+            expect(response.status).toBe(401);
+        });
+    });
+});
+
+// returns 400 error with invalid inputs - validation tests

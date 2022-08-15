@@ -17,8 +17,9 @@ describe("Unit Tests for User Model:", () => {
         expect(users.update).toBeDefined();
     });
 
-    // Register method
     describe("Custom Methods:", () => {
+        // Register
+        // -------------------------------------------------------------------------
         test("users.register registers a user in the database", async () => {
             expect(await users.count()).toBe(0);
 
@@ -33,6 +34,8 @@ describe("Unit Tests for User Model:", () => {
             expect(await users.count()).toBe(1);
         });
 
+        // Get user by email
+        // -------------------------------------------------------------------------
         test("user.getUserByEmail returns entire user object - without password", async () => {
             // First create a user in the database
             await users.register({
@@ -48,6 +51,8 @@ describe("Unit Tests for User Model:", () => {
             expect(user?.password).toBeUndefined();
         });
 
+        // Get user by userName
+        // -------------------------------------------------------------------------
         test("user.getUserByUserName returns entire user object - without password", async () => {
             // First create a user in the database
             await users.register({
@@ -63,6 +68,8 @@ describe("Unit Tests for User Model:", () => {
             expect(user?.password).toBeUndefined();
         });
 
+        // Get credentials
+        // -------------------------------------------------------------------------
         test("user.getCredentials returns user email and password", async () => {
             // First create a user in the database
             await users.register({
@@ -80,6 +87,8 @@ describe("Unit Tests for User Model:", () => {
             expect(userCredentials?.password).toMatch("credPassword"); // Password not hashed as user was created directly
         });
 
+        // Update user
+        // -------------------------------------------------------------------------
         test("user.updateUser should update a user's account in the database", async () => {
             // First create a user in the database
             await users.register({
@@ -115,6 +124,8 @@ describe("Unit Tests for User Model:", () => {
             expect(userUpdated?.lastName).toBe("Bezos");
         });
 
+        // Get user by ID
+        // -------------------------------------------------------------------------
         test("user.getUserById with a valid id should return a user", async () => {
             // First create a user in the database
             const jeff = await users.register({
