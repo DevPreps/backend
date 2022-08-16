@@ -496,7 +496,20 @@ describe("Integration tests for POST routes:", () => {
             });
             expect(response.status).toBe(401);
         });
+        // returns 400 error with invalid inputs - validation tests
     });
+
+    describe("/api/posts/getPostById", () => {
+        test("responds with 200 ok and the post with comments, likes and tags with valid inputs", () => {
+            expect(true).toBe(true);
+        })
+
+        // Tests for get post
+        // validation tests 400 error with invalid inputs
+        // 400 when post doesn't exist
+        // 200 when ok
+        // can get post by id when not logged in
+    })
 });
 
-// returns 400 error with invalid inputs - validation tests
+

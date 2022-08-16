@@ -40,3 +40,14 @@ export const createPost =
             return next(error);
         }
     };
+
+export const getPostById = (DBGetPostById: PostMethods.GetPostById): RequestHandler => async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await DBGetPostById(req.body.postId);
+        if(!result) return res.status(400).json({ status: "error", message: "Post not found" });
+        
+        return res.status(200).json({ status: "success", data: result });
+    } catch (error) {
+        return next(error);
+    }
+}

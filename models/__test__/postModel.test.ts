@@ -108,6 +108,7 @@ describe("Unit Tests for Post Model:", () => {
             expect(result?.postTags.length).toBe(2);
             expect(result?.comments.length).toBe(0);
             expect(result?.likes.length).toBe(0);
+            console.log(result?.postTags)
         });
 
         test("post.getpostById returns null if the post does not exist", async () => {

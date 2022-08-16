@@ -23,7 +23,7 @@ const Posts = (prismaPost: PrismaClient["post"]) => {
         getPostById: (id) => {
             return prismaPost.findUnique({
                 where: {
-                    id: id,
+                    id: id
                 },
                 include: {
                     postTags: {
@@ -33,8 +33,8 @@ const Posts = (prismaPost: PrismaClient["post"]) => {
                     },
                     comments: true,
                     likes: true,
-                },
-            });
+                }
+            })
         },
     };
 
@@ -70,10 +70,10 @@ export interface PostData {
 
 // Define type for posts including relationships to tags, likes and comments
 const postWithRelations = Prisma.validator<Prisma.PostArgs>()({
-    include: {
-        postTags: { include: { tag: true } },
+    include: { 
+        postTags: { include: { tag: true }},
         comments: true,
         likes: true,
-    },
+     }
 });
-export type PostWithRetations = Prisma.PostGetPayload<typeof postWithRelations>;
+export type PostWithRetations = Prisma.PostGetPayload<typeof postWithRelations>

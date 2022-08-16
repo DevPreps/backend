@@ -1,6 +1,6 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { v4 } from "uuid";
-import { createPost } from "../postController";
+import { createPost, getPostById } from "../postController";
 import { TagMethods } from "../../models/tagModel";
 
 describe("Unit Tests for Post Controllers", () => {
@@ -8,6 +8,8 @@ describe("Unit Tests for Post Controllers", () => {
         jest.resetAllMocks();
     });
 
+    // Create post
+    // -------------------------------------------------------------------------
     describe("CreatePost Controller:", () => {
         let mockGetAllTags: TagMethods.GetAllTags;
 
@@ -119,5 +121,60 @@ describe("Unit Tests for Post Controllers", () => {
             await createPost(mockGetAllTags, mockDBCreatePost)(req, res, next);
             expect(next).toHaveBeenCalledWith(new Error("error"));
         });
+    });
+
+    // Get post by id
+    // -------------------------------------------------------------------------
+    describe("GetPostById Controller:", () => {
+        test("returns a function", () => {
+            const mockDBGetPostById = jest.fn()
+            expect(typeof getPostById(mockDBGetPostById)).toBe("function");
+        });
+
+        test("responds with 200 ok and the requested post with valid inputs", async () => {
+            const mockPost = { id: v4(), title: "test", content: "test" };
+            const mockDBGetPostById = jest.fn().mockResolvedValue(mockPost);
+            const req = getMockReq({
+                postId: "5e9f8f8f-f8f8-f8f8-f8f8-f8f8f8f8f8f8",
+            });
+            const { res, next } = getMockRes();
+            await getPostById(mockDBGetPostById)(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({ status: "success", data: mockPost });
+        });
+
+        test("passes correct data to db.post.getPostById", async () => {
+            const mockDBGetPostById = jest.fn()
+            const req = getMockReq({
+                postId: "test",
+            });
+            const { res, next } = getMockRes();
+            await getPostById(mockDBGetPostById)(req, res, next);
+            expect(jest.mocked(mockDBGetPostById).mock.calls[0][0]).toBe(req.body.postId);
+        });
+
+        test("returns 400 Bad Request if post doesn't exist", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue(null);
+            const req = getMockReq({
+                postId: "test",
+            });
+            const { res, next } = getMockRes();
+            await getPostById(mockDBGetPostById)(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+        });
+
+        test("calls next() if an error occurs", async () => {
+            const mockDBGetPostById = jest.fn().mockImplementation(() => {
+                throw new Error("error");
+            })
+            const req = getMockReq({
+                postId: "test",
+            });
+            const { res, next } = getMockRes();
+            await getPostById(mockDBGetPostById)(req, res, next);
+            expect(next).toHaveBeenCalledWith(new Error("error"));
+        });
+
+        // getPostById Validation tests
     });
 });
