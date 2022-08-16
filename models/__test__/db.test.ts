@@ -22,6 +22,7 @@ describe("Unit Tests for Database Object:", () => {
         expect(typeof db.post).toBe("object");
         expect(db.post.count).toBeDefined();
         expect(db.post.createPost).toBeDefined();
+        expect(db.post.getPostById).toBeDefined();
     });
 
     test("contains tag object with default methods", () => {

@@ -141,6 +141,7 @@ describe("Unit Tests for User Model:", () => {
             expect(user?.userName).toBe("jeff");
             expect(user?.id).toBe(jeff?.id);
         });
+
         test("Should be unable to getUserById on an id that doesn't exist", async () => {
             // It's important to check if the error this causes breaks our app or not
             const binChicken = await users.getUserById(
