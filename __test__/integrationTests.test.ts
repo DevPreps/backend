@@ -184,7 +184,59 @@ describe("Integration tests for AUTH routes:", () => {
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
+
+        test("return 400 when password is too long", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!Aa0123123Awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one lower case", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!A0123AWESOME",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one upper case", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!a0123awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one number", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!Aawesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one special charactor", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "Aa01wesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
     });
+
+    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[-@$!%*?&])[A-Za-z\d-@$!%*?&]{6,15}$/
 
     // Login route handler integration tests
     // -------------------------------------------------------------------------
