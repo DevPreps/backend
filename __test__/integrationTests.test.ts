@@ -500,16 +500,50 @@ describe("Integration tests for POST routes:", () => {
     });
 
     describe("/api/posts/getPostById", () => {
-        test("responds with 200 ok and the post with comments, likes and tags with valid inputs", () => {
-            expect(true).toBe(true);
-        })
+        test("responds with 200 ok and the post with comments, likes and tags with valid inputs", async () => {
+            // Create a user
+            const user = await axios.post("/api/auth/register", {
+                userName: "getPostByIdUser",
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
 
-        // Tests for get post
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
+            // Create a post in the database
+            const post = await db.post.createPost({
+                userId: user?.data?.data?.id,
+                title: "test",
+                content: "test",
+                status: "DRAFT",
+                category: "GENERAL",
+                postTags: ["JS"],
+            });
+            expect(await db.post.count()).toBe(1);
+
+            const response = await axios.post("/api/posts/getPostById", {
+                postId: post?.id,
+            });
+            expect(response.status).toBe(200);
+            expect(response.data.data.id).toBe(post?.id);
+            expect(response.data.data.postTags[0].tag.name).toBe("JS");
+        });
+
+        test("responds with 400 Bad Request when post not in database", async () => {
+            // Don't create a post in the database for this test
+            const response = await axios.post("/api/posts/getPostById", {
+                postId: "5e8f8f8f8f8f8f8f8f8f8f8",
+            });
+            expect(response.status).toBe(400);
+        });
+
+        // Tests for get post by id
         // validation tests 400 error with invalid inputs
-        // 400 when post doesn't exist
-        // 200 when ok
-        // can get post by id when not logged in
-    })
+        // TODO: check that comments and likes are present in 200 OK test
+    });
 });
-
-

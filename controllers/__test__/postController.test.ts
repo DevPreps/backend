@@ -127,7 +127,7 @@ describe("Unit Tests for Post Controllers", () => {
     // -------------------------------------------------------------------------
     describe("GetPostById Controller:", () => {
         test("returns a function", () => {
-            const mockDBGetPostById = jest.fn()
+            const mockDBGetPostById = jest.fn();
             expect(typeof getPostById(mockDBGetPostById)).toBe("function");
         });
 
@@ -140,17 +140,22 @@ describe("Unit Tests for Post Controllers", () => {
             const { res, next } = getMockRes();
             await getPostById(mockDBGetPostById)(req, res, next);
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ status: "success", data: mockPost });
+            expect(res.json).toHaveBeenCalledWith({
+                status: "success",
+                data: mockPost,
+            });
         });
 
         test("passes correct data to db.post.getPostById", async () => {
-            const mockDBGetPostById = jest.fn()
+            const mockDBGetPostById = jest.fn();
             const req = getMockReq({
                 postId: "test",
             });
             const { res, next } = getMockRes();
             await getPostById(mockDBGetPostById)(req, res, next);
-            expect(jest.mocked(mockDBGetPostById).mock.calls[0][0]).toBe(req.body.postId);
+            expect(jest.mocked(mockDBGetPostById).mock.calls[0][0]).toBe(
+                req.body.postId
+            );
         });
 
         test("returns 400 Bad Request if post doesn't exist", async () => {
@@ -166,7 +171,7 @@ describe("Unit Tests for Post Controllers", () => {
         test("calls next() if an error occurs", async () => {
             const mockDBGetPostById = jest.fn().mockImplementation(() => {
                 throw new Error("error");
-            })
+            });
             const req = getMockReq({
                 postId: "test",
             });
@@ -174,7 +179,5 @@ describe("Unit Tests for Post Controllers", () => {
             await getPostById(mockDBGetPostById)(req, res, next);
             expect(next).toHaveBeenCalledWith(new Error("error"));
         });
-
-        // getPostById Validation tests
     });
 });
