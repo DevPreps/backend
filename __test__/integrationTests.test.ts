@@ -176,10 +176,6 @@ describe("Integration tests for AUTH routes:", () => {
         );
 
         // username validation test
-        // allowed : lower case, upper case, number, ".", "-", "_" 
-        // start and end with alphanumeric characters
-        // ".", "-", "_" do not appear consecutively
-        // .matches(/^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){4,16}[a-zA-Z0-9]$/)
         test("return 400 when username is too short", async () => {
             const user: RegistrationData = {
                 ...createRandomUserForRegister(),
@@ -193,7 +189,7 @@ describe("Integration tests for AUTH routes:", () => {
         test("return 400 when username is too long", async () => {
             const user: RegistrationData = {
                 ...createRandomUserForRegister(),
-                userName: "awe1234567890some",
+                userName: "awe1234567890awesome",
             };
 
             const response = await axios.post("api/auth/register", user);
