@@ -175,6 +175,62 @@ describe("Integration tests for AUTH routes:", () => {
             }
         );
 
+        // username validation test
+        // allowed : lower case, upper case, number, ".", "-", "_" 
+        // start and end with alphanumeric characters
+        // ".", "-", "_" do not appear consecutively
+        // .matches(/^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){4,16}[a-zA-Z0-9]$/)
+        test("return 400 when username is too short", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awe",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username is too long", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awe1234567890some",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username has invalid special charactors", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awesome*",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username has consecutive (-) (_) (.)) charactors", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awe__some",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username starts with a special charactor", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "_awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        // password validation test
         test("return 400 when password is too short", async () => {
             const user: RegistrationData = {
                 ...createRandomUserForRegister(),
@@ -235,8 +291,6 @@ describe("Integration tests for AUTH routes:", () => {
             expect(response.status).toBe(400);
         });
     });
-
-    // /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[-@$!%*?&])[A-Za-z\d-@$!%*?&]{6,15}$/
 
     // Login route handler integration tests
     // -------------------------------------------------------------------------
