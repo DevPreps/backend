@@ -230,8 +230,41 @@ describe("Integration tests for AUTH routes:", () => {
             expect(response.status).toBe(400);
         });
 
+        // email validation test
+        test("return 400 when email is invalid", async () => {
+            {
+                const user: RegistrationData = {
+                    ...createRandomUserForRegister(),
+                    email: "awesome@awesome",
+                };
+
+                const response = await axios.post("api/auth/register", user);
+                expect(response.status).toBe(400);
+            }
+
+            {
+                const user: RegistrationData = {
+                    ...createRandomUserForRegister(),
+                    email: "awesome.com",
+                };
+
+                const response = await axios.post("api/auth/register", user);
+                expect(response.status).toBe(400);
+            }
+
+            {
+                const user: RegistrationData = {
+                    ...createRandomUserForRegister(),
+                    email: ".awe@some.com",
+                };
+
+                const response = await axios.post("api/auth/register", user);
+                expect(response.status).toBe(400);
+            }
+        });
+
         // password validation test
-        test("return 400 when password is too short", async () => {
+        test("return 400 when password is invalid", async () => {
             const user: RegistrationData = {
                 ...createRandomUserForRegister(),
                 password: "123",
