@@ -1,16 +1,16 @@
-import * as validator from "yup";
+import * as yup from "yup";
 
 export const validateUserId = {
-    userId: validator.string().trim().required(),
+    userId: yup.string().trim().required(),
 };
 
 export const validatePost = {
-    title: validator.string().required(),
-    content: validator.string().required(),
-    catagory: validator.string().required(),
-    companyName: validator.string(),
-    city: validator.string(),
-    jobTitle: validator.string(),
-    position: validator.string(),
-    jobadUrl: validator.string().trim(),
+    title: yup.string().required(),
+    content: yup.string().required(),
+    catagory: yup.string().required(),
+    companyName: yup.string(),
+    city: yup.string(),
+    jobTitle: yup.string(),
+    position: yup.string(),
+    jobadUrl: yup.string().trim(),
 };
