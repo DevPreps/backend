@@ -187,7 +187,9 @@ describe("Unit Tests for Post Controllers", () => {
         test("returns a function", () => {
             const mockDBGetPostById = jest.fn();
             const mockDBUpdatePost = jest.fn();
-            expect(typeof updatePost(mockDBGetPostById, mockDBUpdatePost)).toBe("function");
+            expect(typeof updatePost(mockDBGetPostById, mockDBUpdatePost)).toBe(
+                "function"
+            );
         });
 
         test("returns 200 OK with updated post, tags, likes and comments with valid inputs", async () => {
@@ -208,7 +210,11 @@ describe("Unit Tests for Post Controllers", () => {
                 },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(
+                req,
+                res,
+                next
+            );
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({
                 status: "success",
@@ -234,7 +240,11 @@ describe("Unit Tests for Post Controllers", () => {
                 },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBGetPostById, mockDBUpdateData)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdateData)(
+                req,
+                res,
+                next
+            );
             expect(mockDBGetPostById).toBeCalledWith(req.body.postId);
             expect(mockDBUpdateData).toHaveBeenCalledWith(
                 req.body.postId,
@@ -257,7 +267,11 @@ describe("Unit Tests for Post Controllers", () => {
                 },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(
+                req,
+                res,
+                next
+            );
             expect(res.status).toHaveBeenCalledWith(400);
             expect(mockDBUpdatePost).not.toHaveBeenCalled();
         });
@@ -266,7 +280,7 @@ describe("Unit Tests for Post Controllers", () => {
             const mockDBGetPostById = jest.fn().mockImplementation(() => {
                 throw new Error("error");
             });
-            const mockDBUpdatePost = jest.fn()
+            const mockDBUpdatePost = jest.fn();
             const req = getMockReq({
                 body: {
                     postId: "test id",
@@ -274,7 +288,11 @@ describe("Unit Tests for Post Controllers", () => {
                 },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(
+                req,
+                res,
+                next
+            );
             expect(next).toHaveBeenCalledWith(new Error("error"));
             expect(mockDBUpdatePost).not.toHaveBeenCalled();
         });
@@ -296,7 +314,11 @@ describe("Unit Tests for Post Controllers", () => {
                 },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(
+                req,
+                res,
+                next
+            );
             expect(res.status).toHaveBeenCalledWith(403);
             expect(mockDBUpdatePost).not.toHaveBeenCalled();
         });
@@ -319,7 +341,11 @@ describe("Unit Tests for Post Controllers", () => {
                 },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(
+                req,
+                res,
+                next
+            );
             expect(res.status).toHaveBeenCalledWith(400);
             expect(mockDBUpdatePost).not.toHaveBeenCalled();
         });

@@ -553,13 +553,16 @@ describe("Integration tests for POST routes:", () => {
     describe("/api/posts/update", () => {
         let user: UserWithoutPassword;
         let cookie: string;
-        beforeEach( async () => {
+        beforeEach(async () => {
             // Create a user
-            const userResponse: AxiosResponse = await axios.post("/api/auth/register", {
-                userName: "updatePostUser",
-                email: "user@email.com",
-                password: "Abc-1234",
-            });
+            const userResponse: AxiosResponse = await axios.post(
+                "/api/auth/register",
+                {
+                    userName: "updatePostUser",
+                    email: "user@email.com",
+                    password: "Abc-1234",
+                }
+            );
             user = userResponse.data.data;
             expect(await db.user.count()).toBe(1);
 
@@ -584,7 +587,6 @@ describe("Integration tests for POST routes:", () => {
         });
 
         test("responds with 200 OK and updated post, tags, likes and comments with valid data", async () => {
-
             // Create a post in the database
             const post = await db.post.createPost({
                 userId: user?.id,
@@ -613,8 +615,8 @@ describe("Integration tests for POST routes:", () => {
                         category: "GENERAL",
                         postTags: ["JS"],
                     },
-                }
-            })
+                },
+            });
             expect(response.status).toBe(200);
             expect(response.data.data.status).toBe("PUBLISHED");
         });
@@ -638,7 +640,7 @@ describe("Integration tests for POST routes:", () => {
                         category: "GENERAL",
                         postTags: ["JS", "TS"],
                     },
-                }
+                },
             });
             expect(response.status).toBe(400);
         });
@@ -647,7 +649,7 @@ describe("Integration tests for POST routes:", () => {
             // Don't log in for this test
 
             // Don't need input data for this test as it should respond before the controller is called
-            const response = await axios.post("/api/posts/update")
+            const response = await axios.post("/api/posts/update");
             expect(response.status).toBe(401);
         });
 
@@ -659,7 +661,7 @@ describe("Integration tests for POST routes:", () => {
                 password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(2);
-            
+
             // Create a post in the database
             const post = await db.post.createPost({
                 userId: user2.data.data.id,
@@ -688,8 +690,8 @@ describe("Integration tests for POST routes:", () => {
                         category: "GENERAL",
                         postTags: ["JS"],
                     },
-                }
-            })
+                },
+            });
             expect(response.status).toBe(403);
         });
 
@@ -722,13 +724,12 @@ describe("Integration tests for POST routes:", () => {
                         category: "GENERAL",
                         postTags: ["JS"],
                     },
-                }
-            })
+                },
+            });
             expect(response.status).toBe(400);
         });
 
         // Tests for update post
         // 400 Bad Request - Validation tests
-
     });
 });

@@ -20,9 +20,11 @@ router
 
 router.route("/getPostById").post(getPostById(db.post.getPostById));
 
-router.route("/update").post(
-    protect({ loggedIn: true }),
-    updatePost(db.post.getPostById, db.post.updatePost)
+router
+    .route("/update")
+    .post(
+        protect({ loggedIn: true }),
+        updatePost(db.post.getPostById, db.post.updatePost)
     );
 
 export default router;
