@@ -58,16 +58,29 @@ export const getPostById =
     };
 
 export const updatePost =
-    (DBUpdatePost: PostMethods.UpdatePost): RequestHandler =>
+    (
+        DBGetPostById: PostMethods.GetPostById,
+        DBUpdatePost: PostMethods.UpdatePost): RequestHandler =>
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { postId, updatedData } = req.body;
-            const result = await DBUpdatePost(postId, updatedData);
 
-            if (!result)
-                return res
-                    .status(400)
-                    .json({ status: "error", message: "Post not found" });
+            const post = await DBGetPostById(postId);
+            if (!post){
+                return res.status(400).json({ status: "error", message: "Post not found" });
+            }
+
+            // Check that the logged in user is the author of the post
+            if(req?.session?.user?.id !== post?.userId){
+                return res.status(403).json({ status: "error", message: "You are not authorised to update this post" });
+            }
+
+            // Check that the updated post id is the same as the post id in the database
+            if(post?.id !== postId){
+                return res.status(400).json({ status: "error", message: "Post id does not match" });
+            }
+
+            const result = await DBUpdatePost(postId, updatedData);
 
             return res.status(200).json({ status: "success", data: result });
         } catch (error) {

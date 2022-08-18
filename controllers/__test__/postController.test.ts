@@ -185,15 +185,30 @@ describe("Unit Tests for Post Controllers", () => {
     // -------------------------------------------------------------------------
     describe("Update post:", () => {
         test("returns a function", () => {
-            const mockDBUpdatePost = jest.fn().mockResolvedValue({});
-            expect(typeof updatePost(mockDBUpdatePost)).toBe("function");
+            const mockDBGetPostById = jest.fn();
+            const mockDBUpdatePost = jest.fn();
+            expect(typeof updatePost(mockDBGetPostById, mockDBUpdatePost)).toBe("function");
         });
 
         test("returns 200 OK with updated post, tags, likes and comments with valid inputs", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({
+                userId: "test id",
+                id: "test id",
+            });
             const mockDBUpdatePost = jest.fn().mockResolvedValue("test post");
-            const req = getMockReq();
+            const req = getMockReq({
+                body: {
+                    postId: "test id",
+                    updatedData: "test data",
+                },
+                session: {
+                    user: {
+                        id: "test id",
+                    },
+                },
+            });
             const { res, next } = getMockRes();
-            await updatePost(mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({
                 status: "success",
@@ -201,16 +216,26 @@ describe("Unit Tests for Post Controllers", () => {
             });
         });
 
-        test("correct data is passed to db.post.updatePost", async () => {
+        test("correct data is passed to db methods", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({
+                userId: "test id",
+                id: "test id",
+            });
             const mockDBUpdateData = jest.fn();
             const req = getMockReq({
                 body: {
                     postId: "test id",
                     updatedData: "test data",
                 },
+                session: {
+                    user: {
+                        id: "test id",
+                    },
+                },
             });
             const { res, next } = getMockRes();
-            await updatePost(mockDBUpdateData)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdateData)(req, res, next);
+            expect(mockDBGetPostById).toBeCalledWith(req.body.postId);
             expect(mockDBUpdateData).toHaveBeenCalledWith(
                 req.body.postId,
                 req.body.updatedData
@@ -218,21 +243,85 @@ describe("Unit Tests for Post Controllers", () => {
         });
 
         test("returns 400 Bad Request when post doesn't exist in the database", async () => {
-            const mockDBUpdatePost = jest.fn().mockResolvedValue(null);
-            const req = getMockReq();
+            const mockDBGetPostById = jest.fn().mockResolvedValue(null);
+            const mockDBUpdatePost = jest.fn();
+            const req = getMockReq({
+                body: {
+                    postId: "test id",
+                    updatedData: "test data",
+                },
+                session: {
+                    user: {
+                        id: "test id",
+                    },
+                },
+            });
             const { res, next } = getMockRes();
-            await updatePost(mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
             expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockDBUpdatePost).not.toHaveBeenCalled();
         });
 
         test("calls next() when an error occurs", async () => {
-            const mockDBUpdatePost = jest.fn().mockImplementation(() => {
+            const mockDBGetPostById = jest.fn().mockImplementation(() => {
                 throw new Error("error");
             });
-            const req = getMockReq();
+            const mockDBUpdatePost = jest.fn()
+            const req = getMockReq({
+                body: {
+                    postId: "test id",
+                    updatedData: "test data",
+                },
+            });
             const { res, next } = getMockRes();
-            await updatePost(mockDBUpdatePost)(req, res, next);
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
             expect(next).toHaveBeenCalledWith(new Error("error"));
+            expect(mockDBUpdatePost).not.toHaveBeenCalled();
+        });
+
+        test("returns 403 Forbidden if the post is not owned by the user", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({
+                userId: "not the same id",
+            });
+            const mockDBUpdatePost = jest.fn();
+            const req = getMockReq({
+                body: {
+                    postId: "test id",
+                    updatedData: "test data",
+                },
+                session: {
+                    user: {
+                        id: "test id",
+                    },
+                },
+            });
+            const { res, next } = getMockRes();
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(403);
+            expect(mockDBUpdatePost).not.toHaveBeenCalled();
+        });
+
+        test("returns 400 Bad Request if the updated post id doesn't match the post id in the database", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({
+                userId: "test id",
+                id: "post id",
+            });
+            const mockDBUpdatePost = jest.fn();
+            const req = getMockReq({
+                body: {
+                    postId: "test id",
+                    updatedData: "test data",
+                },
+                session: {
+                    user: {
+                        id: "test id",
+                    },
+                },
+            });
+            const { res, next } = getMockRes();
+            await updatePost(mockDBGetPostById, mockDBUpdatePost)(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockDBUpdatePost).not.toHaveBeenCalled();
         });
     });
 });
