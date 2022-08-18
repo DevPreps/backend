@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 // Import TS types
 import { UserMethods } from "../models/userModel";
-import { User } from "@prisma/client";
+import { User } from ".prisma/client";
 
 // Extend express-session SessionData to include user data
 declare module "express-session" {

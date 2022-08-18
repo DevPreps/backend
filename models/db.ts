@@ -1,8 +1,9 @@
 import { prisma } from "./prisma";
 import userModel from "./userModel";
+import postModel from "./postModel";
+import tagModel from "./tagModel";
 
 //// Implement Prisma middleware
-
 // Remove password from the user object
 prisma.$use(async (params, next) => {
     let result = await next(params);
@@ -22,6 +23,8 @@ prisma.$use(async (params, next) => {
 //// Override the default Prisma client with custom model methods
 const db = {
     user: userModel,
+    post: postModel,
+    tag: tagModel,
 };
 
 export default db;
