@@ -546,4 +546,14 @@ describe("Integration tests for POST routes:", () => {
         // validation tests 400 error with invalid inputs
         // TODO: check that comments and likes are present in 200 OK test
     });
+
+    // describe("/api/posts/update", () => {
+    //     test("responds with 200 OK and updated post, tags, likes and comments with valid data", async () => {
+    //         const response = await axios.post("/api/posts/update")
+    //         expect(response.status).toBe(200);
+    //     });
+    //     // Tests for update post
+    //     // 400 Bad Request - Invalid inputs
+    //     // 401 Unauthorized - User not logged in
+    // });
 });
