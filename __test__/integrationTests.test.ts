@@ -695,40 +695,6 @@ describe("Integration tests for POST routes:", () => {
             expect(response.status).toBe(403);
         });
 
-        test("responds with 400 Bad Request when updated post id doesn't match the post id in the database", async () => {
-            // Create a post in the database
-            const post = await db.post.createPost({
-                userId: user.id,
-                title: "test",
-                content: "test",
-                status: "DRAFT",
-                category: "GENERAL",
-                postTags: ["JS"],
-            });
-            expect(await db.post.count()).toBe(1);
-
-            // Update the post
-            const response = await axios({
-                url: "/api/posts/update",
-                method: "POST",
-                headers: {
-                    Cookie: cookie,
-                },
-                data: {
-                    postId: "not the same id",
-                    updatedData: {
-                        userId: post?.userId,
-                        title: "test",
-                        content: "test",
-                        status: "PUBLISHED",
-                        category: "GENERAL",
-                        postTags: ["JS"],
-                    },
-                },
-            });
-            expect(response.status).toBe(400);
-        });
-
         // Tests for update post
         // 400 Bad Request - Validation tests
     });

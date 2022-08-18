@@ -75,23 +75,14 @@ export const updatePost =
 
             // Check that the logged in user is the author of the post
             if (req?.session?.user?.id !== post?.userId) {
-                return res
-                    .status(403)
-                    .json({
-                        status: "error",
-                        message: "You are not authorised to update this post",
-                    });
+                return res.status(403).json({
+                    status: "error",
+                    message: "You are not authorised to update this post",
+                });
             }
 
-            // Check that the updated post id is the same as the post id in the database
-            if (post?.id !== postId) {
-                return res
-                    .status(400)
-                    .json({
-                        status: "error",
-                        message: "Post id does not match",
-                    });
-            }
+            // Add the userId from session data to updatedData
+            updatedData.userId = req.session?.user?.id;
 
             const result = await DBUpdatePost(postId, updatedData);
 
