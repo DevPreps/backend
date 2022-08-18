@@ -58,7 +58,7 @@ const app = (store: PrismaSessionStore): Express => {
     server.use("/api/posts", postRoutes);
     server.use("/api/user", userRoutes);
 
-    server.use("/", (req, res) => {
+    server.get("/", (req, res) => {
         return res.status(200).json({
             status: "success",
             message: "This is the web service API for the DevPrep project",
