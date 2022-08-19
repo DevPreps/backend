@@ -1,13 +1,19 @@
 import express, { Express } from "express";
-import session from "express-session";
-import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import dotenv from "dotenv";
-import errorHandler from "./middleware/errorHandler";
+
+// Import middleware
 import cors from "cors";
+import errorHandler from "./middleware/errorHandler";
 import rateLimit from "express-rate-limit";
+import session from "express-session";
 
 // Import routes
 import authRoutes from "./routes/authRoutes";
+import postRoutes from "./routes/postRoutes";
+import userRoutes from "./routes/userRoutes";
+
+// Import TypeScript types
+import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 
 dotenv.config();
 
@@ -49,7 +55,10 @@ const app = (store: PrismaSessionStore): Express => {
 
     // Route handlers
     server.use("/api/auth", authRoutes);
-    server.use("/", (req, res) => {
+    server.use("/api/posts", postRoutes);
+    server.use("/api/user", userRoutes);
+
+    server.get("/", (req, res) => {
         return res.status(200).json({
             status: "success",
             message: "This is the web service API for the DevPrep project",

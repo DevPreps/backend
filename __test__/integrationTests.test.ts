@@ -73,12 +73,12 @@ describe("Rate limit", () => {
     });
 });
 
-describe("Integration tests for AUTH routes:", () => {
-    // Register route handler integration tests
-    // -------------------------------------------------------------------------
+// Register route handler integration tests
+// -------------------------------------------------------------------------
 
+describe("Integration tests for AUTH routes:", () => {
     describe("/api/auth/register", () => {
-        test("POST with valid values should respond with 201 CREATED", async () => {
+        test("POST with valid values should respond with 201 Created", async () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
                 email: "johndoe@email.com",
@@ -477,6 +477,268 @@ describe("Integration tests for AUTH routes:", () => {
             const response = await axios.get("/api/auth/logout");
             expect(response.status).toBe(401);
         });
+    });
+
+    // User update route handler
+    // -------------------------------------------------------------------------
+    describe("/api/user/update", () => {
+        test("User is able to update their user data", async () => {
+            // Create a user
+            const initialUser = await axios.post("api/auth/register", {
+                userName: "Achilles",
+                email: "achilles@email.com",
+                password: "iTookAnArrowToTheHeel!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Login the new user
+            const response = await axios.post("/api/auth/login", {
+                email: "achilles@email.com",
+                password: "iTookAnArrowToTheHeel!",
+            });
+            expect(response.status).toBe(200);
+            expect(response.data.data.id).toBeDefined();
+
+            // Get session cookie
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
+            // Update our user
+            const updatedUser = await axios.put(
+                "/api/user/update",
+                {
+                    userName: "Homer",
+                    email: "homer@gmail.com",
+                    password: "iTookAnArrowToTheHeel!",
+                },
+                { headers: { Cookie: cookie } }
+            );
+            expect(updatedUser.status).toBe(201);
+            expect(initialUser.data.data.id).toBe(updatedUser.data.data.id);
+            expect(updatedUser.data.data.userName).toBe("Homer");
+        });
+
+        test("User is unable to update using an already taken userName", async () => {
+            // Create a user
+            const initialUser1 = await axios.post("api/auth/register", {
+                userName: "Penelope",
+                email: "penelope@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Create a user
+            const initialUser2 = await axios.post("api/auth/register", {
+                userName: "Odysseus",
+                email: "odysseus@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(2);
+            expect(initialUser1.data.data.id).not.toBe(
+                initialUser2.data.data.id
+            );
+            // Login the new user
+            const response = await axios.post("/api/auth/login", {
+                email: "odysseus@email.com",
+                password: "Password1!",
+            });
+            expect(response.status).toBe(200);
+
+            // Get session cookie
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
+
+            // Update our user
+            const updatedUser = await axios.put(
+                "/api/user/update",
+                {
+                    userName: "Penelope",
+                    email: "odysseus@gmail.com",
+                    password: "Password1!",
+                },
+                { headers: { Cookie: cookie } }
+            );
+            expect(updatedUser.status).toBe(400);
+        });
+
+        test("User is unable to update using an already taken email", async () => {
+            // Create a user
+            const initialUser1 = await axios.post("api/auth/register", {
+                userName: "Eurycleia",
+                email: "eurycleia@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Create a user
+            const initialUser2 = await axios.post("api/auth/register", {
+                userName: "Hercules",
+                email: "hercules@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(2);
+            expect(initialUser1.data.data.id).not.toBe(
+                initialUser2.data.data.id
+            );
+            // Login the new user
+            const response = await axios.post("/api/auth/login", {
+                email: "hercules@email.com",
+                password: "Password1!",
+            });
+
+            expect(response.status).toBe(200);
+
+            // Get session cookie
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
+
+            // Update our user
+            const updatedUser = await axios.put(
+                "/api/user/update",
+                {
+                    userName: "Hercules",
+                    email: "eurycleia@email.com",
+                    password: "Password1!",
+                },
+                { headers: { Cookie: cookie } }
+            );
+            expect(updatedUser.status).toBe(400);
+        });
+
+        test("User is unable to be updated without a valid session", async () => {
+            // Create a user
+            await axios.post("api/auth/register", {
+                userName: "Jupiter",
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Lets not login and get a cookie for this one
+
+            // Update our user
+            const updatedUser = await axios.put("/api/user/update", {
+                userName: "Jupiter",
+                email: "jupiter@email.com",
+                password: "MyPasswordIsNotGoingToChange!",
+            });
+            expect(updatedUser.status).toBe(401);
+        });
+    });
+});
+
+// Post route handler integration tests
+// -------------------------------------------------------------------------
+describe("Integration tests for POST routes:", () => {
+    describe("/api/posts/create", () => {
+        test("responds with 201 Created and returns the created post", async () => {
+            // Create a user first
+            await axios.post("/api/auth/register", {
+                userName: "postUser",
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
+            // Get session cookie
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            const response = await axios({
+                url: "/api/posts/create",
+                method: "POST",
+                headers: {
+                    Cookie: cookie,
+                },
+                data: {
+                    title: "test",
+                    content: "test",
+                    status: "DRAFT",
+                    category: "GENERAL",
+                    postTags: ["JS"],
+                },
+            });
+            expect(response.status).toBe(201);
+        });
+
+        test("responds with 401 Unauthorised when not logged in", async () => {
+            const response = await axios.post("/api/posts/create", {
+                title: "test",
+                content: "test",
+                status: "DRAFT",
+                category: "GENERAL",
+                postTags: ["JS"],
+            });
+            expect(response.status).toBe(401);
+        });
+        // returns 400 error with invalid inputs - validation tests
+    });
+
+    describe("/api/posts/getPostById", () => {
+        test("responds with 200 ok and the post with comments, likes and tags with valid inputs", async () => {
+            // Create a user
+            const user = await axios.post("/api/auth/register", {
+                userName: "getPostByIdUser",
+                email: "post@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
+            // Create a post in the database
+            const post = await db.post.createPost({
+                userId: user?.data?.data?.id,
+                title: "test",
+                content: "test",
+                status: "DRAFT",
+                category: "GENERAL",
+                postTags: ["JS"],
+            });
+            expect(await db.post.count()).toBe(1);
+
+            const response = await axios.post("/api/posts/getPostById", {
+                postId: post?.id,
+            });
+            expect(response.status).toBe(200);
+            expect(response.data.data.id).toBe(post?.id);
+            expect(response.data.data.postTags[0].tag.name).toBe("JS");
+        });
+
+        test("responds with 400 Bad Request when post not in database", async () => {
+            // Don't create a post in the database for this test
+            const response = await axios.post("/api/posts/getPostById", {
+                postId: "5e8f8f8f8f8f8f8f8f8f8f8",
+            });
+            expect(response.status).toBe(400);
+        });
+
+        // Tests for get post by id
+        // validation tests 400 error with invalid inputs
+        // TODO: check that comments and likes are present in 200 OK test
     });
 });
 
