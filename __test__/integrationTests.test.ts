@@ -487,14 +487,14 @@ describe("Integration tests for AUTH routes:", () => {
             const initialUser = await axios.post("api/auth/register", {
                 userName: "Achilles",
                 email: "achilles@email.com",
-                password: "iTookAnArrowToTheHeel!",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             // Login the new user
             const response = await axios.post("/api/auth/login", {
                 email: "achilles@email.com",
-                password: "iTookAnArrowToTheHeel!",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(200);
             expect(response.data.data.id).toBeDefined();
@@ -510,7 +510,7 @@ describe("Integration tests for AUTH routes:", () => {
                 {
                     userName: "Homer",
                     email: "homer@gmail.com",
-                    password: "iTookAnArrowToTheHeel!",
+                    password: "Abc-1234",
                 },
                 { headers: { Cookie: cookie } }
             );
