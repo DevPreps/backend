@@ -1,9 +1,5 @@
 import * as yup from "yup";
 
-export const validateUserId = {
-    userId: yup.string().uuid(),
-};
-
 export const validatePost = {
     title: yup.string().required(),
     content: yup.string().required(),
@@ -14,3 +10,4 @@ export const validatePost = {
     position: yup.string(),
     jobadUrl: yup.string().trim(),
 };
+

@@ -10,3 +10,4 @@ export const usernameValidator = yup.string().trim()
     // ".", "-", "_" do not appear consecutively
     .matches(/^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){4,16}[a-zA-Z0-9]$/) // ex) abc_d-e.f3
     .required();
+export const userIdValidator = yup.string().uuid();

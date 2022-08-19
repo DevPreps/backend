@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import { emailValidator, passwordValidator, usernameValidator } from "./validationDefinition";
+import { emailValidator, passwordValidator, usernameValidator, userIdValidator } from "./validationDefinition";
 
 export const registerSchema = yup.object({
     email: emailValidator,
@@ -11,3 +11,8 @@ export const loginSchema = yup.object({
     email: emailValidator,
     password: passwordValidator,
 });
+
+export const userIdSchema = yup.object({
+    userId: userIdValidator,
+});
+
