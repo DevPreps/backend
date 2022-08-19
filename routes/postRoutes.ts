@@ -3,7 +3,11 @@ import db from "../models/db";
 import protect from "../middleware/routeProtector";
 
 // Import controllers
-import { createPost, getPostById } from "../controllers/postController";
+import {
+    createPost,
+    getPostById,
+    deletePost,
+} from "../controllers/postController";
 
 const router = express.Router();
 
@@ -15,5 +19,12 @@ router
     );
 
 router.route("/getPostById").post(getPostById(db.post.getPostById));
+
+router
+    .route("/deletePost")
+    .post(
+        protect({ loggedIn: true }),
+        deletePost(db.post.getPostById, db.post.deletePost)
+    );
 
 export default router;

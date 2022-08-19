@@ -36,6 +36,13 @@ const Posts = (prismaPost: PrismaClient["post"]) => {
                 },
             });
         },
+        deletePost: (id) => {
+            return prismaPost.delete({
+                where: {
+                    id: id,
+                },
+            });
+        },
     };
 
     return Object.assign(prismaPost, customMethods);
@@ -47,11 +54,13 @@ export default postModel;
 export declare namespace PostMethods {
     export type CreatePost = (postData: PostData) => Promise<Post | null>;
     export type GetPostById = (id: string) => Promise<PostWithRetations | null>;
+    export type DeletePost = (id: string) => Promise<Post>;
 }
 
 interface CustomMethods {
     createPost: PostMethods.CreatePost;
     getPostById: PostMethods.GetPostById;
+    deletePost: PostMethods.DeletePost;
 }
 
 export interface PostData {
