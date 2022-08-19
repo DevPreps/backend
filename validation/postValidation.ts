@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 export const validateUserId = {
-    userId: yup.string().trim().required(),
+    userId: yup.string().uuid(),
 };
 
 export const validatePost = {
