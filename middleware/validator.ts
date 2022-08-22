@@ -11,4 +11,3 @@ export const validate = (schema: AnyObjectSchema) => {
         }
     };
 };
-
