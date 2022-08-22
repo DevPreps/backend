@@ -1,5 +1,6 @@
 import db from "../db";
 import { prisma } from "../prisma";
+import { faker } from "@faker-js/faker";
 
 // Import TypeScript types
 import { UserWithoutPassword } from "../../models/userModel";
@@ -210,7 +211,30 @@ describe("Unit Tests for Post Model:", () => {
 
         // TODO: Delete Post
         // test that it cascade deletes all comments and likes associated with the post once implemented
+        
+        test("post.search returns all published posts when no category provided", () => {
+            expect(posts.search()).toBe("results"); //posts.findMany({ where: { status: "PUBLISHED" } }));
+        });
+
+        // TODO: Search
+        // returns all posts for the given category || all posts
+        // only returns posts with status of PUBLISHED
+        // correctly filters posts by tag
+        // correctly filters posts by title search query
+        // correctly sorts posts by date (default) or number of likes (if sortBy is "likes")
     });
 });
 
-//
+// Faker
+// -------------------------------------------------------------------------
+
+// const fkCreatePost = (): PostData => {
+//     return {
+//         userId: faker.unique(faker.datatype.uuid) as string,
+//         title: faker.lorem.sentence(),
+//         content: faker.lorem.paragraphs(4),
+//         status: faker.random.arrayElement(["DRAFT", "PUBLISHED"]),
+//         category: faker.random.arrayElement(["GENERAL", "TECHNOLOGY", "BUSINESS"]),
+//         postTags: [faker.random.uuid(), faker.random.uuid()],
+//     };
+// }

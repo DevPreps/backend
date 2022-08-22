@@ -25,6 +25,7 @@ describe("Unit Tests for Database Object:", () => {
         expect(db.post.getPostById).toBeDefined();
         expect(db.post.updatePost).toBeDefined();
         expect(db.post.deletePost).toBeDefined();
+        expect(db.post.search).toBeDefined();
     });
 
     test("contains tag object with default methods", () => {

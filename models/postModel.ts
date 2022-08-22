@@ -85,6 +85,7 @@ const Posts = (prismaPost: PrismaClient["post"]) => {
                 },
             });
         },
+        search: () => "results",
     };
 
     return Object.assign(prismaPost, customMethods);
@@ -101,6 +102,7 @@ export declare namespace PostMethods {
         postData: PostData
     ) => Promise<PostWithRelations | null>;
     export type DeletePost = (id: string) => Promise<Post>;
+    export type Search = () => string;
 }
 
 interface CustomMethods {
@@ -108,6 +110,7 @@ interface CustomMethods {
     getPostById: PostMethods.GetPostById;
     updatePost: PostMethods.UpdatePost;
     deletePost: PostMethods.DeletePost;
+    search: PostMethods.Search;
 }
 
 export interface PostData {

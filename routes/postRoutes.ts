@@ -30,7 +30,7 @@ router
 
 router
     .route("/deletePost")
-    .post(
+    .delete(
         protect({ loggedIn: true }),
         deletePost(db.post.getPostById, db.post.deletePost)
     );
