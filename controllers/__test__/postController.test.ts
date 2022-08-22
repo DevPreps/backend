@@ -346,7 +346,9 @@ describe("Unit Tests for Post Controllers", () => {
                 .fn()
                 .mockResolvedValue("deleted-post");
             const req = getMockReq({
-                postId: "test-id",
+                params: {
+                    postId: "test-id",
+                },
             });
             const { res, next } = getMockRes();
             await deletePost(mockDBGetPostById, mockDBDeletePost)(
@@ -365,7 +367,9 @@ describe("Unit Tests for Post Controllers", () => {
             const mockDBGetPostById = jest.fn().mockResolvedValue({});
             const mockDBDeletePost = jest.fn();
             const req = getMockReq({
-                postId: "test-id",
+                params: {
+                    postId: "test-id",
+                },
             });
             const { res, next } = getMockRes();
             await deletePost(mockDBGetPostById, mockDBDeletePost)(
@@ -373,7 +377,7 @@ describe("Unit Tests for Post Controllers", () => {
                 res,
                 next
             );
-            expect(mockDBDeletePost).toHaveBeenCalledWith(req.body.postId);
+            expect(mockDBDeletePost).toHaveBeenCalledWith(req.params.postId);
         });
 
         test("calls next() if an error occurs", async () => {
@@ -382,7 +386,9 @@ describe("Unit Tests for Post Controllers", () => {
                 throw new Error("error");
             });
             const req = getMockReq({
-                postId: "test-id",
+                params: {
+                    postId: "test-id",
+                },
             });
             const { res, next } = getMockRes();
             await deletePost(mockDBGetPostById, mockDBDeletePost)(
@@ -397,7 +403,9 @@ describe("Unit Tests for Post Controllers", () => {
             const mockDBGetPostById = jest.fn().mockResolvedValue(null);
             const mockDBDeletePost = jest.fn();
             const req = getMockReq({
-                postId: "test-id",
+                params: {
+                    postId: "test-id",
+                },
             });
             const { res, next } = getMockRes();
             await deletePost(mockDBGetPostById, mockDBDeletePost)(
@@ -406,7 +414,7 @@ describe("Unit Tests for Post Controllers", () => {
                 next
             );
             expect(res.status).toHaveBeenCalledWith(400);
-            expect(mockDBGetPostById).toHaveBeenCalledWith(req.body.postId);
+            expect(mockDBGetPostById).toHaveBeenCalledWith(req.params.postId);
             expect(mockDBDeletePost).not.toHaveBeenCalled();
         });
 
@@ -416,7 +424,7 @@ describe("Unit Tests for Post Controllers", () => {
                 .mockResolvedValue({ userId: "the-author" });
             const mockDBDeletePost = jest.fn();
             const req = getMockReq({
-                body: {
+                params: {
                     postId: "test-id",
                 },
                 session: {
@@ -432,7 +440,7 @@ describe("Unit Tests for Post Controllers", () => {
                 next
             );
             expect(res.status).toHaveBeenCalledWith(403);
-            expect(mockDBGetPostById).toHaveBeenCalledWith(req.body.postId);
+            expect(mockDBGetPostById).toHaveBeenCalledWith(req.params.postId);
             expect(mockDBDeletePost).not.toHaveBeenCalled();
         });
     });
