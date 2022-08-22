@@ -3,6 +3,7 @@ import { prisma } from "../prisma";
 
 // Import TypeScript types
 import { UserWithoutPassword } from "../../models/userModel";
+import { PostData } from "../postModel";
 
 jest.mock("../prisma");
 
@@ -122,43 +123,93 @@ describe("Unit Tests for Post Model:", () => {
             expect(result).toBeNull();
         });
 
-        // TODO:
+        // TODO: get post by id
+        // Should return all related comments
+        // Should return all related likes
+
+        // Update post
+        // -------------------------------------------------------------------------
+        test("post.updatePost updates the database and returns updated post with valid inputs", async () => {
+            // Create a post in the database
+            const postData: PostData = {
+                userId: user.id,
+                title: "test",
+                content: "test",
+                status: "PUBLISHED",
+                category: "GENERAL",
+                postTags: ["JS", "TS"],
+            };
+            const post = await posts.createPost(postData);
+            expect(await posts.count()).toBe(1);
+
+            const modifiedPost = {
+                ...postData,
+                title: "updated",
+                postTags: ["JS", "TS", "GraphQL"],
+            };
+
+            // Update the post
+            const result = await posts.updatePost(
+                post?.id as string,
+                modifiedPost
+            );
+            expect(result?.title).toBe("updated");
+            expect(result?.postTags.length).toBe(3);
+            expect(
+                result?.postTags.filter((t) => t.tag.name === "GraphQL").length
+            ).toBe(1);
+        });
+
+        test("post.updatePost returns null when the post to update can't be found", async () => {
+            const postId = "not-a-valid-id";
+            // Create a post in the database
+            const postData: PostData = {
+                userId: user.id,
+                title: "test",
+                content: "test",
+                status: "PUBLISHED",
+                category: "GENERAL",
+                postTags: ["JS", "TS"],
+            };
+
+            const result = await posts.updatePost(postId, postData);
+            expect(result).toBeNull();
+        });
+
+        // TODO: Update Post
         // Should return all related comments
         // Should return all related likes
 
         // Delete post
         // -------------------------------------------------------------------------
-        describe("Delete Post:", () => {
-            test("post.deletePost returns the deleted record", async () => {
-                // Create a post in the database
-                const post = await posts.createPost({
-                    userId: user.id,
-                    title: "test",
-                    content: "test",
-                    status: "PUBLISHED",
-                    category: "GENERAL",
-                    postTags: ["JS", "TS"],
-                });
-                expect(await posts.count()).toBe(1);
-
-                // Delete the post
-                expect(await posts.deletePost(post?.id as string)).toEqual(
-                    post
-                );
-                expect(await posts.count()).toBe(0);
-                expect(
-                    await prisma.postTag.findMany({
-                        where: {
-                            postId: post?.id,
-                        },
-                    })
-                ).toHaveLength(0);
+        test("post.deletePost returns the deleted record", async () => {
+            // Create a post in the database
+            const post = await posts.createPost({
+                userId: user.id,
+                title: "test",
+                content: "test",
+                status: "PUBLISHED",
+                category: "GENERAL",
+                postTags: ["JS", "TS"],
             });
+            expect(await posts.count()).toBe(1);
 
-            // Non-existent post results in an exception so no need to test
-
-            // test that it cascade deletes all comments and likes associated with the post once implemented
+            // Delete the post
+            expect(await posts.deletePost(post?.id as string)).toEqual(post);
+            expect(await posts.count()).toBe(0);
+            expect(
+                await prisma.postTag.findMany({
+                    where: {
+                        postId: post?.id,
+                    },
+                })
+            ).toHaveLength(0);
         });
+
+        // Delete on a non-existent post results in an exception so no need to test it here
+
+        // TODO: Delete Post
+        // test that it cascade deletes all comments and likes associated with the post once implemented
     });
 });
 

@@ -23,6 +23,7 @@ describe("Unit Tests for Database Object:", () => {
         expect(db.post.count).toBeDefined();
         expect(db.post.createPost).toBeDefined();
         expect(db.post.getPostById).toBeDefined();
+        expect(db.post.updatePost).toBeDefined();
         expect(db.post.deletePost).toBeDefined();
     });
 

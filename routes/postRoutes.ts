@@ -6,6 +6,7 @@ import protect from "../middleware/routeProtector";
 import {
     createPost,
     getPostById,
+    updatePost,
     deletePost,
 } from "../controllers/postController";
 
@@ -19,6 +20,13 @@ router
     );
 
 router.route("/getPostById").post(getPostById(db.post.getPostById));
+
+router
+    .route("/update")
+    .post(
+        protect({ loggedIn: true }),
+        updatePost(db.post.getPostById, db.post.updatePost)
+    );
 
 router
     .route("/deletePost")
