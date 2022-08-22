@@ -56,3 +56,38 @@ export const getPostById =
             return next(error);
         }
     };
+
+export const updatePost =
+    (
+        DBGetPostById: PostMethods.GetPostById,
+        DBUpdatePost: PostMethods.UpdatePost
+    ): RequestHandler =>
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { postId, updatedData } = req.body;
+
+            const post = await DBGetPostById(postId);
+            if (!post) {
+                return res
+                    .status(400)
+                    .json({ status: "error", message: "Post not found" });
+            }
+
+            // Check that the logged in user is the author of the post
+            if (req?.session?.user?.id !== post?.userId) {
+                return res.status(403).json({
+                    status: "error",
+                    message: "You are not authorised to update this post",
+                });
+            }
+
+            // Add the userId from session data to updatedData
+            updatedData.userId = req.session?.user?.id;
+
+            const result = await DBUpdatePost(postId, updatedData);
+
+            return res.status(200).json({ status: "success", data: result });
+        } catch (error) {
+            return next(error);
+        }
+    };

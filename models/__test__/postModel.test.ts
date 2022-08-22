@@ -1,5 +1,6 @@
 import db from "../db";
 import { UserWithoutPassword } from "../../models/userModel";
+import { PostData } from "../postModel";
 
 jest.mock("../prisma");
 
@@ -118,10 +119,60 @@ describe("Unit Tests for Post Model:", () => {
             const result = await posts.getPostById("not-a-valid-id");
             expect(result).toBeNull();
         });
+
+        // TODO: get post by id
+        // Should return all related comments
+        // Should return all related likes
+
+        // Update post
+        // -------------------------------------------------------------------------
+        test("post.updatePost updates the database and returns updated post with valid inputs", async () => {
+            // Create a post in the database
+            const postData: PostData = {
+                userId: user.id,
+                title: "test",
+                content: "test",
+                status: "PUBLISHED",
+                category: "GENERAL",
+                postTags: ["JS", "TS"],
+            };
+            const post = await posts.createPost(postData);
+            expect(await posts.count()).toBe(1);
+
+            const modifiedPost = {
+                ...postData,
+                title: "updated",
+                postTags: ["JS", "TS", "GraphQL"],
+            };
+
+            // Update the post
+            const result = await posts.updatePost(
+                post?.id as string,
+                modifiedPost
+            );
+            expect(result?.title).toBe("updated");
+            expect(result?.postTags.length).toBe(3);
+            expect(
+                result?.postTags.filter((t) => t.tag.name === "GraphQL").length
+            ).toBe(1);
+        });
+
+        test("post.updatePost returns null when the post to update can't be found", async () => {
+            const postId = "not-a-valid-id";
+            // Create a post in the database
+            const postData: PostData = {
+                userId: user.id,
+                title: "test",
+                content: "test",
+                status: "PUBLISHED",
+                category: "GENERAL",
+                postTags: ["JS", "TS"],
+            };
+
+            const result = await posts.updatePost(postId, postData);
+            expect(result).toBeNull();
+        });
     });
 });
 
-// TODO:
-// Should return all related comments
-// Should return all related likes
 //
