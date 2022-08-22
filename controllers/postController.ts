@@ -99,8 +99,10 @@ export const deletePost =
     ): RequestHandler =>
     async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const { postId } = req.params;
+
             // Check if the post exists
-            const post = await DBGetPostById(req.body.postId);
+            const post = await DBGetPostById(postId);
             if (!post)
                 return res
                     .status(400)
@@ -113,7 +115,7 @@ export const deletePost =
                     message: "You are not authorised to delete this post",
                 });
 
-            const deletedPost = await DBDeletePost(req.body.postId);
+            const deletedPost = await DBDeletePost(postId);
             return res
                 .status(200)
                 .json({ status: "success", data: deletedPost });

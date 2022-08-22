@@ -784,12 +784,11 @@ describe("Integration tests for POST routes:", () => {
 
             // Delete the post
             const response = await axios({
-                url: "/api/posts/deletePost",
-                method: "POST",
+                url: `/api/posts/deletePost/${post?.id}`,
+                method: "DELETE",
                 headers: {
                     Cookie: cookie,
                 },
-                data: { postId: post?.id },
             });
             expect(response.status).toBe(200);
             expect(response.data.data.id).toBe(post?.id);
@@ -821,12 +820,11 @@ describe("Integration tests for POST routes:", () => {
 
             // Delete the post
             const response = await axios({
-                url: "/api/posts/deletePost",
-                method: "POST",
+                url: "/api/posts/deletePost/5e8f8f8f8f8f8f8f8f8f8f8",
+                method: "DELETE",
                 headers: {
                     Cookie: cookie,
                 },
-                data: { postId: "5e8f8f8f8f8f8f8f8f8f8f8" },
             });
             expect(response.status).toBe(400);
         });
@@ -835,9 +833,9 @@ describe("Integration tests for POST routes:", () => {
             // No logged in user for this test
             // No need to create a post for this test as it should fail before the post is needed
 
-            const response = await axios.post("/api/posts/deletePost", {
-                postId: "5e8f8f8f8f8f8f8f8f8f8f8",
-            });
+            const response = await axios.delete(
+                "/api/posts/deletePost/5e8f8f8f8f8f8f8f8f8f8f8"
+            );
             expect(response.status).toBe(401);
         });
     });

@@ -37,14 +37,7 @@ describe("Unit Tests for Post Model:", () => {
 
             // Create some tags in the database
             await db.tag.createMany({
-                data: [
-                    { name: "JS" },
-                    { name: "TS" },
-                    { name: "GraphQL" },
-                    { name: "React" },
-                    { name: "Vue" },
-                    { name: "Java" },
-                ],
+                data: [...possibleTags.map((t) => ({ name: t }))],
             });
             expect(await db.tag.count()).toBe(6);
         });
@@ -54,14 +47,11 @@ describe("Unit Tests for Post Model:", () => {
         test("post.create creates a new post in the database", async () => {
             expect(await posts.count()).toBe(0);
 
-            await posts.createPost({
-                userId: user.id,
-                title: "test",
-                content: "test",
-                status: "DRAFT",
-                category: "GENERAL",
-                postTags: ["JS", "TS"],
-            });
+            await posts.createPost(
+                fkPostData({
+                    userId: user.id,
+                })
+            );
             expect(await posts.count()).toBe(1);
 
             const result = await posts.findFirst({
@@ -76,7 +66,7 @@ describe("Unit Tests for Post Model:", () => {
                     },
                 },
             });
-            expect(result?.postTags.length).toBe(2);
+            expect(result?.postTags.length).toBeGreaterThan(0);
         });
 
         // Get post by id
@@ -85,23 +75,17 @@ describe("Unit Tests for Post Model:", () => {
             expect(await posts.count()).toBe(0);
 
             // Create some posts in the database
-            const post1 = await posts.createPost({
-                userId: user.id,
-                title: "test",
-                content: "test",
-                status: "PUBLISHED",
-                category: "GENERAL",
-                postTags: ["Vue", "Java"],
-            });
+            const post1 = await posts.createPost(
+                fkPostData({
+                    userId: user.id,
+                })
+            );
 
-            const post2 = await posts.createPost({
-                userId: user.id,
-                title: "test",
-                content: "test",
-                status: "PUBLISHED",
-                category: "GENERAL",
-                postTags: ["JS", "TS"],
-            });
+            const post2 = await posts.createPost(
+                fkPostData({
+                    userId: user.id,
+                })
+            );
             expect(await posts.count()).toBe(2);
             expect(post1?.id).not.toEqual(post2?.id);
 
@@ -110,7 +94,7 @@ describe("Unit Tests for Post Model:", () => {
             expect(result?.id).toBe(post1?.id);
 
             // Check that tags are included
-            expect(result?.postTags.length).toBe(2);
+            expect(result?.postTags.length).toBeGreaterThan(0);
             expect(result?.comments.length).toBe(0);
             expect(result?.likes.length).toBe(0);
         });
@@ -132,14 +116,11 @@ describe("Unit Tests for Post Model:", () => {
         // -------------------------------------------------------------------------
         test("post.updatePost updates the database and returns updated post with valid inputs", async () => {
             // Create a post in the database
-            const postData: PostData = {
+            const postData: PostData = fkPostData({
                 userId: user.id,
                 title: "test",
-                content: "test",
-                status: "PUBLISHED",
-                category: "GENERAL",
                 postTags: ["JS", "TS"],
-            };
+            });
             const post = await posts.createPost(postData);
             expect(await posts.count()).toBe(1);
 
@@ -164,14 +145,9 @@ describe("Unit Tests for Post Model:", () => {
         test("post.updatePost returns null when the post to update can't be found", async () => {
             const postId = "not-a-valid-id";
             // Create a post in the database
-            const postData: PostData = {
+            const postData: PostData = fkPostData({
                 userId: user.id,
-                title: "test",
-                content: "test",
-                status: "PUBLISHED",
-                category: "GENERAL",
-                postTags: ["JS", "TS"],
-            };
+            });
 
             const result = await posts.updatePost(postId, postData);
             expect(result).toBeNull();
@@ -185,14 +161,11 @@ describe("Unit Tests for Post Model:", () => {
         // -------------------------------------------------------------------------
         test("post.deletePost returns the deleted record", async () => {
             // Create a post in the database
-            const post = await posts.createPost({
-                userId: user.id,
-                title: "test",
-                content: "test",
-                status: "PUBLISHED",
-                category: "GENERAL",
-                postTags: ["JS", "TS"],
-            });
+            const post = await posts.createPost(
+                fkPostData({
+                    userId: user.id,
+                })
+            );
             expect(await posts.count()).toBe(1);
 
             // Delete the post
@@ -211,7 +184,7 @@ describe("Unit Tests for Post Model:", () => {
 
         // TODO: Delete Post
         // test that it cascade deletes all comments and likes associated with the post once implemented
-        
+
         test("post.search returns all published posts when no category provided", () => {
             expect(posts.search()).toBe("results"); //posts.findMany({ where: { status: "PUBLISHED" } }));
         });
@@ -228,13 +201,42 @@ describe("Unit Tests for Post Model:", () => {
 // Faker
 // -------------------------------------------------------------------------
 
-// const fkCreatePost = (): PostData => {
-//     return {
-//         userId: faker.unique(faker.datatype.uuid) as string,
-//         title: faker.lorem.sentence(),
-//         content: faker.lorem.paragraphs(4),
-//         status: faker.random.arrayElement(["DRAFT", "PUBLISHED"]),
-//         category: faker.random.arrayElement(["GENERAL", "TECHNOLOGY", "BUSINESS"]),
-//         postTags: [faker.random.uuid(), faker.random.uuid()],
-//     };
-// }
+const possibleTags = ["JS", "TS", "GraphQL", "React", "Vue", "Java"];
+
+/**
+ * ### fkPostData()
+ *
+ * Generates a random set of data to be used to create a post
+ * userId must be provided in the params object for the post to be created.
+ * All other fields are optional and will be generated randomly. If a field is
+ * provided in the params object, that value will be used instead of a random
+ * value.
+ *
+ * @param {Partial<PostData>} params - An object with data to be used to create a post
+ *
+ * @returns {PostData} An object with random data to be used to create a post
+ *
+ * #### Examples:
+ * ##### Generate a post with random data
+ * ```
+ * const postData = fkPostData({
+ *   userId: user.id,
+ * });
+ * ```
+ */
+const fkPostData = (params: Partial<PostData>): PostData => {
+    return {
+        userId: params?.userId as string,
+        title: faker.lorem.sentence(),
+        content: faker.lorem.paragraphs(4),
+        status: faker.helpers.arrayElement(["DRAFT", "PUBLISHED"]),
+        category: faker.helpers.arrayElement([
+            "GENERAL",
+            "LEARN",
+            "INTERVIEW",
+            "PROJECT",
+        ]),
+        postTags: faker.helpers.arrayElements(possibleTags),
+        ...params,
+    };
+};
