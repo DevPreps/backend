@@ -9,7 +9,7 @@ import db from "../models/db";
 
 // Import validator
 import { validate } from "../middleware/validator";
-import { userIdSchema } from "../validation/userValidator";
+import { registerSchema } from "../validation/userValidator";
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router
     .route("/update")
     .put(
         protect({ loggedIn: true }),
-        validate(userIdSchema),
+        validate(registerSchema),
         update(
             db.user.getUserByEmail,
             db.user.getUserByUserName,
