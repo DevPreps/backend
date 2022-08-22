@@ -1,6 +1,11 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { v4 } from "uuid";
-import { createPost, getPostById, updatePost } from "../postController";
+import {
+    createPost,
+    getPostById,
+    updatePost,
+    deletePost,
+} from "../postController";
 import { TagMethods } from "../../models/tagModel";
 
 describe("Unit Tests for Post Controllers", () => {
@@ -321,6 +326,122 @@ describe("Unit Tests for Post Controllers", () => {
             );
             expect(res.status).toHaveBeenCalledWith(403);
             expect(mockDBUpdatePost).not.toHaveBeenCalled();
+        });
+    });
+
+    // Delete post
+    // -------------------------------------------------------------------------
+    describe("DeletePost controller:", () => {
+        test("returns a function", () => {
+            const mockDBGetPostById = jest.fn();
+            const mockDBDeletePost = jest.fn();
+            expect(typeof deletePost(mockDBGetPostById, mockDBDeletePost)).toBe(
+                "function"
+            );
+        });
+
+        test("returns 200 OK and the deleted post", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({});
+            const mockDBDeletePost = jest
+                .fn()
+                .mockResolvedValue("deleted-post");
+            const req = getMockReq({
+                params: {
+                    postId: "test-id",
+                },
+            });
+            const { res, next } = getMockRes();
+            await deletePost(mockDBGetPostById, mockDBDeletePost)(
+                req,
+                res,
+                next
+            );
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                status: "success",
+                data: "deleted-post",
+            });
+        });
+
+        test("passes correct data to db.post.deletePost", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({});
+            const mockDBDeletePost = jest.fn();
+            const req = getMockReq({
+                params: {
+                    postId: "test-id",
+                },
+            });
+            const { res, next } = getMockRes();
+            await deletePost(mockDBGetPostById, mockDBDeletePost)(
+                req,
+                res,
+                next
+            );
+            expect(mockDBDeletePost).toHaveBeenCalledWith(req.params.postId);
+        });
+
+        test("calls next() if an error occurs", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue({});
+            const mockDBDeletePost = jest.fn().mockImplementation(() => {
+                throw new Error("error");
+            });
+            const req = getMockReq({
+                params: {
+                    postId: "test-id",
+                },
+            });
+            const { res, next } = getMockRes();
+            await deletePost(mockDBGetPostById, mockDBDeletePost)(
+                req,
+                res,
+                next
+            );
+            expect(next).toHaveBeenCalledWith(new Error("error"));
+        });
+
+        test("returns 400 Bad Request if post doesn't exist", async () => {
+            const mockDBGetPostById = jest.fn().mockResolvedValue(null);
+            const mockDBDeletePost = jest.fn();
+            const req = getMockReq({
+                params: {
+                    postId: "test-id",
+                },
+            });
+            const { res, next } = getMockRes();
+            await deletePost(mockDBGetPostById, mockDBDeletePost)(
+                req,
+                res,
+                next
+            );
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(mockDBGetPostById).toHaveBeenCalledWith(req.params.postId);
+            expect(mockDBDeletePost).not.toHaveBeenCalled();
+        });
+
+        test("returns 403 Forbidden if user is not the author of the post", async () => {
+            const mockDBGetPostById = jest
+                .fn()
+                .mockResolvedValue({ userId: "the-author" });
+            const mockDBDeletePost = jest.fn();
+            const req = getMockReq({
+                params: {
+                    postId: "test-id",
+                },
+                session: {
+                    user: {
+                        id: "not-the-author",
+                    },
+                },
+            });
+            const { res, next } = getMockRes();
+            await deletePost(mockDBGetPostById, mockDBDeletePost)(
+                req,
+                res,
+                next
+            );
+            expect(res.status).toHaveBeenCalledWith(403);
+            expect(mockDBGetPostById).toHaveBeenCalledWith(req.params.postId);
+            expect(mockDBDeletePost).not.toHaveBeenCalled();
         });
     });
 });

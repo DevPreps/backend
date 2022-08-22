@@ -7,6 +7,7 @@ import {
     createPost,
     getPostById,
     updatePost,
+    deletePost,
 } from "../controllers/postController";
 
 const router = express.Router();
@@ -25,6 +26,13 @@ router
     .post(
         protect({ loggedIn: true }),
         updatePost(db.post.getPostById, db.post.updatePost)
+    );
+
+router
+    .route("/deletePost/:postId")
+    .delete(
+        protect({ loggedIn: true }),
+        deletePost(db.post.getPostById, db.post.deletePost)
     );
 
 export default router;

@@ -654,16 +654,16 @@ describe("Integration tests for POST routes:", () => {
             });
             expect(loginResponse.status).toBe(200);
 
+            // Get session cookie
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
             // Create some tags in the database
             await db.tag.createMany({
                 data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
             });
             expect(await db.tag.count()).toBe(3);
-
-            // Get session cookie
-            if (!loginResponse.headers["set-cookie"])
-                throw new Error("No cookie set");
-            const cookie: string = loginResponse.headers["set-cookie"][0];
 
             const response = await axios({
                 url: "/api/posts/create",
@@ -741,6 +741,103 @@ describe("Integration tests for POST routes:", () => {
         // Tests for get post by id
         // validation tests 400 error with invalid inputs
         // TODO: check that comments and likes are present in 200 OK test
+    });
+
+    describe("/api/posts/deletePost", () => {
+        test("responds with 200 OK and the deleted post if successful", async () => {
+            // Create a user
+            const user = await axios.post("/api/auth/register", {
+                userName: "deletepostUser",
+                email: "delete@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "delete@email.com",
+                password: "Abc-1234",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            // Get session cookie
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+            });
+            expect(await db.tag.count()).toBe(3);
+
+            // Create a post in the database
+            const post = await db.post.createPost({
+                userId: user?.data?.data?.id,
+                title: "test",
+                content: "test",
+                status: "DRAFT",
+                category: "GENERAL",
+                postTags: ["JS"],
+            });
+            expect(await db.post.count()).toBe(1);
+
+            // Delete the post
+            const response = await axios({
+                url: `/api/posts/deletePost/${post?.id}`,
+                method: "DELETE",
+                headers: {
+                    Cookie: cookie,
+                },
+            });
+            expect(response.status).toBe(200);
+            expect(response.data.data.id).toBe(post?.id);
+            expect(await db.post.count()).toBe(0);
+        });
+
+        test("responds with 400 Bad Request when post not in database", async () => {
+            // Don't create a post for this test
+
+            // Create a user
+            await axios.post("/api/auth/register", {
+                userName: "deletepostUser",
+                email: "delete@email.com",
+                password: "Abc-1234",
+            });
+            expect(await db.user.count()).toBe(1);
+
+            // Log the user in
+            const loginResponse = await axios.post("/api/auth/login", {
+                email: "delete@email.com",
+                password: "Abc-1234",
+            });
+            expect(loginResponse.status).toBe(200);
+
+            // Get session cookie
+            if (!loginResponse.headers["set-cookie"])
+                throw new Error("No cookie set");
+            const cookie: string = loginResponse.headers["set-cookie"][0];
+
+            // Delete the post
+            const response = await axios({
+                url: "/api/posts/deletePost/5e8f8f8f8f8f8f8f8f8f8f8",
+                method: "DELETE",
+                headers: {
+                    Cookie: cookie,
+                },
+            });
+            expect(response.status).toBe(400);
+        });
+
+        test("responds with 401 Unauthorized when not logged in", async () => {
+            // No logged in user for this test
+            // No need to create a post for this test as it should fail before the post is needed
+
+            const response = await axios.delete(
+                "/api/posts/deletePost/5e8f8f8f8f8f8f8f8f8f8f8"
+            );
+            expect(response.status).toBe(401);
+        });
     });
 
     describe("/api/posts/update", () => {
@@ -892,6 +989,9 @@ describe("Integration tests for POST routes:", () => {
         // 400 Bad Request - Validation tests
     });
 });
+
+// Faker
+// -------------------------------------------------------------------------
 
 function createRandomUserForRegister(): RegistrationData {
     return {

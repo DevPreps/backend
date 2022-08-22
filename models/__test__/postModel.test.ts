@@ -1,4 +1,7 @@
 import db from "../db";
+import { prisma } from "../prisma";
+
+// Import TypeScript types
 import { UserWithoutPassword } from "../../models/userModel";
 import { PostData } from "../postModel";
 
@@ -172,6 +175,41 @@ describe("Unit Tests for Post Model:", () => {
             const result = await posts.updatePost(postId, postData);
             expect(result).toBeNull();
         });
+
+        // TODO: Update Post
+        // Should return all related comments
+        // Should return all related likes
+
+        // Delete post
+        // -------------------------------------------------------------------------
+        test("post.deletePost returns the deleted record", async () => {
+            // Create a post in the database
+            const post = await posts.createPost({
+                userId: user.id,
+                title: "test",
+                content: "test",
+                status: "PUBLISHED",
+                category: "GENERAL",
+                postTags: ["JS", "TS"],
+            });
+            expect(await posts.count()).toBe(1);
+
+            // Delete the post
+            expect(await posts.deletePost(post?.id as string)).toEqual(post);
+            expect(await posts.count()).toBe(0);
+            expect(
+                await prisma.postTag.findMany({
+                    where: {
+                        postId: post?.id,
+                    },
+                })
+            ).toHaveLength(0);
+        });
+
+        // Delete on a non-existent post results in an exception so no need to test it here
+
+        // TODO: Delete Post
+        // test that it cascade deletes all comments and likes associated with the post once implemented
     });
 });
 

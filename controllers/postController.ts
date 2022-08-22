@@ -91,3 +91,35 @@ export const updatePost =
             return next(error);
         }
     };
+
+export const deletePost =
+    (
+        DBGetPostById: PostMethods.GetPostById,
+        DBDeletePost: PostMethods.DeletePost
+    ): RequestHandler =>
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { postId } = req.params;
+
+            // Check if the post exists
+            const post = await DBGetPostById(postId);
+            if (!post)
+                return res
+                    .status(400)
+                    .json({ status: "error", message: "Post not found" });
+
+            // Check if the user is the author of the post
+            if (post.userId !== req.session?.user?.id)
+                return res.status(403).json({
+                    status: "error",
+                    message: "You are not authorised to delete this post",
+                });
+
+            const deletedPost = await DBDeletePost(postId);
+            return res
+                .status(200)
+                .json({ status: "success", data: deletedPost });
+        } catch (error) {
+            return next(error);
+        }
+    };
