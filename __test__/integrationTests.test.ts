@@ -2,12 +2,14 @@ import app from "../app";
 import db from "../models/db";
 import axios from "axios";
 import { prisma } from "../models/prisma";
+import { faker } from "@faker-js/faker";
 
 // Import TypeScript types
 import { Express } from "express"; // Types for Express
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
 import { AxiosResponse } from "axios";
+import { RegistrationData } from "../models/userModel";
 import { UserWithoutPassword } from "../models/userModel";
 
 jest.mock("../models/prisma");
@@ -82,7 +84,7 @@ describe("Integration tests for AUTH routes:", () => {
             const response = await axios.post("/api/auth/register", {
                 userName: "bumblebee",
                 email: "johndoe@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(201);
         });
@@ -92,21 +94,21 @@ describe("Integration tests for AUTH routes:", () => {
             await db.user.register({
                 userName: "hercules",
                 email: "hulk@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             const response = await axios.post("/api/auth/register", {
                 userName: "hercules",
                 email: "notTheSameEmail@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(400);
 
             const response2 = await axios.post("/api/auth/register", {
                 userName: "notTheSameUserName",
                 email: "hulk@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(response2.status).toBe(400);
         });
@@ -116,14 +118,14 @@ describe("Integration tests for AUTH routes:", () => {
             await axios.post("/api/auth/register", {
                 userName: "loggedInUser",
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             // Log the user in
             const loginResponse = await axios.post("/api/auth/login", {
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(loginResponse.status).toBe(200);
 
@@ -144,7 +146,7 @@ describe("Integration tests for AUTH routes:", () => {
                 data: {
                     userName: "newuser",
                     email: "newuser@email.com",
-                    password: "password",
+                    password: "Abc-1234",
                 },
             });
             expect(response.status).toBe(401);
@@ -156,6 +158,170 @@ describe("Integration tests for AUTH routes:", () => {
     // Reject invalid inputs
     // Reject unexpected attributes
     // Others
+    // user validation test
+    describe("user validation test : ", () => {
+        test.each([
+            { missingFieldName: "userName" },
+            { missingFieldName: "email" },
+            { missingFieldName: "password" },
+        ])(
+            "return 400 when $missingFieldName field is missing",
+            async ({ missingFieldName }) => {
+                const user: RegistrationData = createRandomUserForRegister();
+
+                delete user[missingFieldName as keyof typeof user];
+
+                const response = await axios.post("api/auth/register", user);
+
+                expect(response.status).toBe(400);
+            }
+        );
+
+        // username validation test
+        test("return 400 when username is too short", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awe",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username is too long", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awe1234567890awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username has invalid special charactors", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awesome*",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username has consecutive (-) (_) (.)) charactors", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "awe__some",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when username starts with a special charactor", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                userName: "_awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        // email validation test
+        test("return 400 when email is invalid", async () => {
+            {
+                const user: RegistrationData = {
+                    ...createRandomUserForRegister(),
+                    email: "awesome@awesome",
+                };
+
+                const response = await axios.post("api/auth/register", user);
+                expect(response.status).toBe(400);
+            }
+
+            {
+                const user: RegistrationData = {
+                    ...createRandomUserForRegister(),
+                    email: "awesome.com",
+                };
+
+                const response = await axios.post("api/auth/register", user);
+                expect(response.status).toBe(400);
+            }
+
+            {
+                const user: RegistrationData = {
+                    ...createRandomUserForRegister(),
+                    email: ".awe@some.com",
+                };
+
+                const response = await axios.post("api/auth/register", user);
+                expect(response.status).toBe(400);
+            }
+        });
+
+        // password validation test
+        test("return 400 when password is invalid", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "123",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is too long", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!Aa0123123Awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one lower case", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!A0123AWESOME",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one upper case", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!a0123awesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one number", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "!Aawesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+
+        test("return 400 when password is not included at least one special charactor", async () => {
+            const user: RegistrationData = {
+                ...createRandomUserForRegister(),
+                password: "Aa01wesome",
+            };
+
+            const response = await axios.post("api/auth/register", user);
+            expect(response.status).toBe(400);
+        });
+    });
 
     // Login route handler integration tests
     // -------------------------------------------------------------------------
@@ -212,14 +378,14 @@ describe("Integration tests for AUTH routes:", () => {
             await axios.post("/api/auth/register", {
                 userName: "loggedInUser",
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             // Log the user in
             const loginResponse = await axios.post("/api/auth/login", {
                 email: "loggedin@email.com",
-                password: "password",
+                password: "Abc-1234",
             });
             expect(loginResponse.status).toBe(200);
 
@@ -239,7 +405,7 @@ describe("Integration tests for AUTH routes:", () => {
                 },
                 data: {
                     email: "loggedin@email.com",
-                    password: "password",
+                    password: "Abc-1234",
                 },
             });
             expect(response.status).toBe(401);
@@ -247,6 +413,33 @@ describe("Integration tests for AUTH routes:", () => {
     });
 
     // Validation Tests [400]:
+    describe("user login validation test : ", () => {
+        test.each([
+            { missingFieldName: "email" },
+            { missingFieldName: "password" },
+        ])(
+            "return 400 when $missingFieldName field is missing",
+            async ({ missingFieldName }) => {
+                const user: LoginData = createRandomUserForLogin();
+
+                delete user[missingFieldName as keyof typeof user];
+
+                const response = await axios.post("api/auth/login", user);
+
+                expect(response.status).toBe(400);
+            }
+        );
+
+        test("return 400 when password is too short", async () => {
+            const user: LoginData = {
+                ...createRandomUserForLogin(),
+                password: "123",
+            };
+
+            const response = await axios.post("api/auth/login", user);
+            expect(response.status).toBe(400);
+        });
+    });
 
     // Logout route handler integration tests
     // -------------------------------------------------------------------------
@@ -296,14 +489,14 @@ describe("Integration tests for AUTH routes:", () => {
             const initialUser = await axios.post("api/auth/register", {
                 userName: "Achilles",
                 email: "achilles@email.com",
-                password: "iTookAnArrowToTheHeel!",
+                password: "Abc-1234",
             });
             expect(await db.user.count()).toBe(1);
 
             // Login the new user
             const response = await axios.post("/api/auth/login", {
                 email: "achilles@email.com",
-                password: "iTookAnArrowToTheHeel!",
+                password: "Abc-1234",
             });
             expect(response.status).toBe(200);
             expect(response.data.data.id).toBeDefined();
@@ -319,7 +512,7 @@ describe("Integration tests for AUTH routes:", () => {
                 {
                     userName: "Homer",
                     email: "homer@gmail.com",
-                    password: "iTookAnArrowToTheHeel!",
+                    password: "Abc-1234",
                 },
                 { headers: { Cookie: cookie } }
             );
@@ -699,3 +892,23 @@ describe("Integration tests for POST routes:", () => {
         // 400 Bad Request - Validation tests
     });
 });
+
+function createRandomUserForRegister(): RegistrationData {
+    return {
+        userName: faker.internet.userName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(10, false, /\w/, "!Aa0"),
+    };
+}
+
+interface LoginData {
+    email: string;
+    password: string;
+}
+
+function createRandomUserForLogin(): LoginData {
+    return {
+        email: faker.internet.email(),
+        password: faker.internet.password(10, false, /\w/, "!Aa0"),
+    };
+}
