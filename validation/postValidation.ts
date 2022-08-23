@@ -10,4 +10,3 @@ export const validatePost = {
     position: yup.string(),
     jobadUrl: yup.string().trim(),
 };
-

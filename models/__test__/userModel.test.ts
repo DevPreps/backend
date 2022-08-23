@@ -150,5 +150,22 @@ describe("Unit Tests for User Model:", () => {
 
             expect(binChicken).toBe(null);
         });
+
+        // Delete User
+        // --------------------------------------------------------------------
+        test("Should e able to delete own user account", async () => {
+            // First create a user in the database
+            const tim = await users.register({
+                userName: "Tim",
+                email: "tim@gmail.com",
+                password: "TimsStrongPassword",
+            });
+            expect(await users.count()).toBe(1);
+            expect(tim.id).toBeDefined();
+
+            // Now we delete the user
+            await users.deleteUser(tim?.id);
+            expect(await users.count()).toBe(0);
+        });
     });
 });

@@ -1,5 +1,5 @@
 // Import controllers
-import { update } from "../userController";
+import { deleteUser, update } from "../userController";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 
 // Import TS types
@@ -11,6 +11,8 @@ beforeEach(() => {
 
 describe("Unit Tests for User controllers", () => {
     // Update Controller
+    //
+
     describe("Update controller:", () => {
         let mockReturnUser: UserWithoutPassword;
 
@@ -159,6 +161,34 @@ describe("Unit Tests for User controllers", () => {
             );
             await controller(req, res, next);
             expect(next).toHaveBeenCalledWith(new Error("Error"));
+        });
+    });
+    describe("Unit tests for Delete controller", () => {
+        // deleteUser controller
+        // --------------------------------------------------------------------
+
+        test("returns a function", async () => {
+            const mockDelete = jest.fn().mockResolvedValue({});
+            expect(typeof deleteUser(mockDelete)).toBe("function");
+        });
+
+        test("User is able to delete their own account", async () => {
+            const mockDelete = jest.fn().mockResolvedValue({});
+
+            const req = getMockReq({
+                session: {
+                    user: { id: "2851c0b6-9b2f-2h0u-219x-h421084ghel" },
+                },
+            });
+            const { res, next } = getMockRes();
+
+            const controller = deleteUser(mockDelete);
+            await controller(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                status: "success",
+                data: `User ${req?.session?.user?.id} has been deleted`,
+            });
         });
     });
 });
