@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
-import { PostMethods, PostData } from "../models/postModel";
+import { PostMethods, PostData, QueryParams } from "../models/postModel";
 import { TagMethods } from "../models/tagModel";
 
 export const createPost =
@@ -119,6 +119,28 @@ export const deletePost =
             return res
                 .status(200)
                 .json({ status: "success", data: deletedPost });
+        } catch (error) {
+            return next(error);
+        }
+    };
+
+export const searchPublishedPosts =
+    (query: PostMethods.Search): RequestHandler =>
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const queryObject: QueryParams = {
+                status: "PUBLISHED",
+                ...req.body,
+            };
+
+            const results = await query(queryObject);
+            if (!(results.length > 0)) {
+                return res
+                    .status(404)
+                    .json({ status: "error", message: "No posts found" });
+            }
+
+            return res.status(200).json({ status: "success", data: results });
         } catch (error) {
             return next(error);
         }

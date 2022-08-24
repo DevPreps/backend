@@ -988,6 +988,15 @@ describe("Integration tests for POST routes:", () => {
         // Tests for update post
         // 400 Bad Request - Validation tests
     });
+
+    // test only published posts get returned
+    // test tag filter
+    // test category filter
+    // test search filter
+    // test sort default and by likes
+    // 200 OK - Successful response
+    // 400 Bad Request - Validation tests
+    // 404 Not Found - Posts not found
 });
 
 // Faker

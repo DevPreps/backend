@@ -5,6 +5,7 @@ import {
     getPostById,
     updatePost,
     deletePost,
+    searchPublishedPosts,
 } from "../postController";
 import { TagMethods } from "../../models/tagModel";
 
@@ -443,5 +444,78 @@ describe("Unit Tests for Post Controllers", () => {
             expect(mockDBGetPostById).toHaveBeenCalledWith(req.params.postId);
             expect(mockDBDeletePost).not.toHaveBeenCalled();
         });
+    });
+
+    // Search Ppublished posts
+    // -------------------------------------------------------------------------
+    describe("Search published posts controller:", () => {
+        test("returns a function", () => {
+            const mockQuery = jest.fn();
+            expect(typeof searchPublishedPosts(mockQuery)).toBe("function");
+        });
+
+        test("returns 200 OK and the search results with valid inputs", async () => {
+            const mockQuery = jest.fn().mockResolvedValue(["result"]);
+            const req = getMockReq();
+            const { res, next } = getMockRes();
+            await searchPublishedPosts(mockQuery)(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                status: "success",
+                data: ["result"],
+            });
+            expect(mockQuery).toHaveBeenCalled();
+        });
+
+        test("retrns 404 Not Found if there are no results", async () => {
+            const mockQuery = jest.fn().mockResolvedValue([]);
+            const req = getMockReq();
+            const { res, next } = getMockRes();
+            await searchPublishedPosts(mockQuery)(req, res, next);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({
+                status: "error",
+                message: "No posts found",
+            });
+            expect(mockQuery).toHaveBeenCalled();
+        });
+
+        test("calls next() if an error occurs", async () => {
+            const mockQuery = jest.fn().mockImplementation(() => {
+                throw new Error("error");
+            });
+            const req = getMockReq();
+            const { res, next } = getMockRes();
+            await searchPublishedPosts(mockQuery)(req, res, next);
+            expect(next).toHaveBeenCalledWith(new Error("error"));
+            expect(res.status).not.toHaveBeenCalled();
+        });
+
+        test("builds query object and passes to db method correctly", async () => {
+            const mockQuery = jest.fn().mockResolvedValue(["result"]);
+            const req = getMockReq({
+                body: {
+                    category: "LEARN",
+                    title: "Test Title",
+                    tags: ["test", "tag"],
+                    sortBy: "likes",
+                },
+            });
+            const { res, next } = getMockRes();
+            await searchPublishedPosts(mockQuery)(req, res, next);
+            expect(mockQuery).toHaveBeenCalledWith({
+                status: "PUBLISHED",
+                category: "LEARN",
+                title: "Test Title",
+                tags: ["test", "tag"],
+                sortBy: "likes",
+            });
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith({
+                status: "success",
+                data: ["result"],
+            });
+        });
+        // TODO: search published posts
     });
 });

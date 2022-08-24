@@ -424,7 +424,6 @@ describe("Unit Tests for Post Model:", () => {
             });
 
             // TODO: Search
-            // returns null if no results found
         });
     });
 });
