@@ -21,7 +21,7 @@ router
     );
 
 router
-    .route("delete")
+    .route("/delete")
     .delete(protect({ loggedIn: true }), deleteUser(db.user.deleteUser));
 
 export default router;

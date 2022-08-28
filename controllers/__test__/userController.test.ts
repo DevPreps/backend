@@ -184,7 +184,6 @@ describe("Unit Tests for User controllers", () => {
 
             const controller = deleteUser(mockDelete);
             await controller(req, res, next);
-            expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({
                 status: "success",
                 data: `User ${req?.session?.user?.id} has been deleted`,
