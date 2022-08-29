@@ -3,19 +3,19 @@ import axios from "axios";
 import { prisma } from "../models/prisma";
 
 // Import TypeScript types
+import { AddressInfo } from "net";
 import { Express } from "express"; // Types for Express
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
 
 jest.mock("../models/prisma");
 
-axios.defaults.baseURL = process.env.TEST_APP_URL || "http://localhost:9999";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.validateStatus = (status) => status < 500;
 
-let store: PrismaSessionStore;
 let expressInstance: Express;
 let server: Server;
+let store: PrismaSessionStore;
 
 beforeEach(async () => {
     // The code below initialises the test application in a way which allows the
@@ -27,7 +27,12 @@ beforeEach(async () => {
         dbRecordIdIsSessionId: true,
     });
     expressInstance = app(store);
-    server = expressInstance.listen(9999);
+    // Port 0 forces Unix to get the first unused port
+    server = expressInstance.listen(0);
+
+    // Set up axios baseURL
+    const serverAddress = server?.address() as AddressInfo;
+    axios.defaults.baseURL = `http://localhost:${serverAddress.port}`;
 });
 
 afterEach(async () => {
