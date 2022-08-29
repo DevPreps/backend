@@ -129,8 +129,8 @@ export const searchPublishedPosts =
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const queryObject: QueryParams = {
-                status: "PUBLISHED",
                 ...req.body,
+                status: "PUBLISHED",
             };
 
             const results = await query(queryObject);
