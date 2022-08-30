@@ -73,7 +73,7 @@ export declare namespace UserMethods {
     export type GetUserById = (id: string) => Promise<User | null>;
     // Existing prisma generated user method types
     export type FindUnique = typeof userModel.findUnique;
-    export type DeleteUser = (id: string | undefined) => Promise<User | null>;
+    export type DeleteUser = (id: string) => Promise<User | null>;
 }
 
 export type UserWithoutPassword = Omit<User, "password">;

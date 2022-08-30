@@ -6,7 +6,7 @@ import { RequestHandler, Request, Response, NextFunction } from "express";
 
 // Import TS types
 import { UserMethods } from "../models/userModel";
-import { Prisma, User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 // Extend express-session SessionData to include user data
 declare module "express-session" {
@@ -63,22 +63,26 @@ export const deleteUser =
         next: NextFunction
     ): Promise<void | Response> => {
         try {
-            await deleteUser(req?.session?.user?.id);
-            return res.status(200).json({
-                status: "success",
-                data: `User ${req?.session?.user?.id} has been deleted`,
-            });
-        } catch (error) {
-            if (
-                error instanceof Prisma.PrismaClientKnownRequestError &&
-                error.code === "P2025"
-            ) {
-                return res.status(400).json({
-                    status: "error",
-                    data: `User ${req?.session?.user?.id} does not exist`,
-                });
-            } else {
-                return next(error);
+            // Check if the request has a session
+            if (req?.session?.user?.id) {
+                const result = await deleteUser(req?.session?.user?.id);
+
+                // If the user exists, return a status 204:
+                if (result) {
+                    return res.status(204);
+                }
+
+                // Else, if the user doesn't exist, return a status 400:
+                if (!result) {
+                    return res.status(400).json({
+                        status: "error",
+                        data: `User could not be found, ${req?.session?.user?.id} is not valid`,
+                    });
+                }
             }
+
+            // If something unexpected happens, catch the error
+        } catch (error) {
+            return next(error);
         }
     };

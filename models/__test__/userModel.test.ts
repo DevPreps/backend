@@ -153,7 +153,7 @@ describe("Unit Tests for User Model:", () => {
 
         // Delete User
         // --------------------------------------------------------------------
-        test("Should e able to delete own user account", async () => {
+        test("Should be able to delete own user account", async () => {
             // First create a user in the database
             const tim = await users.register({
                 userName: "Tim",
