@@ -516,6 +516,5 @@ describe("Unit Tests for Post Controllers", () => {
                 data: ["result"],
             });
         });
-        // TODO: search published posts
     });
 });
