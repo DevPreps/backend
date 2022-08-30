@@ -6,7 +6,7 @@
         "format": "npx prettier --write .",
         "lint": "eslint --ext .js,.ts ./",
         "build": "npx tsc -p tsconfig.build.json",
-        "test": "jest --reporters=default --coverage --verbose --detectOpenHandles",
+        "test": "jest --reporters=default --coverage --verbose",
         "ci": "npm run format && npm run lint && npm run build && npm run test",
         "dev": "concurrently \"npx tsc -p tsconfig.build.json --watch\" \"nodemon dist/index.js\"",
         "start": "node dist/index.js"
