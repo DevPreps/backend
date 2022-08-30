@@ -628,45 +628,38 @@ describe("/api/user/update", () => {
         });
         expect(updatedUser.status).toBe(401);
     });
-});
 
-// Delete User route
-// ------------------------------------------------------------------------
-console.log(1);
-describe("deleteUser endpoint tests:", () => {
-    console.log(2);
-    test("User is able to delete own account", async () => {
-        // Create a user
-        const register = await axios.post("api/auth/register", {
-            userName: "Jupiter",
-            email: "jupiter@email.com",
-            password: "Password1!",
-        });
-        expect(register.status).toBe(201);
-        console.log(3);
-        // Login the new user
-        const response = await axios.post("/api/auth/login", {
-            email: "jupiter@email.com",
-            password: "Password1!",
-        });
+    // Delete User route
+    // ------------------------------------------------------------------------
+    describe("deleteUser endpoint tests:", () => {
+        test("User is able to delete own account", async () => {
+            // Create a user
+            const register = await axios.post("api/auth/register", {
+                userName: "Jupiter",
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
+            expect(register.status).toBe(201);
+            // Login the new user
+            const response = await axios.post("/api/auth/login", {
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
 
-        expect(response.status).toBe(200);
-        console.log(4);
-        // Get session cookie
-        if (!response.headers["set-cookie"]) {
-            throw new Error("No cookie returned");
-        }
-        const cookie: string = response.headers["set-cookie"][0];
-        console.log(5);
-        // Delete the signed in user
-        const deletionResponse = await axios.delete("/api/user/delete", {
-            headers: { Cookie: cookie },
+            expect(response.status).toBe(200);
+            // Get session cookie
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
+            // Delete the signed in user
+            const deletionResponse = await axios.delete("/api/user/delete", {
+                headers: { Cookie: cookie },
+            });
+            expect(deletionResponse.status).toBe(204);
         });
-        expect(deletionResponse.status).toBe(204);
-        console.log(6);
     });
 });
-
 // Post route handler integration tests
 // -------------------------------------------------------------------------
 describe("Integration tests for POST routes:", () => {

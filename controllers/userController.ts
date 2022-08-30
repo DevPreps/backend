@@ -69,7 +69,7 @@ export const deleteUser =
 
                 // If the user exists, return a status 204:
                 if (result) {
-                    return res.status(204);
+                    return res.status(204).json();
                 }
 
                 // Else, if the user doesn't exist, return a status 400:
