@@ -334,6 +334,13 @@ describe("Integration tests for AUTH routes:", () => {
             }
         );
 
+        test("respond with 400 Bad Request when req.body contains unexpected data", async () => {
+            const response = await axios.post("/api/auth/login", {
+                ...loginData,
+                unexpectedKey: "unexpected value",
+            });
+        });
+
         // One validation test for each field is enough to verify that the validation schema
         // contains the required generic fields. These have been tested thoroughly in the
         // registration route tests
@@ -343,7 +350,7 @@ describe("Integration tests for AUTH routes:", () => {
             // No domain
             loginData.email = "awesome@awesome";
 
-            const response = await axios.post("api/auth/register", loginData);
+            const response = await axios.post("api/auth/login", loginData);
             expect(response.status).toBe(400);
         });
 
