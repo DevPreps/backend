@@ -1,20 +1,25 @@
 import { Prisma, PrismaClient, Post, Status, Category } from "@prisma/client";
 import { prisma } from "./prisma";
 
+const getTagIds = async (postTags: string[]) => {
+    const tags = await prisma.tag.findMany({});
+    const tagIds = postTags?.map((tag) => {
+        return { tagId: tags?.filter((t) => t.name === tag)[0].id };
+    });
+    return tagIds;
+};
+
 const Posts = (prismaPost: PrismaClient["post"]) => {
     const customMethods: CustomMethods = {
         createPost: async (postData) => {
-            const tags = await prisma.tag.findMany({});
-            const tagIds = postData?.postTags?.map((tag) => {
-                return { tagId: tags?.filter((t) => t.name === tag)[0].id };
-            });
+            const tagIds = getTagIds(postData.postTags);
 
             return prismaPost.create({
                 data: {
                     ...postData,
                     postTags: {
                         createMany: {
-                            data: tagIds,
+                            data: await tagIds,
                         },
                     },
                 },
@@ -36,6 +41,50 @@ const Posts = (prismaPost: PrismaClient["post"]) => {
                 },
             });
         },
+        updatePost: async (postId, postData) => {
+            const post = await prismaPost.findUnique({
+                where: {
+                    id: postId,
+                },
+            });
+
+            if (!post) return null;
+
+            const tagIds = getTagIds(postData.postTags);
+
+            return prismaPost.update({
+                where: {
+                    id: postId,
+                },
+                data: {
+                    ...postData,
+                    postTags: {
+                        deleteMany: {
+                            postId: postId,
+                        },
+                        createMany: {
+                            data: await tagIds,
+                        },
+                    },
+                },
+                include: {
+                    postTags: {
+                        include: {
+                            tag: true,
+                        },
+                    },
+                    comments: true,
+                    likes: true,
+                },
+            });
+        },
+        deletePost: (id) => {
+            return prismaPost.delete({
+                where: {
+                    id: id,
+                },
+            });
+        },
     };
 
     return Object.assign(prismaPost, customMethods);
@@ -46,12 +95,19 @@ export default postModel;
 
 export declare namespace PostMethods {
     export type CreatePost = (postData: PostData) => Promise<Post | null>;
-    export type GetPostById = (id: string) => Promise<PostWithRetations | null>;
+    export type GetPostById = (id: string) => Promise<PostWithRelations | null>;
+    export type UpdatePost = (
+        id: string,
+        postData: PostData
+    ) => Promise<PostWithRelations | null>;
+    export type DeletePost = (id: string) => Promise<Post>;
 }
 
 interface CustomMethods {
     createPost: PostMethods.CreatePost;
     getPostById: PostMethods.GetPostById;
+    updatePost: PostMethods.UpdatePost;
+    deletePost: PostMethods.DeletePost;
 }
 
 export interface PostData {
@@ -76,4 +132,4 @@ const postWithRelations = Prisma.validator<Prisma.PostArgs>()({
         likes: true,
     },
 });
-export type PostWithRetations = Prisma.PostGetPayload<typeof postWithRelations>;
+export type PostWithRelations = Prisma.PostGetPayload<typeof postWithRelations>;
