@@ -21,5 +21,5 @@
             { "allowDeclarations": true }
         ]
     },
-    "ignorePatterns": ["node_modules/", "dist/"]
+    "ignorePatterns": ["node_modules/", "dist/", "util/valueEquals.js"]
 }

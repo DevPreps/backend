@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Post, Status, Category } from "@prisma/client";
+import { Prisma, PrismaClient, Status, Category } from "@prisma/client";
 import { prisma } from "./prisma";
 
 const getTagIds = async (postTags: string[]) => {
@@ -12,16 +12,24 @@ const getTagIds = async (postTags: string[]) => {
 const Posts = (prismaPost: PrismaClient["post"]) => {
     const customMethods: CustomMethods = {
         createPost: async (postData) => {
-            const tagIds = getTagIds(postData.postTags);
-
+            const tagIds = await getTagIds(postData.postTags);
             return prismaPost.create({
                 data: {
                     ...postData,
                     postTags: {
                         createMany: {
-                            data: await tagIds,
+                            data: tagIds,
                         },
                     },
+                },
+                include: {
+                    postTags: {
+                        include: {
+                            tag: true,
+                        },
+                    },
+                    likes: true,
+                    comments: true,
                 },
             });
         },
@@ -83,6 +91,56 @@ const Posts = (prismaPost: PrismaClient["post"]) => {
                 where: {
                     id: id,
                 },
+                include: {
+                    postTags: {
+                        include: {
+                            tag: true,
+                        },
+                    },
+                    likes: true,
+                    comments: true,
+                },
+            });
+        },
+        search: async ({ category, status, title, tags, sortBy }) => {
+            // Get tag objects from tag names
+            const tagObjs = tags ? await getTagIds(tags) : null;
+
+            return prismaPost.findMany({
+                where: {
+                    ...(category ? { category: category } : {}),
+                    ...(status === "ALL"
+                        ? {}
+                        : status === "DRAFT"
+                        ? { status: "DRAFT" }
+                        : { status: "PUBLISHED" }),
+                    ...(title ? { title: { contains: title } } : {}),
+                    ...(tags
+                        ? {
+                              postTags: {
+                                  some: {
+                                      tagId: {
+                                          in: tagObjs?.map((tag) => tag.tagId),
+                                      },
+                                  },
+                              },
+                          }
+                        : {}),
+                },
+                include: {
+                    postTags: {
+                        include: {
+                            tag: true,
+                        },
+                    },
+                    likes: true,
+                    comments: true,
+                },
+                orderBy: {
+                    ...(sortBy === "likes"
+                        ? { likes: { _count: "desc" } }
+                        : { createdDate: "desc" }),
+                },
             });
         },
     };
@@ -94,13 +152,18 @@ const postModel = Posts(prisma.post);
 export default postModel;
 
 export declare namespace PostMethods {
-    export type CreatePost = (postData: PostData) => Promise<Post | null>;
+    export type CreatePost = (
+        postData: PostData
+    ) => Promise<PostWithRelations | null>;
     export type GetPostById = (id: string) => Promise<PostWithRelations | null>;
     export type UpdatePost = (
         id: string,
         postData: PostData
     ) => Promise<PostWithRelations | null>;
-    export type DeletePost = (id: string) => Promise<Post>;
+    export type DeletePost = (id: string) => Promise<PostWithRelations>;
+    export type Search = (
+        queryParams: QueryParams
+    ) => Promise<PostWithRelations[]>;
 }
 
 interface CustomMethods {
@@ -108,6 +171,7 @@ interface CustomMethods {
     getPostById: PostMethods.GetPostById;
     updatePost: PostMethods.UpdatePost;
     deletePost: PostMethods.DeletePost;
+    search: PostMethods.Search;
 }
 
 export interface PostData {
@@ -122,6 +186,14 @@ export interface PostData {
     position?: string;
     jobAdUrl?: string;
     postTags: string[];
+}
+
+export interface QueryParams {
+    category?: Category;
+    status?: string;
+    title?: string;
+    tags?: string[];
+    sortBy?: string;
 }
 
 // Define type for posts including relationships to tags, likes and comments

@@ -9,8 +9,9 @@ import { Express } from "express"; // Types for Express
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { Server } from "http";
 import { AxiosResponse } from "axios";
-import { RegistrationData } from "../models/userModel";
-import { UserWithoutPassword } from "../models/userModel";
+import { RegistrationData, UserWithoutPassword } from "../models/userModel";
+import { PostData, PostWithRelations } from "../models/postModel";
+import { Post, Status, Category } from ".prisma/client";
 
 jest.mock("../models/prisma");
 
@@ -661,9 +662,9 @@ describe("Integration tests for POST routes:", () => {
 
             // Create some tags in the database
             await db.tag.createMany({
-                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+                data: [...possibleTags.map((t) => ({ name: t }))],
             });
-            expect(await db.tag.count()).toBe(3);
+            expect(await db.tag.count()).toBe(6);
 
             const response = await axios({
                 url: "/api/posts/create",
@@ -707,9 +708,9 @@ describe("Integration tests for POST routes:", () => {
 
             // Create some tags in the database
             await db.tag.createMany({
-                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+                data: [...possibleTags.map((t) => ({ name: t }))],
             });
-            expect(await db.tag.count()).toBe(3);
+            expect(await db.tag.count()).toBe(6);
 
             // Create a post in the database
             const post = await db.post.createPost({
@@ -767,9 +768,9 @@ describe("Integration tests for POST routes:", () => {
 
             // Create some tags in the database
             await db.tag.createMany({
-                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+                data: [...possibleTags.map((t) => ({ name: t }))],
             });
-            expect(await db.tag.count()).toBe(3);
+            expect(await db.tag.count()).toBe(6);
 
             // Create a post in the database
             const post = await db.post.createPost({
@@ -871,9 +872,9 @@ describe("Integration tests for POST routes:", () => {
 
             // Create some tags in the database
             await db.tag.createMany({
-                data: [{ name: "JS" }, { name: "TS" }, { name: "GraphQL" }],
+                data: [...possibleTags.map((t) => ({ name: t }))],
             });
-            expect(await db.tag.count()).toBe(3);
+            expect(await db.tag.count()).toBe(6);
         });
 
         test("responds with 200 OK and updated post, tags, likes and comments with valid data", async () => {
@@ -988,7 +989,240 @@ describe("Integration tests for POST routes:", () => {
         // Tests for update post
         // 400 Bad Request - Validation tests
     });
+
+    describe("/api/posts/searchPublished", () => {
+        let searchPosts: (PostWithRelations | null)[];
+        let user: UserWithoutPassword;
+
+        beforeEach(async () => {
+            // Create a user
+            const userResponse: AxiosResponse = await axios.post(
+                "/api/auth/register",
+                {
+                    userName: "updatePostUser",
+                    email: "user@email.com",
+                    password: "Abc-1234",
+                }
+            );
+            user = userResponse.data.data;
+            expect(await db.user.count()).toBe(1);
+
+            // Create some tags in the database
+            await db.tag.createMany({
+                data: [...possibleTags.map((t) => ({ name: t }))],
+            });
+            expect(await db.tag.count()).toBe(6);
+
+            const data = [
+                {
+                    userId: user.id,
+                    title: "Using JavaScript with GraphQL",
+                    category: "LEARN" as Category,
+                    status: "PUBLISHED" as Status,
+                    postTags: ["JS", "GraphQL"],
+                    createdDate: new Date("2022-08-23T06:37:41.054Z"),
+                },
+                {
+                    userId: user.id,
+                    title: "Is JavaScript better than Java?",
+                    category: "GENERAL" as Category,
+                    status: "PUBLISHED" as Status,
+                    postTags: ["JS", "Java"],
+                    createdDate: new Date("2022-08-23T06:37:42.054Z"),
+                },
+                {
+                    userId: user.id,
+                    title: "React Developer at NTT",
+                    category: "INTERVIEW" as Category,
+                    status: "PUBLISHED" as Status,
+                    postTags: ["React"],
+                    createdDate: new Date("2022-08-23T06:37:43.054Z"),
+                },
+                {
+                    userId: user.id,
+                    title: "TypeScript is the future",
+                    category: "LEARN" as Category,
+                    status: "PUBLISHED" as Status,
+                    postTags: ["JS", "TS"],
+                    createdDate: new Date("2022-08-23T06:37:44.054Z"),
+                },
+                {
+                    userId: user.id,
+                    title: "Polymorphism in Java",
+                    category: "LEARN" as Category,
+                    status: "PUBLISHED" as Status,
+                    postTags: ["Java"],
+                    createdDate: new Date("2022-08-23T06:37:45.054Z"),
+                },
+                {
+                    userId: user.id,
+                    title: "Draft post",
+                    category: "LEARN" as Category,
+                    status: "DRAFT" as Status,
+                    postTags: ["JS", "TS"],
+                    createdDate: new Date("2022-08-23T06:37:46.054Z"),
+                },
+            ];
+
+            // Create posts in the database
+            searchPosts = await Promise.all(
+                data.map(async (p) => {
+                    return db.post.createPost(fkPostData(p));
+                })
+            );
+        });
+
+        test("responds with 200 OK and all PUBLISHED posts with no inputs", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts"
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data.length).toBe(5);
+        });
+
+        test("responds with 200 OK and posts with 'React' tag", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    tags: ["React"],
+                }
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data.length).toBe(1);
+        });
+
+        test("responds with 200 OK and posts with 'React' and 'TS' tags", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    tags: ["React", "TS"],
+                }
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data.length).toBe(2);
+        });
+
+        test("responds with 200 OK and PUBLISHED posts from the 'LEARN' category", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    category: "LEARN",
+                }
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data.length).toBe(3);
+        });
+
+        test("responds with 200 OK and PUBLISHED posts matching the searched title", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    title: "JavaScript",
+                }
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data.length).toBe(2);
+
+            const response2 = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    title: "Using JavaScript",
+                }
+            );
+            expect(response2.status).toBe(200);
+            expect(response2.data.data.length).toBe(1);
+        });
+
+        test("responds with 200 OK and posts sorted by date DESC by default", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts"
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data).toHaveLength(5);
+
+            // Check that date at post index i > date at post index i + 1
+            response.data.data.forEach((p: Post, i: number) => {
+                if (response.data.data[i + 1]) {
+                    expect(
+                        p.createdDate >
+                            (response.data.data[i + 1]?.createdDate as Date)
+                    ).toBe(true);
+                }
+            });
+        });
+
+        test("responds with 200 OK and posts sorted by number of likes DESC", async () => {
+            // Create 5 users to generate likes for the posts
+            const users = await Promise.all(
+                Array.from({ length: 5 }, () =>
+                    db.user.register(createRandomUserForRegister())
+                )
+            );
+            expect(await prisma.user.count()).toBe(6);
+
+            // Add likes to the posts
+            await Promise.all(
+                searchPosts.map(async (p, index) => {
+                    // Make TypeScript happy - rule out undefined values
+                    if (!p) return;
+
+                    // Build a list of likes for the post
+                    const likes = [];
+                    for (let i = 0; i < index; i++) {
+                        likes.push({
+                            userId: users[i].id,
+                            postId: p.id,
+                        });
+                    }
+
+                    // Add the likes to the database
+                    await prisma.likes.createMany({
+                        data: likes,
+                    });
+                })
+            );
+            expect(await prisma.likes.count()).toBe(15);
+
+            // Request posts with sort flag
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    sortBy: "likes",
+                }
+            );
+            expect(response.status).toBe(200);
+            expect(response.data.data).toHaveLength(5);
+
+            // Check that number of likes at post index i > date at post index i + 1
+            response.data.data.forEach((p: PostWithRelations, i: number) => {
+                // Check that each post has more likes than the next post
+                // The conditional prevents checking the last post as it has nothing
+                // to compare to
+                if (response.data.data[i + 1]) {
+                    expect(p.likes.length).toBeGreaterThan(
+                        response.data.data[i + 1]?.likes.length
+                    );
+                }
+            });
+        });
+
+        test("responds with 404 Not Found when no matching posts exist in the database", async () => {
+            const response = await axios.post(
+                "/api/posts/searchPublishedPosts",
+                {
+                    title: "Haskell",
+                }
+            );
+            expect(response.status).toBe(404);
+        });
+    });
+
+    // 400 Bad Request - Validation tests
 });
+
+// TODO
+// Refactor - remove duplicate code for setting up tags etc.
+// Extract route integration tests to separate files
 
 // Faker
 // -------------------------------------------------------------------------
@@ -1012,3 +1246,43 @@ function createRandomUserForLogin(): LoginData {
         password: faker.internet.password(10, false, /\w/, "!Aa0"),
     };
 }
+
+const possibleTags = ["JS", "TS", "GraphQL", "React", "Vue", "Java"];
+
+/**
+ * ### fkPostData()
+ *
+ * Generates a random set of data to be used to create a post
+ * userId must be provided in the params object for the post to be created.
+ * All other fields are optional and will be generated randomly. If a field is
+ * provided in the params object, that value will be used instead of a random
+ * value.
+ *
+ * @param {Partial<PostData>} params - An object with data to be used to create a post
+ *
+ * @returns {PostData} An object with random data to be used to create a post
+ *
+ * #### Examples:
+ * ##### Generate a post with random data
+ * ```
+ * const postData = fkPostData({
+ *   userId: user.id,
+ * });
+ * ```
+ */
+const fkPostData = (params: Partial<PostData>): PostData => {
+    return {
+        userId: params?.userId as string,
+        title: faker.lorem.sentence(),
+        content: faker.lorem.paragraphs(4),
+        status: faker.helpers.arrayElement(["DRAFT", "PUBLISHED"]),
+        category: faker.helpers.arrayElement([
+            "GENERAL",
+            "LEARN",
+            "INTERVIEW",
+            "PROJECT",
+        ]),
+        postTags: faker.helpers.arrayElements(possibleTags),
+        ...params,
+    };
+};

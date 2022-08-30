@@ -80,10 +80,10 @@ model SavedPosts {
 
 model Likes {
     id          String @id @default(uuid())
-    likedUser   User   @relation(fields: [likedUserId], references: [id], onDelete: Cascade)
-    likedUserId String
-    likedPost   Post  @relation(fields: [likedPostId], references: [id], onDelete: Cascade)
-    likedPostId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId String
 }
 
 model Tag {
