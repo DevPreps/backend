@@ -8,6 +8,7 @@ import {
     getPostById,
     updatePost,
     deletePost,
+    searchPublishedPosts,
 } from "../controllers/postController";
 
 const router = express.Router();
@@ -34,5 +35,9 @@ router
         protect({ loggedIn: true }),
         deletePost(db.post.getPostById, db.post.deletePost)
     );
+
+router
+    .route("/searchPublishedPosts")
+    .post(searchPublishedPosts(db.post.search));
 
 export default router;
