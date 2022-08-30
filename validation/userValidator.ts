@@ -6,17 +6,23 @@ import {
     userIdValidator,
 } from "./validationDefinition";
 
-export const registerSchema = yup.object({
-    email: emailValidator,
-    password: passwordValidator,
-    userName: usernameValidator,
-});
+export const registerSchema = yup
+    .object({
+        email: emailValidator,
+        password: passwordValidator,
+        userName: usernameValidator,
+    })
+    .noUnknown();
 
-export const loginSchema = yup.object({
-    email: emailValidator,
-    password: passwordValidator,
-});
+export const loginSchema = yup
+    .object({
+        email: emailValidator,
+        password: passwordValidator,
+    })
+    .noUnknown();
 
-export const userIdSchema = yup.object({
-    userId: userIdValidator,
-});
+export const userIdSchema = yup
+    .object({
+        userId: userIdValidator,
+    })
+    .noUnknown();

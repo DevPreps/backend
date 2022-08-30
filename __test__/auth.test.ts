@@ -83,11 +83,16 @@ describe("Integration tests for AUTH routes:", () => {
         });
     });
 
-    // VALIDATION TESTS [400]:
-    // Reject unexpected attributes
-
+    // VALIDATION TESTS:
     // user validation test
     describe("Validation: ", () => {
+        let user: RegistrationData;
+
+        beforeEach(() => {
+            // Create a user registration object
+            user = fkRegistrationData();
+        });
+
         test.each([
             { missingFieldName: "userName" },
             { missingFieldName: "email" },
@@ -95,8 +100,6 @@ describe("Integration tests for AUTH routes:", () => {
         ])(
             "responds with 400 Bad Request when $missingFieldName is missing",
             async ({ missingFieldName }) => {
-                const user: RegistrationData = fkRegistrationData();
-
                 delete user[missingFieldName as keyof typeof user];
 
                 const response = await axios.post("api/auth/register", user);
@@ -105,52 +108,45 @@ describe("Integration tests for AUTH routes:", () => {
             }
         );
 
+        test("responds with 400 Bad Request when request data contains unexpected data", async () => {
+            const response = await axios.post("/api/auth/register", {
+                ...user,
+                unexpectedKey: "unexpected value",
+            });
+            expect(response.status).toBe(400);
+        });
+
         // username validation test
         test("return 400 when username is too short", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                userName: "awe",
-            };
+            user.userName = "awe";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when username is too long", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                userName: "awe1234567890awesome",
-            };
+            user.userName = "awe1234567890awesome";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when username has invalid special characters", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                userName: "awesome*",
-            };
+            user.userName = "awesome*";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when username has consecutive (-) (_) (.)) characters", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                userName: "awe__some",
-            };
+            user.userName = "awe__some";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when username starts with a special character", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                userName: "_awesome",
-            };
+            user.userName = "_awesome";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
@@ -158,31 +154,25 @@ describe("Integration tests for AUTH routes:", () => {
 
         // email validation test
         test("return 400 when email is invalid", async () => {
+            // No domain
             {
-                const user: RegistrationData = {
-                    ...fkRegistrationData(),
-                    email: "awesome@awesome",
-                };
+                user.email = "awesome@awesome";
 
                 const response = await axios.post("api/auth/register", user);
                 expect(response.status).toBe(400);
             }
 
+            // No mail server
             {
-                const user: RegistrationData = {
-                    ...fkRegistrationData(),
-                    email: "awesome.com",
-                };
+                user.email = "awesome.com";
 
                 const response = await axios.post("api/auth/register", user);
                 expect(response.status).toBe(400);
             }
 
+            // No username
             {
-                const user: RegistrationData = {
-                    ...fkRegistrationData(),
-                    email: ".awe@some.com",
-                };
+                user.email = ".awe@some.com";
 
                 const response = await axios.post("api/auth/register", user);
                 expect(response.status).toBe(400);
@@ -190,61 +180,43 @@ describe("Integration tests for AUTH routes:", () => {
         });
 
         // password validation test
-        test("return 400 when password is invalid", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                password: "123",
-            };
+        test("return 400 when password is too short", async () => {
+            user.password = "123";
 
-            const response = await axios.post("api/auth/register", user);
+            const response = await axios.post("api/auth/login", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when password is too long", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                password: "!Aa0123123Awesome",
-            };
+            user.password = "!Aa0123123Awesome";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when password does not include at least one lowercase character", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                password: "!A0123AWESOME",
-            };
+            user.password = "!A0123AWESOME";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when password does not include at least one uppercase character", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                password: "!a0123awesome",
-            };
+            user.password = "!a0123awesome";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when password does not include at least one number", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                password: "!Aawesome",
-            };
+            user.password = "!Aawesome";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
         });
 
         test("return 400 when password does not include at least one special character", async () => {
-            const user: RegistrationData = {
-                ...fkRegistrationData(),
-                password: "Aa01wesome",
-            };
+            user.password = "Aa01wesome";
 
             const response = await axios.post("api/auth/register", user);
             expect(response.status).toBe(400);
@@ -324,7 +296,7 @@ describe("Integration tests for AUTH routes:", () => {
             // Get session cookie
             const cookie: string = loginResponse.headers["set-cookie"][0];
 
-            // Try to login again when logged in
+            // Try to login again when already logged in
             const response = await axios({
                 url: "/api/auth/login",
                 method: "POST",
@@ -342,29 +314,44 @@ describe("Integration tests for AUTH routes:", () => {
 
     // Validation Tests:
     describe("user login validation test : ", () => {
+        let loginData: LoginData;
+
+        beforeEach(() => {
+            loginData = fkLoginData();
+        });
+
         test.each([
             { missingFieldName: "email" },
             { missingFieldName: "password" },
         ])(
-            "return 400 when $missingFieldName field is missing",
+            "respond with 400 Bad Request when $missingFieldName field is missing",
             async ({ missingFieldName }) => {
-                const user: LoginData = fkLoginData();
+                delete loginData[missingFieldName as keyof typeof loginData];
 
-                delete user[missingFieldName as keyof typeof user];
-
-                const response = await axios.post("api/auth/login", user);
+                const response = await axios.post("api/auth/login", loginData);
 
                 expect(response.status).toBe(400);
             }
         );
 
-        test("return 400 when password is too short", async () => {
-            const user: LoginData = {
-                ...fkLoginData(),
-                password: "123",
-            };
+        // One validation test for each field is enough to verify that the validation schema
+        // contains the required generic fields. These have been tested thoroughly in the
+        // registration route tests
 
-            const response = await axios.post("api/auth/login", user);
+        // Email validation tests
+        test("return 400 when email is invalid", async () => {
+            // No domain
+            loginData.email = "awesome@awesome";
+
+            const response = await axios.post("api/auth/register", loginData);
+            expect(response.status).toBe(400);
+        });
+
+        // Password validation tests
+        test("return 400 when password is too short", async () => {
+            loginData.password = "123";
+
+            const response = await axios.post("api/auth/login", loginData);
             expect(response.status).toBe(400);
         });
     });

@@ -12,6 +12,22 @@ jest.mock("../models/prisma");
 
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.validateStatus = (status) => status < 500;
+const handle_axios_error = function (err: any) {
+    if (err.response) {
+        const status = err.response.status || 500;
+        const description = err.response.data
+            ? err.response.data.message
+            : null;
+        const custom_error = new Error(
+            status + " " + err.response.statusText ||
+                "Internal server error" + "\n" + description
+        );
+        throw custom_error;
+    }
+    throw new Error(err);
+};
+
+axios.interceptors.response.use((r) => r, handle_axios_error);
 
 let expressInstance: Express;
 let server: Server;
