@@ -339,6 +339,7 @@ describe("Integration tests for AUTH routes:", () => {
                 ...loginData,
                 unexpectedKey: "unexpected value",
             });
+            expect(response.status).toBe(400);
         });
 
         // One validation test for each field is enough to verify that the validation schema
