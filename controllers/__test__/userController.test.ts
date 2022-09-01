@@ -168,11 +168,15 @@ describe("Unit Tests for User controllers", () => {
         // --------------------------------------------------------------------
 
         test("returns a function", async () => {
+            const mockGetUserById = jest.fn().mockResolvedValue({});
             const mockDelete = jest.fn().mockResolvedValue({});
-            expect(typeof deleteUser(mockDelete)).toBe("function");
+            expect(typeof deleteUser(mockGetUserById, mockDelete)).toBe(
+                "function"
+            );
         });
 
         test("User is able to delete their own account", async () => {
+            const mockGetUserById = jest.fn().mockResolvedValue({});
             const mockDelete = jest.fn().mockResolvedValue({});
 
             const req = getMockReq({
@@ -182,7 +186,7 @@ describe("Unit Tests for User controllers", () => {
             });
             const { res, next } = getMockRes();
 
-            const controller = deleteUser(mockDelete);
+            const controller = deleteUser(mockGetUserById, mockDelete);
             await controller(req, res, next);
             expect(res.status).toHaveBeenCalledWith(204);
         });

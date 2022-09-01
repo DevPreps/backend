@@ -56,32 +56,41 @@ export const update =
 // ----------------------------------------------------------------------------
 
 export const deleteUser =
-    (deleteUser: UserMethods.DeleteUser): RequestHandler =>
+    (
+        deleteUser: UserMethods.DeleteUser,
+        getUserById: UserMethods.GetUserById
+    ): RequestHandler =>
     async (
         req: Request,
         res: Response,
         next: NextFunction
     ): Promise<void | Response> => {
         try {
-            // Check if the request has a session
-            if (req?.session?.user?.id) {
-                const result = await deleteUser(req?.session?.user?.id);
-
-                // If the user exists, return a status 204:
-                if (result) {
+            const userId = req?.session?.user?.id;
+            // Check if the user exists
+            if (userId) {
+                const userExists = await getUserById(userId);
+                if (userExists) {
+                    // Delete the user that exists in the database
+                    await deleteUser(userId);
                     return res.status(204).json();
                 }
-
-                // Else, if the user doesn't exist, return a status 400:
-                if (!result) {
+                if (!userExists) {
+                    // Response if the user doesn't exist in the database
                     return res.status(400).json({
                         status: "error",
-                        data: `User could not be found, ${req?.session?.user?.id} is not valid`,
+                        message: "User does not exist",
+                    });
+                }
+                if (!userId) {
+                    // Response if the user has no session
+                    return res.status(400).json({
+                        status: "error",
+                        message: "User has no session",
                     });
                 }
             }
-
-            // If something unexpected happens, catch the error
+            // In the case of an exception, catch the error
         } catch (error) {
             return next(error);
         }
