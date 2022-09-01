@@ -1,6 +1,7 @@
 import "./testSetup";
-import db from "../models/db";
 import axios from "axios";
+import crypto from "crypto";
+import db from "../models/db";
 import { prisma } from "../models/prisma";
 import { possibleTags, fkRegistrationData, fkPostData } from "./faker";
 
@@ -68,7 +69,419 @@ describe("Integration tests for POST routes:", () => {
             });
             expect(response.status).toBe(401);
         });
-        // returns 400 error with invalid inputs - validation tests
+
+        // Validation tests
+        describe("Validation:", () => {
+            let user: UserWithoutPassword;
+            let cookie: string;
+
+            beforeEach(async () => {
+                // Create a user first
+                user = await axios.post("/api/auth/register", {
+                    userName: "postUser",
+                    email: "post@email.com",
+                    password: "Abc-1234",
+                });
+                expect(await db.user.count()).toBe(1);
+
+                // Log the user in
+                const loginResponse = await axios.post("/api/auth/login", {
+                    email: "post@email.com",
+                    password: "Abc-1234",
+                });
+                expect(loginResponse.status).toBe(200);
+
+                // Get session cookie
+                if (!loginResponse.headers["set-cookie"])
+                    throw new Error("No cookie set");
+                cookie = loginResponse.headers["set-cookie"][0];
+
+                // Create some tags in the database
+                await db.tag.createMany({
+                    data: [...possibleTags.map((t) => ({ name: t }))],
+                });
+                expect(await db.tag.count()).toBe(6);
+            });
+
+            test.each([
+                { missingField: "title" },
+                { missingField: "content" },
+                { missingField: "status" },
+                { missingField: "category" },
+                { missingField: "postTags" },
+            ])(
+                "responds with 400 Bad Request when $missingField is missing from the request body",
+                async ({ missingField }) => {
+                    const post = {
+                        title: "test",
+                        content: "test",
+                        status: "DRAFT",
+                        category: "GENERAL",
+                        postTags: ["JS"],
+                    };
+                    delete post[missingField as keyof typeof post];
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: { Cookie: cookie },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
+
+            // Test that all possible expected keys pass validation
+            test("responds with 201 Created when request body only contains valid fields", async () => {
+                // This test confirms that none of the valid fields (including optional fields)
+                // are considered to be unexpected fields by the validation schema
+                const post = {
+                    title: "test",
+                    content: "test",
+                    status: "DRAFT",
+                    category: "GENERAL",
+                    postTags: ["JS"],
+                    companyName: "Test Company",
+                    city: "Brisbane",
+                    jobTitle: "Junior JavaScript Developer",
+                    position: "Full-Stack Developer",
+                    jobAdUrl: "https://seek.com.au/jobs/876876",
+                };
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: { Cookie: cookie },
+                });
+                expect(response.status).toBe(201);
+            });
+
+            // Ensure no unexpected keys are accepted
+            test("responds with 400 Bad Request when request body contains unexpected fields", async () => {
+                const post = {
+                    title: "test",
+                    content: "test",
+                    status: "DRAFT",
+                    category: "GENERAL",
+                    postTags: ["JS"],
+                    companyName: "Test Company",
+                    city: "Brisbane",
+                    jobTitle: "Junior JavaScript Developer",
+                    position: "Full-Stack Developer",
+                    jobAdUrl: "https://seek.com.au/jobs/876876",
+                    unexpectedKey: "unexpected value",
+                };
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: { Cookie: cookie },
+                });
+                expect(response.status).toBe(400);
+            });
+
+            // Title
+            test.each([
+                { title: "abc", condition: "too short" },
+                {
+                    title: `${crypto.randomBytes(126).toString("hex")}`,
+                    condition: "too long",
+                },
+            ])(
+                "responds with 400 Bad Request when title is $condition",
+                async ({ title }) => {
+                    const post = fkPostData({
+                        userId: user.id,
+                        title: title,
+                    });
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
+
+            // Content
+            test("responds with 400 Bad Request when content is too long", async () => {
+                // No need to test for short content. The required flag will prevent empty strings.
+                const post = fkPostData({
+                    userId: user.id,
+                    content: `${crypto.randomBytes(5001).toString("hex")}`, // 10002 characters
+                });
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: {
+                        Cookie: cookie,
+                    },
+                });
+                expect(response.status).toBe(400);
+            });
+
+            // Category
+            test.each([
+                { category: "GENERAL", condition: "general" },
+                { category: "LEARN", condition: "learn" },
+                { category: "INTERVIEW", condition: "interview" },
+                { category: "PROJECT", condition: "project" },
+            ])(
+                "responds with 201 Created when category is $condition",
+                async ({ category }) => {
+                    const post = fkPostData({
+                        userId: user.id,
+                        category: category as Category,
+                    });
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(201);
+                }
+            );
+
+            test("responds with 400 Bad Request when category is not one of the accepted values", async () => {
+                // Can't use faker as TypeScript will complain
+                const post = {
+                    title: "test",
+                    content: "test",
+                    status: "DRAFT",
+                    postTags: ["JS"],
+                    category: "not an accepted value",
+                };
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: {
+                        Cookie: cookie,
+                    },
+                });
+                expect(response.status).toBe(400);
+            });
+
+            // Status
+            test("responds with 400 Bad Request when status is not one of the accepted values", async () => {
+                const post = {
+                    title: "test",
+                    content: "test",
+                    status: "not an accepted value",
+                    category: "GENERAL",
+                    postTags: ["JS"],
+                };
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: {
+                        Cookie: cookie,
+                    },
+                });
+                expect(response.status).toBe(400);
+            });
+
+            test.each([{ status: "PUBLISHED" }, { status: "DRAFT" }])(
+                "responds with 201 Created when status is $status",
+                async ({ status }) => {
+                    const post = fkPostData({
+                        userId: user.id,
+                        status: status as Status,
+                    });
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(201);
+                }
+            );
+
+            // Company name
+            test.each([
+                { companyName: {}, condition: "not a string" },
+                { companyName: "a", condition: "too short" },
+                {
+                    companyName: `${crypto.randomBytes(126).toString("hex")}`,
+                    condition: "too long",
+                },
+            ])(
+                "responds with 400 Bad request when companyName is $condition",
+                async ({ companyName }) => {
+                    const post = {
+                        title: "test",
+                        content: "test",
+                        status: "PUBLISHED",
+                        category: "GENERAL",
+                        postTags: ["JS"],
+                        companyName: companyName,
+                    };
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
+
+            // City
+            test.each([
+                { city: {}, condition: "not a string" },
+                { city: "a", condition: "too short" },
+                {
+                    city: `${crypto.randomBytes(51).toString("hex")}`,
+                    condition: "too long",
+                },
+            ])(
+                "responds with 400 Bad Request when city is $condition",
+                async ({ city }) => {
+                    const post = {
+                        title: "test",
+                        content: "test",
+                        status: "PUBLISHED",
+                        category: "GENERAL",
+                        postTags: ["JS"],
+                        city: city,
+                    };
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
+
+            // Job title
+            test.each([
+                { jobTitle: {}, condition: "not a string" },
+                { jobTitle: "ace", condition: "too short" },
+                {
+                    jobTitle: `${crypto.randomBytes(126).toString("hex")}`,
+                    condition: "too long",
+                },
+            ])(
+                "responds with 400 Bad Request when jobTitle is $condition",
+                async ({ jobTitle }) => {
+                    const post = {
+                        title: "test",
+                        content: "test",
+                        status: "PUBLISHED",
+                        category: "GENERAL",
+                        postTags: ["JS"],
+                        jobTitle: jobTitle,
+                    };
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
+
+            // Position
+
+            // Job Ad Url
+            test.each([
+                { jobAdUrl: {}, condition: "not a string" },
+                { jobAdUrl: "not a valid URL", condition: "not a valid URL" },
+            ])(
+                "responds with 400 Bad Request when jobAdUrl is $condition",
+                async ({ jobAdUrl }) => {
+                    const post = {
+                        title: "test",
+                        content: "test",
+                        status: "PUBLISHED",
+                        category: "GENERAL",
+                        postTags: ["JS"],
+                        jobAdUrl: jobAdUrl,
+                    };
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
+
+            // PostTags
+            test("responds with 400 Bad Request if postTags does not contain at least one value", async () => {
+                const post = fkPostData({
+                    userId: user.id,
+                    postTags: [],
+                });
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: {
+                        Cookie: cookie,
+                    },
+                });
+                expect(response.status).toBe(400);
+            });
+
+            test("responds with 400 Bad Request when postTags contain non-string values", async () => {
+                // Can't use faker as TypeScript will throw an error
+                const post = {
+                    title: "test",
+                    content: "test",
+                    status: "PUBLISHED",
+                    category: "GENERAL",
+                    postTags: [{}],
+                };
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: {
+                        Cookie: cookie,
+                    },
+                });
+                expect(response.status).toBe(400);
+            });
+
+            test("responds with 400 Bad Request when postTags are not one of the accepted values", async () => {
+                const post = fkPostData({
+                    userId: user.id,
+                    postTags: ["C++"],
+                });
+
+                const response = await axios.post("/api/posts/create", post, {
+                    headers: {
+                        Cookie: cookie,
+                    },
+                });
+                expect(response.status).toBe(400);
+            });
+        });
     });
 
     describe("/api/posts/getPostById", () => {

@@ -15,12 +15,13 @@ axios.defaults.validateStatus = (status) => status < 500;
 const handle_axios_error = function (err: any) {
     if (err.response) {
         const status = err.response.status || 500;
-        const description = err.response.data
-            ? err.response.data.message
-            : null;
+        const description = err.response.data ? err.response.data : null;
         const custom_error = new Error(
-            status + " " + err.response.statusText ||
-                "Internal server error" + "\n" + description
+            status +
+                " " +
+                (err.response.statusText || "Internal server error") +
+                "\n\n" +
+                description
         );
         throw custom_error;
     }

@@ -50,16 +50,19 @@ export const fkLoginData = (): LoginData => {
 export const fkPostData = (params: Partial<PostData>): PostData => {
     return {
         userId: params?.userId as string,
-        title: faker.lorem.sentence(),
-        content: faker.lorem.paragraphs(4),
-        status: faker.helpers.arrayElement(["DRAFT", "PUBLISHED"]),
-        category: faker.helpers.arrayElement([
-            "GENERAL",
-            "LEARN",
-            "INTERVIEW",
-            "PROJECT",
-        ]),
-        postTags: faker.helpers.arrayElements(possibleTags),
+        title: params.title || faker.lorem.sentence(),
+        content: params.content || faker.lorem.paragraphs(4),
+        status:
+            params.status || faker.helpers.arrayElement(["DRAFT", "PUBLISHED"]),
+        category:
+            params.category ||
+            faker.helpers.arrayElement([
+                "GENERAL",
+                "LEARN",
+                "INTERVIEW",
+                "PROJECT",
+            ]),
+        postTags: params.postTags || faker.helpers.arrayElements(possibleTags),
         ...params,
     };
 };
