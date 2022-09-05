@@ -156,4 +156,35 @@ describe("Integration tests for USER routes:", () => {
     });
 
     // Validation Tests
+
+    // Delete User route
+    // ------------------------------------------------------------------------
+    describe("deleteUser endpoint tests:", () => {
+        test("User is able to delete own account", async () => {
+            // Create a user
+            const register = await axios.post("api/auth/register", {
+                userName: "Jupiter",
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
+            expect(register.status).toBe(201);
+            // Login the new user
+            const response = await axios.post("/api/auth/login", {
+                email: "jupiter@email.com",
+                password: "Password1!",
+            });
+
+            expect(response.status).toBe(200);
+            // Get session cookie
+            if (!response.headers["set-cookie"]) {
+                throw new Error("No cookie returned");
+            }
+            const cookie: string = response.headers["set-cookie"][0];
+            // Delete the signed in user
+            const deletionResponse = await axios.delete("/api/user/delete", {
+                headers: { Cookie: cookie },
+            });
+            expect(deletionResponse.status).toBe(204);
+        });
+    });
 });

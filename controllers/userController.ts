@@ -51,3 +51,47 @@ export const update =
             return next(error);
         }
     };
+
+// Delete controller
+// ----------------------------------------------------------------------------
+
+export const deleteUser =
+    (
+        deleteUser: UserMethods.DeleteUser,
+        getUserById: UserMethods.GetUserById
+    ): RequestHandler =>
+    async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void | Response> => {
+        try {
+            const userId = req?.session?.user?.id;
+            // Check if the user exists
+            if (userId) {
+                const userExists = await getUserById(userId);
+                if (userExists) {
+                    // Delete the user that exists in the database
+                    await deleteUser(userId);
+                    return res.status(204).json();
+                }
+                if (!userExists) {
+                    // Response if the user doesn't exist in the database
+                    return res.status(400).json({
+                        status: "error",
+                        message: "User does not exist",
+                    });
+                }
+                if (!userId) {
+                    // Response if the user has no session
+                    return res.status(400).json({
+                        status: "error",
+                        message: "User has no session",
+                    });
+                }
+            }
+            // In the case of an exception, catch the error
+        } catch (error) {
+            return next(error);
+        }
+    };

@@ -41,6 +41,12 @@ const Users = (prismaUser: PrismaClient["user"]) => {
                 where: { id: userId },
             });
         },
+
+        deleteUser: (userId) => {
+            return prismaUser.delete({
+                where: { id: userId },
+            });
+        },
     };
     return Object.assign(prismaUser, customMethods);
 };
@@ -67,6 +73,7 @@ export declare namespace UserMethods {
     export type GetUserById = (id: string) => Promise<User | null>;
     // Existing prisma generated user method types
     export type FindUnique = typeof userModel.findUnique;
+    export type DeleteUser = (id: string) => Promise<User | null>;
 }
 
 export type UserWithoutPassword = Omit<User, "password">;
@@ -79,6 +86,7 @@ interface CustomMethods {
     getCredentials: UserMethods.GetCredentials;
     updateUser: UserMethods.UpdateUser;
     getUserById: UserMethods.GetUserById;
+    deleteUser: UserMethods.DeleteUser;
 }
 
 // Type objects for custom method inputs
