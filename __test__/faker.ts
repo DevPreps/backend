@@ -5,6 +5,12 @@ import { RegistrationData } from "../models/userModel";
 import { PostData } from "../models/postModel";
 
 export const possibleTags = ["JS", "TS", "GraphQL", "React", "Vue", "Java"];
+export const possiblePositions = [
+    "Frontend Developer",
+    "Database Analyst",
+    "Backend Engineer",
+    "DevOps Lead",
+];
 
 export const fkRegistrationData = (): RegistrationData => {
     return {

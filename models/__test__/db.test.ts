@@ -28,10 +28,18 @@ describe("Unit Tests for Database Object:", () => {
         expect(db.post.search).toBeDefined();
     });
 
-    test("contains tag object with default methods", () => {
+    test("contains tag object with default and custom methods", () => {
         expect(db.tag).toBeDefined();
         expect(typeof db.tag).toBe("object");
         expect(db.tag.count).toBeDefined();
+        expect(db.tag.getAllTags).toBeDefined();
+    });
+
+    test("contains position object with default and custom methods", () => {
+        expect(db.position).toBeDefined();
+        expect(typeof db.position).toBe("object");
+        expect(db.position.count).toBeDefined();
+        expect(db.position.getAllPositions).toBeDefined();
     });
 });
 

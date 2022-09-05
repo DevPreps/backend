@@ -24,7 +24,7 @@ model User {
     role       Role              @default(USER)
     isActive   Boolean?
     jobTitle   String?
-    position   Positon?          @relation(fields: [positionId], references: [id])
+    position   Position?          @relation(fields: [positionId], references: [id])
     positionId String?
     city       String?
     imageUrl   String?
@@ -136,7 +136,7 @@ model Log {
     path      String
 }
 
-model Positon {
+model Position {
     id            String @id @default(uuid())
     positionTitle String
     User          User[]

@@ -1,6 +1,20 @@
 import * as yup from "yup";
 import db from "../models/db";
 
+// Checks that the position is one of the allowed values
+const positionValid: [string, string, (value: any) => Promise<boolean>] = [
+    "positionInvalid",
+    "The position supplied is invalid",
+    async (value) => {
+        // If falsey then pass test as field is optional.
+        if (!value) return true;
+        const positions = await db.position.getAllPositions();
+        const positionTitles = positions?.map(p => p.positionTitle);
+        if (positionTitles?.includes(value)) return true;
+        return false;
+    }
+];
+
 // Checks that all postTags are valid
 const postTagsValid: [string, string, (value: any) => Promise<boolean>] = [
     "postTagsInvalid",
@@ -59,7 +73,7 @@ export const postSchema = yup
             .optional()
             .min(5, "Job title should be longer than 4 characters long")
             .max(250, "Job title should be shorter than 250 characters"),
-        position: yup.string().optional(),
+        position: yup.string().optional().test(...positionValid),
         jobAdUrl: yup.string().optional().url().trim(),
         postTags: yup
             .array(yup.string().min(1))

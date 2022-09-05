@@ -3,7 +3,12 @@ import axios from "axios";
 import crypto from "crypto";
 import db from "../models/db";
 import { prisma } from "../models/prisma";
-import { possibleTags, fkRegistrationData, fkPostData } from "./faker";
+import {
+    possibleTags,
+    possiblePositions,
+    fkRegistrationData,
+    fkPostData,
+} from "./faker";
 
 // Import TypeScript types
 import { AxiosResponse } from "axios";
@@ -15,6 +20,13 @@ import { Post, Status, Category } from ".prisma/client";
 // -------------------------------------------------------------------------
 describe("Integration tests for POST routes:", () => {
     describe("/api/posts/create", () => {
+        beforeEach(async () => {
+            await db.position.createMany({
+                data: [...possiblePositions.map((t) => ({ positionTitle: t }))],
+            });
+            expect(await db.position.count()).toBe(4);
+        });
+
         test("responds with 201 Created and returns the created post", async () => {
             // Create a user first
             await axios.post("/api/auth/register", {
@@ -145,7 +157,7 @@ describe("Integration tests for POST routes:", () => {
                     companyName: "Test Company",
                     city: "Brisbane",
                     jobTitle: "Junior JavaScript Developer",
-                    position: "Full-Stack Developer",
+                    position: "Frontend Developer",
                     jobAdUrl: "https://seek.com.au/jobs/876876",
                 };
 
@@ -166,7 +178,7 @@ describe("Integration tests for POST routes:", () => {
                     companyName: "Test Company",
                     city: "Brisbane",
                     jobTitle: "Junior JavaScript Developer",
-                    position: "Full-Stack Developer",
+                    position: "Frontend Developer",
                     jobAdUrl: "https://seek.com.au/jobs/876876",
                     unexpectedKey: "unexpected value",
                 };
@@ -405,6 +417,36 @@ describe("Integration tests for POST routes:", () => {
             );
 
             // Position
+            test.each([
+                { position: {}, condition: "not a string" },
+                {
+                    position: "not a position",
+                    condition: "not in the database",
+                },
+            ])(
+                "responds with 400 Bad Request when position is $condition",
+                async ({ position }) => {
+                    const post = {
+                        title: "test",
+                        content: "test",
+                        status: "PUBLISHED",
+                        category: "GENERAL",
+                        postTags: ["JS"],
+                        position: position,
+                    };
+
+                    const response = await axios.post(
+                        "/api/posts/create",
+                        post,
+                        {
+                            headers: {
+                                Cookie: cookie,
+                            },
+                        }
+                    );
+                    expect(response.status).toBe(400);
+                }
+            );
 
             // Job Ad Url
             test.each([
