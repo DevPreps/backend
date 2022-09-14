@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 import userModel from "./userModel";
 import postModel from "./postModel";
 import tagModel from "./tagModel";
+import positionModel from "./positionModel";
 
 //// Implement Prisma middleware
 // Remove password from the user object
@@ -25,6 +26,7 @@ const db = {
     user: userModel,
     post: postModel,
     tag: tagModel,
+    position: positionModel,
 };
 
 export default db;

@@ -1,6 +1,8 @@
 import express from "express";
 import db from "../models/db";
 import protect from "../middleware/routeProtector";
+import { validate } from "../middleware/validator";
+import { postSchema } from "../validation/postValidators";
 
 // Import controllers
 import {
@@ -17,7 +19,8 @@ router
     .route("/create")
     .post(
         protect({ loggedIn: true }),
-        createPost(db.tag.getAllTags, db.post.createPost)
+        validate(postSchema),
+        createPost(db.post.createPost)
     );
 
 router.route("/getPostById").post(getPostById(db.post.getPostById));
