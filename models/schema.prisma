@@ -24,7 +24,7 @@ model User {
     role       Role              @default(USER)
     isActive   Boolean?
     jobTitle   String?
-    position   Positon?          @relation(fields: [positionId], references: [id])
+    position   Position?          @relation(fields: [positionId], references: [id])
     positionId String?
     city       String?
     imageUrl   String?
@@ -41,7 +41,7 @@ model User {
 
 model Post {
     id              String            @id @default(uuid())
-    user            User              @relation(fields: [userId], references: [id])
+    user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId          String
     title           String
     companyName     String?
@@ -64,26 +64,26 @@ model Post {
 
 model PostTag {
     id     String @id @default(uuid())
-    post   Post  @relation(fields: [postId], references: [id])
+    post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId String
-    tag    Tag    @relation(fields: [tagId], references: [id])
+    tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
     tagId  String
 }
 
 model SavedPosts {
     id     String @id @default(uuid())
-    user   User   @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
-    post   Post  @relation(fields: [postId], references: [id])
+    post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId String
 }
 
 model Likes {
     id          String @id @default(uuid())
-    likedUser   User   @relation(fields: [likedUserId], references: [id])
-    likedUserId String
-    likedPost   Post  @relation(fields: [likedPostId], references: [id])
-    likedPostId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    post   Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId String
 }
 
 model Tag {
@@ -96,9 +96,9 @@ model Comments {
     id              String            @id @default(uuid())
     user            User              @relation(fields: [userId], references: [id])
     userId          String
-    targetPost      Post?            @relation("targetPost", fields: [targetPostId], references: [id])
+    targetPost      Post?            @relation("targetPost", fields: [targetPostId], references: [id], onDelete: Cascade)
     targetPostId    String?
-    targetComment   Post?            @relation("targetComment", fields: [targetCommentId], references: [id])
+    targetComment   Post?            @relation("targetComment", fields: [targetCommentId], references: [id], onDelete: Cascade)
     targetCommentId String?
     type            CommentType
     content         String
@@ -111,10 +111,10 @@ model ReportedContent {
     id                String      @id @default(uuid())
     reporter          User        @relation("reporter", fields: [reporterId], references: [id])
     reporterId        String
-    reportedPost      Post?      @relation(fields: [repostedPostId], references: [id])
+    reportedPost      Post?      @relation(fields: [repostedPostId], references: [id], onDelete: Cascade)
     repostedPostId    String?
     type              CommentType
-    reportedComment   Comments?   @relation(fields: [reportedCommentId], references: [id])
+    reportedComment   Comments?   @relation(fields: [reportedCommentId], references: [id], onDelete: Cascade)
     reportedCommentId String?
     createdDate       DateTime    @default(now())
     updatedDate       DateTime    @updatedAt
@@ -136,7 +136,7 @@ model Log {
     path      String
 }
 
-model Positon {
+model Position {
     id            String @id @default(uuid())
     positionTitle String
     User          User[]

@@ -36,9 +36,13 @@ const protect =
     (req: Request, res: Response, next: NextFunction) => {
         if (protections.loggedIn !== undefined) {
             if (!loginCheck(req, protections.loggedIn)) {
+                let loginStatus: "in" | "out";
+                protections.loggedIn === true
+                    ? (loginStatus = "in")
+                    : (loginStatus = "out");
                 return res.status(401).json({
                     status: "error",
-                    message: "You must be logged in to access this service",
+                    message: `You must be logged ${loginStatus} to access this service`,
                 });
             }
         }
